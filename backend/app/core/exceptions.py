@@ -55,3 +55,24 @@ class ValidationException(AppException):
         details: dict | None = None,
     ):
         super().__init__(message=message, code="validation_error", details=details)
+
+
+class UnauthorizedException(AppException):
+    def __init__(
+        self,
+        message: str = "Unauthorized",
+        details: dict | None = None,
+    ):
+        super().__init__(message=message, code="unauthorized", details=details)
+
+
+class RateLimitException(AppException):
+    def __init__(
+        self,
+        message: str = "Too many requests",
+        retry_after: int = 60,
+        details: dict | None = None,
+    ):
+        super().__init__(
+            message=message, code="rate_limit", details={"retry_after": retry_after, **(details or {})}
+        )

@@ -56,3 +56,7 @@ async def get_tenant_id(request: Request | None = None) -> uuid.UUID:
     raise TenantMismatchException(
         details={"reason": "No tenant context found in request"}
     )
+
+
+async def set_tenant_context(tenant_id: uuid.UUID) -> None:
+    TenantContext.set(tenant_id)

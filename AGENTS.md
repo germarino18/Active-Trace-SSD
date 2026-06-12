@@ -76,16 +76,40 @@ La fuente de verdad del dominio vive en `knowledge-base/` (agnóstica de tecnolo
 
 Cargá la skill correspondiente al contexto **ANTES** de escribir código. Aplicá todos sus patrones.
 
+### Skills globales (framework — pre-instaladas)
+
 | Agente | Rol | Skills que carga |
 |--------|-----|------------------|
-| **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos | `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` |
+| **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos / async | `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` |
 | **Backend Aux** | Servicios, integraciones, seguridad, performance | `api-security-best-practices`, `postgresql-optimization`, `systematic-debugging` |
 | **Frontend** | React / TanStack / Tailwind / E2E | `typescript-advanced-types`, `tailwind-design-system`, `playwright-best-practices` |
 | **DevOps** | Contenedores / build | `multi-stage-dockerfile` |
 | **Transversal** | Calidad / revisión | `code-review-excellence`, `systematic-debugging` |
 | **Orquestación** | SDD / OPSX / docs | `kb-creator`, `roadmap-generator`, `agent-instruction`, `find-skill` |
 
-> **Gap conocido**: no hay skill de buenas prácticas React instalada (`vercel-react-best-practices` recomendada pero NO instalada por decisión del usuario). El stack queda cubierto ~100% por las skills preinstaladas.
+
+### Skills locales (`.agents/skills/` — específicas del proyecto)
+
+Se instalan **localmente** en `.agents/skills/<nombre>/SKILL.md`. Son específicas de este proyecto y no forman parte del framework.
+
+| Skill | Descripción | Scope / Cuándo activarla |
+|-------|-------------|--------------------------|
+| `dashboard-crud-page` | Estandariza páginas CRUD del Dashboard: hooks `useFormModal` / `useConfirmDialog` / `usePagination`, `useActionState` en formularios, estructura obligatoria de página, cascade delete y HelpButton. | **Scope**: Frontend — Dashboard (`src/pages/`). **Trigger**: Al crear una página CRUD con tabla + modal + confirmación de borrado. |
+| `kb-creator` | Construye la base de conocimiento estructurada de 10 archivos canónicos en `knowledge-base/`. Modo silencioso (desde `docs/`) o interactivo (acompañamiento estratégico). | **Scope**: Documentación / Onboarding del proyecto. **Trigger**: Al inicializar un proyecto, armar KB desde `docs/`, o "crear base de conocimiento". |
+| `tailwind-design-system` | Design system con Tailwind CSS v4: tokens CSS con OKLCH, CVA components, compound components, grid responsive, dark mode, animaciones nativas. | **Scope**: Frontend — UI System. **Trigger**: Al crear componentes de UI, implementar design system, migrar v3→v4, estandarizar tokens visuales. |
+| `async-python-patterns` | Patrones avanzados de asyncio, concurrencia y async/await para FastAPI, SQLAlchemy async, workers, colas y operaciones I/O concurrentes. | **Scope**: Backend — todo el stack async (FastAPI + SQLAlchemy 2.0 async + workers). **Trigger**: Al implementar endpoints async, operaciones de DB concurrentes, workers de cola, o cualquier código async del proyecto. |
+| `vercel-react-best-practices` | Buenas prácticas de React y optimización de performance de Vercel Engineering: Server Components, renderizado, bundle, async patterns, rerenders, eventos y más. | **Scope**: Frontend — componentes y páginas React (18/19). **Trigger**: Al crear componentes, optimizar renders, implementar Server Components, manejar estado, o mejorar performance de UI. |
+
+### Registrar una nueva skill local
+
+Toda skill nueva específica del proyecto debe instalarse **localmente** y documentarse aquí:
+
+```
+1. Crear `.agents/skills/<nombre>/` y escribir SKILL.md con frontmatter (name, description, trigger)
+2. Agregar una fila en la tabla "Skills locales" arriba con su scope y trigger
+3. Ejecutar `skill-registry` (si está disponible) para sincronizar el registro
+4. Sincronizar CLAUDE.md con AGENTS.md (ambos deben ser idénticos)
+```
 
 ---
 

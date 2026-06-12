@@ -1,4 +1,5 @@
 from collections.abc import AsyncGenerator
+from uuid import uuid4
 
 import pytest
 import pytest_asyncio
@@ -27,7 +28,7 @@ def settings() -> Settings:
 
 @pytest.fixture(scope="session")
 def test_db_url() -> str:
-    return "postgresql+asyncpg://postgres:postgres@localhost:5433/activia_trace_test"
+    return "postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/activia_trace_test"
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -70,7 +71,7 @@ async def test_tenant(db_session: AsyncSession) -> Tenant:
     return await repo.create(
         {
             "name": "Test University",
-            "slug": "test-university",
+            "slug": f"test-university-{uuid4().hex[:8]}",
         }
     )
 
@@ -81,6 +82,6 @@ async def another_tenant(db_session: AsyncSession) -> Tenant:
     return await repo.create(
         {
             "name": "Another University",
-            "slug": "another-university",
+            "slug": f"another-university-{uuid4().hex[:8]}",
         }
     )

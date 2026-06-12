@@ -24,7 +24,7 @@ def test_settings_default_expire_minutes():
         SECRET_KEY="a" * 32,
         ENCRYPTION_KEY="a" * 64,
     )
-    assert settings.access_token_expire_minutes == 15
+    assert settings.access_token_expire_minutes == 30
 
 
 def test_settings_missing_database_url(monkeypatch):

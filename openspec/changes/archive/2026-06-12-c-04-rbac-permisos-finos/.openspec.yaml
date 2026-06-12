@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-06-12
+governance: CRITICO
+depends_on:
+  - c-03-auth-jwt-2fa

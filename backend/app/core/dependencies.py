@@ -6,7 +6,7 @@ Slots implementados en C-01:
 Slots reservados (a llenar en changes posteriores):
     get_current_user   → C-03 (JWT + Argon2id)
     get_tenant         → C-02 (resolución de tenant)
-    require_permission → C-04 (RBAC)
+    require_permission → C-04 (RBAC) — see api/dependencies/permissions.py
 """
 
 from collections.abc import AsyncGenerator

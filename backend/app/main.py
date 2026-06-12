@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.v1.routers.admin import router as admin_router
+from app.api.v1.routers.auth import router as auth_router
 from app.api.v1.routers.health import router as health_router
 from app.core.config import Settings
 from app.core.database import init_engine
@@ -11,7 +13,9 @@ from app.core.exceptions import (
     AppException,
     ForbiddenException,
     NotFoundException,
+    RateLimitException,
     TenantMismatchException,
+    UnauthorizedException,
     ValidationException,
 )
 from app.core.logging import setup_logging
@@ -24,7 +28,9 @@ STATUS_CODE_MAP: dict[str, int] = {
     NotFoundException.__name__: 404,
     ForbiddenException.__name__: 403,
     TenantMismatchException.__name__: 403,
+    UnauthorizedException.__name__: 401,
     ValidationException.__name__: 422,
+    RateLimitException.__name__: 429,
 }
 
 
@@ -85,4 +91,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.add_exception_handler(Exception, _unhandled_exception_handler)
     app.add_middleware(TenantMiddleware)
     app.include_router(health_router)
+    app.include_router(auth_router)
+    app.include_router(admin_router)
     return app

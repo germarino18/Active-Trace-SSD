@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     encryption_key: str = Field(alias="ENCRYPTION_KEY", min_length=64, max_length=64)
     database_url_test: str | None = Field(alias="DATABASE_URL_TEST", default=None)
     access_token_expire_minutes: int = Field(
-        alias="ACCESS_TOKEN_EXPIRE_MINUTES", default=15, ge=1
+        alias="ACCESS_TOKEN_EXPIRE_MINUTES", default=30, ge=1
     )
     otel_enabled: bool = Field(alias="OTEL_ENABLED", default=True)
 
