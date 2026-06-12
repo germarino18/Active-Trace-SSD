@@ -1,1 +1,57 @@
-"""RESERVADO para C-02+: handlers de error estandarizados."""
+from uuid import UUID
+
+
+class AppException(Exception):
+    def __init__(
+        self,
+        message: str = "An unexpected error occurred",
+        code: str = "app_error",
+        details: dict | None = None,
+    ):
+        self.message = message
+        self.code = code
+        self.details = details
+        super().__init__(self.message)
+
+
+class NotFoundException(AppException):
+    def __init__(
+        self,
+        resource: str = "Resource",
+        id: UUID | str | None = None,
+        details: dict | None = None,
+    ):
+        message = f"{resource} not found"
+        if id is not None:
+            message = f"{resource} {id} not found"
+        super().__init__(message=message, code="not_found", details=details)
+
+
+class ForbiddenException(AppException):
+    def __init__(
+        self,
+        action: str | None = None,
+        details: dict | None = None,
+    ):
+        message = "Forbidden"
+        if action is not None:
+            message = f"Forbidden: {action}"
+        super().__init__(message=message, code="forbidden", details=details)
+
+
+class TenantMismatchException(AppException):
+    def __init__(self, details: dict | None = None):
+        super().__init__(
+            message="Tenant mismatch or missing tenant context",
+            code="tenant_mismatch",
+            details=details,
+        )
+
+
+class ValidationException(AppException):
+    def __init__(
+        self,
+        message: str = "Validation error",
+        details: dict | None = None,
+    ):
+        super().__init__(message=message, code="validation_error", details=details)

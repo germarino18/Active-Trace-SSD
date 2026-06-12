@@ -4,3 +4,7 @@ app/activia_trace.egg-info/SOURCES.txt
 app/activia_trace.egg-info/dependency_links.txt
 app/activia_trace.egg-info/requires.txt
 app/activia_trace.egg-info/top_level.txt
+tests/test_app_startup.py
+tests/test_database.py
+tests/test_health.py
+tests/test_settings.py

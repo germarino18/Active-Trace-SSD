@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import Settings
 from app.core.database import Base, init_engine
+from app.models.tenant import Tenant
+from app.repositories.base import BaseRepository
 
 
 @pytest.fixture(scope="session")
@@ -18,7 +20,7 @@ def settings() -> Settings:
         _env_file=None,
         DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/activia_trace",
         SECRET_KEY="a" * 32,
-        ENCRYPTION_KEY="b" * 32,
+        ENCRYPTION_KEY="a" * 64,
         OTEL_ENABLED=False,
     )
 
@@ -38,23 +40,18 @@ async def db_engine(test_db_url: str):
 
 
 @pytest_asyncio.fixture
-async def db_session(db_engine) -> AsyncGenerator[AsyncSession, None]:
-    connection = await db_engine.connect()
-    transaction = await connection.begin()
-    session = AsyncSession(bind=connection, expire_on_commit=False)
-    try:
-        yield session
-    finally:
-        await session.close()
-        await transaction.rollback()
-        await connection.close()
+async def db_session(db_engine) -> AsyncSession:
+    session = AsyncSession(db_engine, expire_on_commit=False)
+    yield session
+    await session.rollback()
+    await session.close()
 
 
 @pytest_asyncio.fixture(scope="session")
-async def app(settings: Settings):
+async def app(settings: Settings, test_db_url: str):
     from app.main import create_app
     application = create_app(settings)
-    init_engine(settings.database_url)
+    init_engine(test_db_url)
     yield application
     from app.core.database import close_engine
     await close_engine()
@@ -65,3 +62,25 @@ async def client(app) -> AsyncGenerator[AsyncClient, None]:
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
+
+
+@pytest_asyncio.fixture
+async def test_tenant(db_session: AsyncSession) -> Tenant:
+    repo = BaseRepository(model=Tenant, session=db_session)
+    return await repo.create(
+        {
+            "name": "Test University",
+            "slug": "test-university",
+        }
+    )
+
+
+@pytest_asyncio.fixture
+async def another_tenant(db_session: AsyncSession) -> Tenant:
+    repo = BaseRepository(model=Tenant, session=db_session)
+    return await repo.create(
+        {
+            "name": "Another University",
+            "slug": "another-university",
+        }
+    )

@@ -11,16 +11,28 @@ async def test_db_select_one(db_session: AsyncSession):
     assert value == 1
 
 
-async def test_db_session_close_on_exception(db_session: AsyncSession):
-    connection = db_session.sync_session.connection()
-    pool = connection.engine.pool
+async def test_db_session_close_on_exception(db_engine):
+    """Verify connections are returned to pool after exception in session.
+
+    Uses its own connection/session (not db_session fixture) to avoid
+    corrupting the shared transactional session state.
+    """
+    pool = db_engine.pool
     checked_out_before = pool.checkedout()
+
+    connection = await db_engine.connect()
     try:
-        async with db_session as session:
-            await session.execute(text("SELECT 1"))
-            raise ValueError("test error")
-    except ValueError:
-        pass
+        session = AsyncSession(bind=connection, expire_on_commit=False)
+        try:
+            async with session.begin():
+                await session.execute(text("SELECT 1"))
+                raise ValueError("test error")
+        except ValueError:
+            pass
+        await session.close()
+    finally:
+        await connection.close()
+
     checked_out_after = pool.checkedout()
     assert checked_out_after == checked_out_before
 

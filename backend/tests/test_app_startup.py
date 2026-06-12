@@ -7,7 +7,7 @@ async def test_app_creates_without_error():
         _env_file=None,
         DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/activia_trace",
         SECRET_KEY="a" * 32,
-        ENCRYPTION_KEY="b" * 32,
+        ENCRYPTION_KEY="a" * 64,
         OTEL_ENABLED=False,
     )
     app = create_app(settings)
@@ -20,7 +20,7 @@ async def test_app_has_health_route():
         _env_file=None,
         DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/activia_trace",
         SECRET_KEY="a" * 32,
-        ENCRYPTION_KEY="b" * 32,
+        ENCRYPTION_KEY="a" * 64,
         OTEL_ENABLED=False,
     )
     app = create_app(settings)

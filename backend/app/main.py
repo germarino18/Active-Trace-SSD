@@ -1,15 +1,64 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from app.api.v1.routers.health import router as health_router
 from app.core.config import Settings
 from app.core.database import init_engine
+from app.core.exceptions import (
+    AppException,
+    ForbiddenException,
+    NotFoundException,
+    TenantMismatchException,
+    ValidationException,
+)
 from app.core.logging import setup_logging
 from app.core.observability import setup_observability
+from app.core.tenancy import TenantMiddleware
 
 logger = logging.getLogger(__name__)
+
+STATUS_CODE_MAP: dict[str, int] = {
+    NotFoundException.__name__: 404,
+    ForbiddenException.__name__: 403,
+    TenantMismatchException.__name__: 403,
+    ValidationException.__name__: 422,
+}
+
+
+def _get_status_code(exc: AppException) -> int:
+    return STATUS_CODE_MAP.get(type(exc).__name__, 500)
+
+
+async def _app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
+    return JSONResponse(
+        status_code=_get_status_code(exc),
+        content={
+            "error": {
+                "code": exc.code,
+                "message": exc.message,
+                "details": exc.details,
+            }
+        },
+    )
+
+
+async def _unhandled_exception_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
+    logger.exception("Unhandled exception")
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": {
+                "code": "internal_error",
+                "message": "An unexpected error occurred",
+                "details": None,
+            }
+        },
+    )
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -32,5 +81,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+    app.add_exception_handler(AppException, _app_exception_handler)
+    app.add_exception_handler(Exception, _unhandled_exception_handler)
+    app.add_middleware(TenantMiddleware)
     app.include_router(health_router)
     return app

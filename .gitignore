@@ -11,3 +11,21 @@ Thumbs.db
 .DS_Store
 .vscode/
 .idea/
+
+backend/.env
+__pycache__/
+# Python virtual environments
+.venv/
+# Environment variables file
+.env
+# Pytest cache
+.pytest_cache/
+# Coverage reports
+htmlcov/
+.coverage
+# Mypy cache
+.mypy_cache/
+# Nox and Tox caches
+.nox/
+.tox/
+

@@ -3,14 +3,11 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
+
+from app.models.base import Base  # noqa: F401 — re-exported for alembic/env.py
 
 engine = None
 async_session_maker = None
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 def init_engine(database_url: str, **kwargs):
