@@ -4,15 +4,18 @@ from hashlib import sha256
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 
 from app.api.dependencies.auth import get_current_user, get_rate_limiter
 from app.api.dependencies.permissions import require_permission
 from app.core.acciones_auditoria import AccionAuditoria
 from app.core.dependencies import get_db
 from app.core.permissions import Perm
+from app.models.consumed_challenge_token import ConsumedChallengeToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
 from app.repositories.audit_log_repository import AuditLogRepository
+from app.repositories.consumed_challenge_token_repository import ConsumedChallengeTokenRepository
 from app.repositories.recovery_token_repository import RecoveryTokenRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.user_repository import UserRepository
@@ -162,6 +165,25 @@ async def login(
         raise HTTPException(status_code=401, detail={
             "code": "unauthorized",
             "message": "Invalid TOTP code",
+        })
+    jti = uuid.UUID(payload["jti"])
+    challenge_repo = ConsumedChallengeTokenRepository(session=db)
+    if await challenge_repo.find_by_jti(jti) is not None:
+        raise HTTPException(status_code=401, detail={
+            "code": "unauthorized",
+            "message": "Challenge token already used",
+        })
+    try:
+        await challenge_repo.create({
+            "jti": jti,
+            "user_id": user.id,
+            "expires_at": datetime.fromtimestamp(payload["exp"], tz=UTC),
+        })
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(status_code=401, detail={
+            "code": "unauthorized",
+            "message": "Challenge token already used",
         })
     refresh_token_raw, refresh_token_hash = ts.generate_refresh_token()
     refresh_repo = RefreshTokenRepository(session=db)

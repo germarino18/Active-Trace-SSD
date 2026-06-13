@@ -4,6 +4,7 @@ from app.models.tenant import Tenant
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.models.recovery_token import RecoveryToken
+from app.models.consumed_challenge_token import ConsumedChallengeToken
 from app.models.rol import Rol
 from app.models.permiso import Permiso
 from app.models.rol_permiso import RolPermiso
@@ -20,6 +21,7 @@ __all__ = [
     "BaseMixin",
     "Carrera",
     "Cohorte",
+    "ConsumedChallengeToken",
     "Dictado",
     "Materia",
     "Permiso",
