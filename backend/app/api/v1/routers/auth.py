@@ -44,8 +44,8 @@ _two_factor_service = TwoFactorService()
 ACCESS_TOKEN_EXPIRES_SECONDS = 1800
 
 
-def _token_service():
-    return TokenService()
+def _token_service(request: Request) -> TokenService:
+    return TokenService(request.app.state.settings)
 
 
 async def _find_user_by_email_any_tenant(db, email: str) -> User | None:
@@ -102,7 +102,7 @@ async def authenticate(
             "code": "forbidden",
             "message": "Account is disabled",
         })
-    ts = _token_service()
+    ts = _token_service(request)
     if user.totp_enabled_at is not None:
         challenge_token = ts.create_challenge_token(user)
         return AuthenticateResponse(
@@ -132,9 +132,10 @@ async def authenticate(
 )
 async def login(
     body: LoginRequest,
+    request: Request,
     db=Depends(get_db),
 ):
-    ts = _token_service()
+    ts = _token_service(request)
     try:
         payload = ts.verify_challenge_token(body.challenge_token)
     except ValueError:
@@ -184,6 +185,7 @@ async def login(
 )
 async def refresh(
     body: RefreshRequest,
+    request: Request,
     db=Depends(get_db),
 ):
     token_hash = sha256(body.refresh_token.encode()).hexdigest()
@@ -213,7 +215,7 @@ async def refresh(
             "message": "User not found or inactive",
         })
     await refresh_repo.revoke(token.id)
-    ts = _token_service()
+    ts = _token_service(request)
     new_raw, new_hash = ts.generate_refresh_token()
     new_token = await refresh_repo.create({
         "user_id": user.id,
@@ -425,7 +427,7 @@ async def impersonate_end(
             "message": "Real actor not found",
         })
 
-    ts = _token_service()
+    ts = _token_service(request)
     access_token = ts.create_access_token(actor)
 
     audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
@@ -466,7 +468,7 @@ async def impersonate(
             "message": "Target user not found",
         })
 
-    ts = _token_service()
+    ts = _token_service(request)
     access_token = ts.create_access_token(target, actor_id=current_user.user_id)
 
     audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)

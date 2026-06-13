@@ -10,7 +10,7 @@ from app.models.user import User
 from app.services.auth.password_service import PasswordService
 from tests.helpers import seed_permissions_for_tenant
 
-_FALLBACK_SECRET = "dev-secret-key-that-is-exactly-32-bytes!"
+_FALLBACK_SECRET = "a" * 32
 
 
 def make_token(user, actor_id=None, secret: str = _FALLBACK_SECRET) -> str:

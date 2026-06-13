@@ -81,20 +81,35 @@ def test_current_user_accepts_actor_id():
 # ── Task 5.5: get_current_user reads actor_id from payload ──────────────
 
 
-_FALLBACK_SECRET = "dev-secret-key-that-is-exactly-32-bytes!"
+# Must match the test settings fixture's SECRET_KEY (tests/conftest.py)
+_TEST_SECRET = "a" * 32
 
 
 def _make_request():
     from starlette.requests import Request
 
-    scope = {"type": "http", "headers": []}
+    from app.core.config import Settings
+
+    class _FakeAppState:
+        settings = Settings(
+            _env_file=None,
+            DATABASE_URL="postgresql+asyncpg://postgres:postgres@localhost:5432/activia_trace",
+            SECRET_KEY=_TEST_SECRET,
+            ENCRYPTION_KEY="a" * 64,
+            OTEL_ENABLED=False,
+        )
+
+    class _FakeApp:
+        state = _FakeAppState()
+
+    scope = {"type": "http", "headers": [], "app": _FakeApp()}
     return Request(scope)
 
 
 async def test_get_current_user_normal_token_has_no_actor_id():
     user_id = uuid.uuid4()
     tenant_id = uuid.uuid4()
-    token = _make_token(user_id=user_id, tenant_id=tenant_id, secret=_FALLBACK_SECRET)
+    token = _make_token(user_id=user_id, tenant_id=tenant_id, secret=_TEST_SECRET)
     credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
 
     current_user = await get_current_user(
@@ -118,7 +133,7 @@ async def test_get_current_user_impersonation_token_has_actor_id():
         "iat": datetime.now(UTC),
         "jti": str(uuid.uuid4()),
     }
-    token = jwt.encode(payload, _FALLBACK_SECRET, algorithm="HS256")
+    token = jwt.encode(payload, _TEST_SECRET, algorithm="HS256")
     credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
 
     current_user = await get_current_user(

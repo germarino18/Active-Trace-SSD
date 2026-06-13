@@ -25,7 +25,7 @@ async def get_current_user(
             "message": "Missing Authorization header",
         })
     token = credentials.credentials
-    token_service = TokenService()
+    token_service = TokenService(request.app.state.settings)
     try:
         payload = token_service.verify_access_token(token)
     except ValueError:

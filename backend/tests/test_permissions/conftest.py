@@ -68,8 +68,8 @@ async def alumno_user(db_session: AsyncSession, test_tenant) -> User:
     return user
 
 
-# This must match TokenService() fallback when no .env is present
-_FALLBACK_SECRET = "dev-secret-key-that-is-exactly-32-bytes!"
+# This must match the test settings fixture's SECRET_KEY (tests/conftest.py)
+_FALLBACK_SECRET = "a" * 32
 
 
 def make_token(user, secret: str = _FALLBACK_SECRET) -> str:

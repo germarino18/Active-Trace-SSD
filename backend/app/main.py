@@ -88,6 +88,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version="0.1.0",
         lifespan=lifespan,
     )
+    app.state.settings = settings
     app.add_exception_handler(AppException, _app_exception_handler)
     app.add_exception_handler(Exception, _unhandled_exception_handler)
     app.add_middleware(TenantMiddleware)
