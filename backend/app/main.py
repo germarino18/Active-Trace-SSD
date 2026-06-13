@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1.routers.admin import router as admin_router
 from app.api.v1.routers.auth import router as auth_router
+from app.api.v1.routers.estructura import router as estructura_router
 from app.api.v1.routers.health import router as health_router
 from app.core.config import Settings
 from app.core.database import init_engine
@@ -93,4 +94,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(health_router)
     app.include_router(auth_router)
     app.include_router(admin_router)
+    app.include_router(estructura_router)
     return app

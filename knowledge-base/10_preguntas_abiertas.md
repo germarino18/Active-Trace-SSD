@@ -6,38 +6,6 @@
 
 ## Prioridad ALTA — bloqueantes para el modelo de dominio
 
-### PA-01 — ¿Cómo se organiza el catálogo de materias y cuál es la fuente de verdad?
-
-El sistema parece operar con (al menos) dos agrupaciones distintas de materias:
-
-- Una lista con códigos cortos del tipo `PROG_I`, `AYSO`, etc., ligada a la estructura de carreras y cohortes.
-- Otra lista con nombres descriptivos del tipo "Programación – Python", "Programación – Java", orientada al seguimiento de actividades de aprendizaje.
-
-**Preguntas abiertas**:
-
-- ¿Son dos catálogos independientes (uno por carrera/plan y otro por instancia de dictado) o es una sola entidad con distintas vistas?
-- ¿Existe una relación formal entre ambas agrupaciones? Si un alumno tiene una calificación en "Programación – Python", ¿a qué materia del plan corresponde?
-- ¿Cuál de las dos representa la materia a efectos del plan de estudios y cuál representa la instancia de cursado?
-- ¿Las calificaciones viajan entre una y otra, o cada una tiene su propio registro?
-
-**Impacto**: define si el modelo de datos necesita una entidad `Materia` (del plan) y una entidad separada `InstanciaDictado` (o `Comisión` extendida), o si alcanza con una sola.
-
----
-
-### PA-07 — ¿Las cohortes pertenecen a una carrera o son transversales?
-
-Las cohortes (ej.: "MAR-2026") pueden pertenecer a una carrera específica o ser compartidas entre varias.
-
-**Preguntas abiertas**:
-
-- ¿Una cohorte es exclusiva de un programa académico?
-- ¿Puede un alumno estar en la misma cohorte con materias de distintas carreras?
-- ¿La cohorte define el ciclo lectivo o también el plan de estudios vigente?
-
-**Impacto**: afecta la cardinalidad entre `Cohorte`, `Carrera` y `Alumno` en el modelo de datos ([04_modelo_de_datos.md](04_modelo_de_datos.md)).
-
----
-
 ### PA-22 — ¿Cuántas claves de Plus existen y cómo se mapean a materias?
 
 El modelo de liquidación define un **Plus** por combinación `(clave, rol)`, donde la clave agrupa familias de materias (ej.: `PROG` para materias de Programación). Ver [RN-31](05_reglas_de_negocio.md#rn-31) a [RN-38](05_reglas_de_negocio.md#rn-38).
@@ -239,6 +207,8 @@ Las siguientes preguntas que existían en versiones anteriores de este documento
 
 | Código original | Resolución | Dónde está documentado |
 |-----------------|-----------|------------------------|
+| PA-01 | Modelo **Materia (catálogo único por tenant) + Dictado (instancia por carrera×cohorte)**. La materia es la definición; el cursado concreto y todo lo que cuelga (calificaciones, equipos, encuentros, coloquios) se ancla en `Dictado`. | [ADR-006 en `docs/ARQUITECTURA.md` §10](../docs/ARQUITECTURA.md), [04_modelo_de_datos.md](04_modelo_de_datos.md) §E3, §E3.1 |
+| PA-07 | La **cohorte pertenece a una carrera** (`Cohorte.carrera_id` → Carrera). No es transversal: el dictado de una materia para esa cohorte queda acotado a su carrera vía `Dictado`. | [04_modelo_de_datos.md](04_modelo_de_datos.md) §E2, §E3.1 |
 | PA-02 | El rol TUTOR existe formalmente en el catálogo; ver descripción de capacidades | [03_actores_y_roles.md](03_actores_y_roles.md) |
 | PA-04 | Login por email + contraseña; 2FA opcional (TOTP); recuperación por token de un solo uso; alta solo administrativa en MVP | [07_flujos_principales.md](07_flujos_principales.md), [`docs/ARQUITECTURA.md` §5.1](../docs/ARQUITECTURA.md) |
 | PA-06 | Fórmula de liquidación: Base (por rol) + Plus (por clave × rol); ver RN-31 a RN-38 | [05_reglas_de_negocio.md](05_reglas_de_negocio.md) |

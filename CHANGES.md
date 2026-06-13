@@ -218,13 +218,13 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 ## FASE 2 — Entidades Raíz del Dominio Académico
 
 ### [C-06] `estructura-academica`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**:
-  - Modelos: `Carrera`, `Cohorte`, `Materia` (catálogo único por tenant — ADR-006).
-  - ABM `/api/admin/carreras`, `/api/admin/cohortes`, `/api/admin/materias` con guard `estructura:gestionar` (ADMIN).
-  - Reglas: unicidad `(tenant_id, codigo)` en Carrera/Materia; `(tenant_id, carrera_id, nombre)` en Cohorte; carrera inactiva no admite cohortes abiertas.
-  - `Migración 004: carrera, cohorte, materia`.
-  - Tests: CRUD, unicidad por tenant, aislamiento multi-tenant, estado activa/inactiva.
+  - Modelos: `Carrera`, `Cohorte`, `Materia` (catálogo único por tenant — ADR-006) y `Dictado` (instancia de materia en carrera×cohorte — ADR-006, E3.1). `Dictado` es el ancla de los módulos downstream (calificaciones, equipos, encuentros, coloquios), que se re-anclarán en sus changes (C-07+).
+  - ABM `/api/admin/carreras`, `/api/admin/cohortes`, `/api/admin/materias`, `/api/admin/dictados` con guard `estructura:gestionar` (ADMIN).
+  - Reglas: unicidad `(tenant_id, codigo)` en Carrera/Materia; `(tenant_id, carrera_id, nombre)` en Cohorte; unicidad `(tenant_id, materia_id, carrera_id, cohorte_id)` en Dictado; consistencia `Dictado.carrera_id == Cohorte.carrera_id`; carrera inactiva no admite cohortes abiertas; no se crea Dictado sobre materia/carrera/cohorte inactiva.
+  - `Migración 005: carrera, cohorte, materia, dictado` (la 004 la tomó C-05 audit-log).
+  - Tests: CRUD, unicidad por tenant, aislamiento multi-tenant, estado activa/inactiva, unicidad y consistencia carrera↔cohorte de Dictado.
 - **Dependencias**: `C-04`
 - **Governance**: MEDIO
 - **Leer antes**:

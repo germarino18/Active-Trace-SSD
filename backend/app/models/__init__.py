@@ -8,12 +8,20 @@ from app.models.rol import Rol
 from app.models.permiso import Permiso
 from app.models.rol_permiso import RolPermiso
 from app.models.audit_log import AuditLog
+from app.models.carrera import Carrera
+from app.models.materia import Materia
+from app.models.cohorte import Cohorte
+from app.models.dictado import Dictado
 
 __all__ = [
     "AuditLog",
     "AuditMixin",
     "Base",
     "BaseMixin",
+    "Carrera",
+    "Cohorte",
+    "Dictado",
+    "Materia",
     "Permiso",
     "RecoveryToken",
     "RefreshToken",

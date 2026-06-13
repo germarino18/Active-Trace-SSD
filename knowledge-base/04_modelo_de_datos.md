@@ -75,7 +75,31 @@ Materia {
 
 **Reglas**:
 - El par `(tenant_id, codigo)` es único.
-- Una misma materia puede pertenecer a distintas carreras y cohortes a través de la entidad Asignación (E5).
+- `Materia` es solo la **definición de catálogo**. Su puesta en cursado dentro de una `carrera × cohorte` concreta se modela en la entidad **Dictado (E3.1)**, no directamente sobre Materia ([ADR-006](../docs/ARQUITECTURA.md#10-decisiones-de-arquitectura)).
+
+---
+
+### E3.1 — Dictado (instancia de una materia en carrera × cohorte)
+
+Materializa [ADR-006](../docs/ARQUITECTURA.md#10-decisiones-de-arquitectura): `Materia` es la definición única del catálogo; `Dictado` es esa materia **dictada** en una `carrera × cohorte` concreta. Es el ancla a la que cuelgan calificaciones, equipos docentes, encuentros y coloquios — no la `Materia`.
+
+```
+Dictado {
+  id          : UUID       — clave interna
+  tenant_id   : UUID       — FK → Tenant
+  materia_id  : UUID       — FK → Materia (qué se dicta)
+  carrera_id  : UUID       — FK → Carrera (en qué carrera)
+  cohorte_id  : UUID       — FK → Cohorte (para qué cohorte)
+  estado      : enum       — Activo | Inactivo
+}
+```
+
+**Reglas**:
+- La terna `(tenant_id, materia_id, carrera_id, cohorte_id)` es única: una misma materia se dicta una sola vez por carrera y cohorte.
+- La `Cohorte` ya pertenece a una `Carrera` (E2, `carrera_id`); `Dictado` debe ser consistente: `carrera_id` del dictado = `carrera_id` de la cohorte referida.
+- No se puede crear un dictado sobre una `Materia`, `Carrera` o `Cohorte` inactiva.
+
+> **Nota de modelado (forward — ADR-006)**: las entidades que hoy referencian el triple suelto `materia_id (+ carrera_id + cohorte_id)` — E5 Asignación, E6 Padrón, E10 Encuentro, E11 Guardia, E13 Aviso, E14 Evaluación — deben re-anclarse a `dictado_id` en sus respectivos changes (C-07 en adelante). C-06 introduce `Dictado` como entidad raíz; el re-anclaje de cada entidad downstream se hace en el change que la implementa, no acá.
 
 ---
 

@@ -68,7 +68,8 @@ La fuente de verdad del dominio vive en `knowledge-base/` (agnóstica de tecnolo
 
 > ⚠️ **Roles del dominio**: ALUMNO · TUTOR · PROFESOR · COORDINADOR · NEXO · ADMIN · FINANZAS. Leé `03_actores_y_roles.md` para internalizar el modelo de permisos ANTES de cualquier implementación.
 
-> ⚠️ **Preguntas ALTA pendientes** (resolver antes de tocar el dominio afectado): **PA-01** catálogo de materias (Materia vs InstanciaDictado), **PA-07** cohortes ↔ carrera, **PA-22**/**PA-23** claves de Plus y acumulación en liquidaciones, **PA-25** semántica del rol NEXO. Ver [10_preguntas_abiertas.md](knowledge-base/10_preguntas_abiertas.md). No codees el módulo de liquidaciones (C-18) ni el de estructura académica (C-06) sin cerrar las preguntas que los bloquean.
+> ⚠️ **Preguntas ALTA pendientes** (resolver antes de tocar el dominio afectado): **PA-22**/**PA-23** claves de Plus y acumulación en liquidaciones, **PA-25** semántica del rol NEXO. Ver [10_preguntas_abiertas.md](knowledge-base/10_preguntas_abiertas.md). No codees el módulo de liquidaciones (C-18) sin cerrar las preguntas que lo bloquean.
+> ✅ **Cerradas**: **PA-01** (Materia catálogo único + `Dictado` por carrera×cohorte, ADR-006) y **PA-07** (cohorte pertenece a una carrera). **C-06 estructura-academica queda desbloqueado** e incluye la entidad `Dictado`. Ver [04_modelo_de_datos.md](knowledge-base/04_modelo_de_datos.md) §E3.1.
 
 ---
 
@@ -76,21 +77,26 @@ La fuente de verdad del dominio vive en `knowledge-base/` (agnóstica de tecnolo
 
 Cargá la skill correspondiente al contexto **ANTES** de escribir código. Aplicá todos sus patrones.
 
-### Skills globales (framework — pre-instaladas)
+> ⚠️ **Todas las skills de dominio de este proyecto son LOCALES.** Viven en `.agents/skills/<nombre>/SKILL.md` y se cargan con la Skill tool. **NO existen como skills globales del entorno** — no intentes cargarlas de un registro global. Si una skill de las tablas de abajo está marcada `⏳ pendiente`, **no está instalada todavía**: no la invoques hasta instalarla (ver "Registrar / instalar una skill local"). Las únicas skills del *framework* (no del repo) son las de **Orquestación** SDD/OPSX (`find-skill`, `roadmap-generator`, `agent-instruction`, `skill-registry`, `kb-creator`); esas se cargan del entorno.
 
-| Agente | Rol | Skills que carga |
-|--------|-----|------------------|
-| **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos / async | `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` |
-| **Backend Aux** | Servicios, integraciones, seguridad, performance | `api-security-best-practices`, `postgresql-optimization`, `systematic-debugging` |
-| **Frontend** | React / TanStack / Tailwind / E2E | `typescript-advanced-types`, `tailwind-design-system`, `playwright-best-practices` |
-| **DevOps** | Contenedores / build | `multi-stage-dockerfile` |
-| **Transversal** | Calidad / revisión | `code-review-excellence`, `systematic-debugging` |
-| **Orquestación** | SDD / OPSX / docs | `kb-creator`, `roadmap-generator`, `agent-instruction`, `find-skill` |
+### Skills de dominio por agente (todas LOCALES en `.agents/skills/`)
+
+Qué skill carga cada perfil de agente según el contexto. La columna **Estado** indica si ya está instalada en `.agents/skills/`.
+
+| Agente | Rol | Skills | Estado |
+|--------|-----|--------|--------|
+| **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos / async | `async-python-patterns`, `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` | ✅ instaladas |
+| **Backend Aux** | Servicios, integraciones, seguridad, performance | `api-security-best-practices`, `postgresql-optimization`, `systematic-debugging` | ⏳ pendiente |
+| **Frontend** | React / TanStack / Tailwind / E2E | `tailwind-design-system`, `vercel-react-best-practices`, `dashboard-crud-page` | ✅ instaladas |
+| | | `typescript-advanced-types`, `playwright-best-practices` | ⏳ pendiente |
+| **DevOps** | Contenedores / build | `multi-stage-dockerfile` | ⏳ pendiente |
+| **Transversal** | Calidad / revisión | `code-review-excellence`, `systematic-debugging` | ⏳ pendiente |
+| **Orquestación** | SDD / OPSX / docs | `kb-creator`, `roadmap-generator`, `agent-instruction`, `find-skill`, `skill-registry` | 🌐 framework (entorno) |
 
 
-### Skills locales (`.agents/skills/` — específicas del proyecto)
+### Catálogo de skills locales instaladas (`.agents/skills/`)
 
-Se instalan **localmente** en `.agents/skills/<nombre>/SKILL.md`. Son específicas de este proyecto y no forman parte del framework.
+Estas son las skills que **ya están instaladas** en `.agents/skills/<nombre>/SKILL.md` (estado `✅` arriba). Son específicas de este proyecto y no forman parte del framework. Las marcadas `⏳ pendiente` en la tabla anterior todavía no figuran acá.
 
 | Skill | Descripción | Scope / Cuándo activarla |
 |-------|-------------|--------------------------|
@@ -98,6 +104,10 @@ Se instalan **localmente** en `.agents/skills/<nombre>/SKILL.md`. Son específic
 | `kb-creator` | Construye la base de conocimiento estructurada de 10 archivos canónicos en `knowledge-base/`. Modo silencioso (desde `docs/`) o interactivo (acompañamiento estratégico). | **Scope**: Documentación / Onboarding del proyecto. **Trigger**: Al inicializar un proyecto, armar KB desde `docs/`, o "crear base de conocimiento". |
 | `tailwind-design-system` | Design system con Tailwind CSS v4: tokens CSS con OKLCH, CVA components, compound components, grid responsive, dark mode, animaciones nativas. | **Scope**: Frontend — UI System. **Trigger**: Al crear componentes de UI, implementar design system, migrar v3→v4, estandarizar tokens visuales. |
 | `async-python-patterns` | Patrones avanzados de asyncio, concurrencia y async/await para FastAPI, SQLAlchemy async, workers, colas y operaciones I/O concurrentes. | **Scope**: Backend — todo el stack async (FastAPI + SQLAlchemy 2.0 async + workers). **Trigger**: Al implementar endpoints async, operaciones de DB concurrentes, workers de cola, o cualquier código async del proyecto. |
+| `fastapi-templates` | Proyectos FastAPI production-ready: patrones async, dependency injection, manejo integral de errores, estructura de routers/servicios. | **Scope**: Backend — endpoints y scaffolding de API. **Trigger**: Al crear endpoints/ABM FastAPI o montar la estructura de un módulo de API. _(source: wshobson/agents)_ |
+| `postgresql-table-design` | Diseño y revisión de schema PostgreSQL: tipos de datos, índices, constraints, patrones de performance y features avanzadas. | **Scope**: Backend — modelos y migraciones. **Trigger**: Al diseñar tablas, definir constraints/unicidad, índices o revisar una migración. _(source: wshobson/agents)_ |
+| `python-testing-patterns` | Estrategias de testing con pytest: fixtures, mocking, parametrización y organización de suites. | **Scope**: Backend — tests. **Trigger**: Al escribir tests de Python, armar fixtures o estructurar la suite. _(source: wshobson/agents)_ |
+| `test-driven-development` | Ciclo TDD estricto (red → green → refactor) antes de escribir código de implementación. | **Scope**: Backend (y todo el código). **Trigger**: Al implementar cualquier feature o bugfix — escribir el test que falla primero. _(source: obra/superpowers)_ |
 | `vercel-react-best-practices` | Buenas prácticas de React y optimización de performance de Vercel Engineering: Server Components, renderizado, bundle, async patterns, rerenders, eventos y más. | **Scope**: Frontend — componentes y páginas React (18/19). **Trigger**: Al crear componentes, optimizar renders, implementar Server Components, manejar estado, o mejorar performance de UI. |
 
 ### Registrar una nueva skill local
