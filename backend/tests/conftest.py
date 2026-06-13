@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
@@ -28,7 +29,7 @@ def settings() -> Settings:
 
 @pytest.fixture(scope="session")
 def test_db_url() -> str:
-    return "postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/activia_trace_test"
+    return "postgresql+asyncpg://postgres:postgres@127.0.0.1:5433/activia_trace_test"
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -36,6 +37,33 @@ async def db_engine(test_db_url: str):
     engine = create_async_engine(test_db_url)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Install the append-only trigger on audit_log (D2 / migration 004).
+        # `create_all` builds the table from the ORM model but does not run
+        # migration DDL, so the DB-level guard is installed here for tests.
+        await conn.execute(
+            text(
+                """
+                CREATE OR REPLACE FUNCTION audit_log_block_update_delete()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    RAISE EXCEPTION 'audit_log is append-only: % is not permitted', TG_OP;
+                END;
+                $$ LANGUAGE plpgsql;
+                """
+            )
+        )
+        await conn.execute(
+            text("DROP TRIGGER IF EXISTS trg_audit_log_block_update_delete ON audit_log")
+        )
+        await conn.execute(
+            text(
+                """
+                CREATE TRIGGER trg_audit_log_block_update_delete
+                BEFORE UPDATE OR DELETE ON audit_log
+                FOR EACH ROW EXECUTE FUNCTION audit_log_block_update_delete();
+                """
+            )
+        )
     yield engine
     await engine.dispose()
 

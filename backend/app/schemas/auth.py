@@ -48,6 +48,7 @@ class CurrentUser(BaseModel):
     user_id: UUID
     tenant_id: UUID
     roles: list[str]
+    actor_id: UUID | None = None
 
 
 class EnrollResponse(BaseModel):

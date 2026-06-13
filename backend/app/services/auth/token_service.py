@@ -26,7 +26,7 @@ class TokenService:
         self._challenge_token_ttl = timedelta(minutes=5)
         self._algorithm = "HS256"
 
-    def create_access_token(self, user: User) -> str:
+    def create_access_token(self, user: User, actor_id: uuid.UUID | None = None) -> str:
         now = datetime.now(UTC)
         payload = {
             "sub": str(user.id),
@@ -36,6 +36,8 @@ class TokenService:
             "iat": now,
             "jti": str(uuid.uuid4()),
         }
+        if actor_id is not None:
+            payload["actor_id"] = str(actor_id)
         return jwt.encode(payload, self._secret, algorithm=self._algorithm)
 
     def verify_access_token(self, token: str) -> dict:

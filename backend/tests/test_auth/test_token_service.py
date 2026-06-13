@@ -37,6 +37,24 @@ def test_create_access_token_has_correct_claims():
     assert payload["roles"] == ["ALUMNO"]
     assert "exp" in payload
     assert "iat" in payload
+
+
+def test_create_access_token_without_actor_id_has_no_actor_id_claim():
+    user = _make_user()
+    ts = _get_ts()
+    token = ts.create_access_token(user)
+    payload = ts.verify_access_token(token)
+    assert "actor_id" not in payload
+
+
+def test_create_access_token_with_actor_id_embeds_claim():
+    user = _make_user()
+    actor_id = uuid.uuid4()
+    ts = _get_ts()
+    token = ts.create_access_token(user, actor_id=actor_id)
+    payload = ts.verify_access_token(token)
+    assert payload["actor_id"] == str(actor_id)
+    assert payload["sub"] == str(user.id)
     assert "jti" in payload
 
 

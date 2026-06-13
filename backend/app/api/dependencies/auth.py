@@ -36,6 +36,7 @@ async def get_current_user(
     user_id = payload.get("sub")
     tenant_id = payload.get("tenant_id")
     roles = payload.get("roles", [])
+    actor_id = payload.get("actor_id")
     if not user_id or not tenant_id:
         raise HTTPException(status_code=401, detail={
             "code": "unauthorized",
@@ -46,6 +47,7 @@ async def get_current_user(
         user_id=uuid.UUID(user_id),
         tenant_id=uuid.UUID(tenant_id),
         roles=roles,
+        actor_id=uuid.UUID(actor_id) if actor_id else None,
     )
 
 

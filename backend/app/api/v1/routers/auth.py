@@ -6,9 +6,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select, update
 
 from app.api.dependencies.auth import get_current_user, get_rate_limiter
+from app.api.dependencies.permissions import require_permission
+from app.core.acciones_auditoria import AccionAuditoria
 from app.core.dependencies import get_db
+from app.core.permissions import Perm
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
+from app.repositories.audit_log_repository import AuditLogRepository
 from app.repositories.recovery_token_repository import RecoveryTokenRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.user_repository import UserRepository
@@ -26,6 +30,8 @@ from app.schemas.auth import (
     TokenResponse,
     Verify2FARequest,
 )
+from app.schemas.impersonation import ImpersonateEndResponse, ImpersonateResponse
+from app.services.audit.audit_logger import AuditLogger
 from app.services.auth.password_recovery_service import PasswordRecoveryService
 from app.services.auth.password_service import PasswordService
 from app.services.auth.rate_limiter import RateLimiter
@@ -391,3 +397,91 @@ async def reset(
     user, token = result
     await recovery_service.complete_reset(user, body.new_password, token)
     return {"message": "Password reset successfully"}
+
+
+@router.post(
+    "/api/v1/auth/impersonate/end",
+    response_model=ImpersonateEndResponse,
+    summary="End an impersonation session, restoring the real actor",
+)
+async def impersonate_end(
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    if current_user.actor_id is None:
+        raise HTTPException(status_code=400, detail={
+            "code": "validation_error",
+            "message": "No active impersonation session",
+        })
+
+    real_actor_id = current_user.actor_id
+    user_repo = UserRepository(session=db, tenant_id=current_user.tenant_id)
+    actor_results = await user_repo.find_by(id=real_actor_id)
+    actor = actor_results[0] if actor_results else None
+    if actor is None or not actor.is_active:
+        raise HTTPException(status_code=401, detail={
+            "code": "unauthorized",
+            "message": "Real actor not found",
+        })
+
+    ts = _token_service()
+    access_token = ts.create_access_token(actor)
+
+    audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
+    audit_logger = AuditLogger(repository=audit_repo)
+    await audit_logger.log(
+        current_user=current_user,
+        accion=AccionAuditoria.IMPERSONACION_FINALIZAR,
+        detalle={"impersonado_id": str(current_user.user_id)},
+        filas_afectadas=1,
+        request=request,
+    )
+    await db.commit()
+
+    return ImpersonateEndResponse(
+        access_token=access_token,
+        expires_in=ACCESS_TOKEN_EXPIRES_SECONDS,
+    )
+
+
+@router.post(
+    "/api/v1/auth/impersonate/{user_id}",
+    response_model=ImpersonateResponse,
+    summary="Start an impersonation session over a same-tenant target user",
+    dependencies=[Depends(require_permission(Perm.IMPERSONACION_USAR))],
+)
+async def impersonate(
+    user_id: uuid.UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    user_repo = UserRepository(session=db, tenant_id=current_user.tenant_id)
+    target_results = await user_repo.find_by(id=user_id)
+    target = target_results[0] if target_results else None
+    if target is None or not target.is_active:
+        raise HTTPException(status_code=404, detail={
+            "code": "not_found",
+            "message": "Target user not found",
+        })
+
+    ts = _token_service()
+    access_token = ts.create_access_token(target, actor_id=current_user.user_id)
+
+    audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
+    audit_logger = AuditLogger(repository=audit_repo)
+    await audit_logger.log(
+        current_user=current_user,
+        accion=AccionAuditoria.IMPERSONACION_INICIAR,
+        detalle={"target_user_id": str(target.id)},
+        filas_afectadas=1,
+        request=request,
+        impersonado_id=target.id,
+    )
+    await db.commit()
+
+    return ImpersonateResponse(
+        access_token=access_token,
+        expires_in=ACCESS_TOKEN_EXPIRES_SECONDS,
+    )

@@ -2,8 +2,11 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from fastapi.security import HTTPAuthorizationCredentials
 from jose import jwt
 
+from app.api.dependencies.auth import get_current_user
+from app.schemas.auth import CurrentUser
 from app.services.auth.token_service import TokenService
 
 
@@ -57,3 +60,70 @@ def test_invalid_signature_raises():
     ts = _get_ts(secret="a" * 32)
     with pytest.raises(ValueError, match="Invalid token"):
         ts.verify_access_token(token)
+
+
+# ── Task 5.4: CurrentUser.actor_id ───────────────────────────────────────
+
+
+def test_current_user_actor_id_defaults_to_none():
+    cu = CurrentUser(user_id=uuid.uuid4(), tenant_id=uuid.uuid4(), roles=["ALUMNO"])
+    assert cu.actor_id is None
+
+
+def test_current_user_accepts_actor_id():
+    actor_id = uuid.uuid4()
+    cu = CurrentUser(
+        user_id=uuid.uuid4(), tenant_id=uuid.uuid4(), roles=["ADMIN"], actor_id=actor_id
+    )
+    assert cu.actor_id == actor_id
+
+
+# ── Task 5.5: get_current_user reads actor_id from payload ──────────────
+
+
+_FALLBACK_SECRET = "dev-secret-key-that-is-exactly-32-bytes!"
+
+
+def _make_request():
+    from starlette.requests import Request
+
+    scope = {"type": "http", "headers": []}
+    return Request(scope)
+
+
+async def test_get_current_user_normal_token_has_no_actor_id():
+    user_id = uuid.uuid4()
+    tenant_id = uuid.uuid4()
+    token = _make_token(user_id=user_id, tenant_id=tenant_id, secret=_FALLBACK_SECRET)
+    credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+
+    current_user = await get_current_user(
+        request=_make_request(), credentials=credentials, db=None
+    )
+
+    assert current_user.user_id == user_id
+    assert current_user.actor_id is None
+
+
+async def test_get_current_user_impersonation_token_has_actor_id():
+    real_actor_id = uuid.uuid4()
+    target_user_id = uuid.uuid4()
+    tenant_id = uuid.uuid4()
+    payload = {
+        "sub": str(target_user_id),
+        "tenant_id": str(tenant_id),
+        "roles": ["ALUMNO"],
+        "actor_id": str(real_actor_id),
+        "exp": datetime.now(UTC) + timedelta(hours=1),
+        "iat": datetime.now(UTC),
+        "jti": str(uuid.uuid4()),
+    }
+    token = jwt.encode(payload, _FALLBACK_SECRET, algorithm="HS256")
+    credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+
+    current_user = await get_current_user(
+        request=_make_request(), credentials=credentials, db=None
+    )
+
+    assert current_user.user_id == target_user_id
+    assert current_user.actor_id == real_actor_id

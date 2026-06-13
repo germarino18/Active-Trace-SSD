@@ -22,3 +22,4 @@ class Perm:
     LIQUIDACIONES_CERRAR = "liquidaciones:cerrar"
     FACTURAS_GESTIONAR = "facturas:gestionar"
     CONFIGURAR_TENANT = "configurar:tenant"
+    IMPERSONACION_USAR = "impersonacion:usar"
