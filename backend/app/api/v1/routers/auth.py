@@ -2,7 +2,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 
@@ -67,6 +67,11 @@ async def authenticate(
     request: Request,
     db=Depends(get_db),
     rate_limiter: RateLimiter = Depends(get_rate_limiter),
+    x_tenant_id: str | None = Header(
+        default=None,
+        alias="X-Tenant-ID",
+        description="UUID of the tenant to authenticate against (required)",
+    ),
 ):
     ip = request.client.host if request.client else "unknown"
     if not rate_limiter.check(ip, body.email):
@@ -80,7 +85,7 @@ async def authenticate(
             },
             headers={"Retry-After": str(retry_after)},
         )
-    tenant_id_str = request.headers.get("X-Tenant-ID")
+    tenant_id_str = x_tenant_id
     if not tenant_id_str:
         raise HTTPException(status_code=400, detail={
             "code": "validation_error",
@@ -119,7 +124,7 @@ async def authenticate(
         "token_hash": refresh_token_hash,
         "expires_at": datetime.now(UTC) + timedelta(days=30),
     })
-    access_token = ts.create_access_token(user)
+    access_token = await ts.create_access_token(user, db)
     return AuthenticateResponse(
         access_token=access_token,
         refresh_token=refresh_token_raw,
@@ -192,7 +197,7 @@ async def login(
         "token_hash": refresh_token_hash,
         "expires_at": datetime.now(UTC) + timedelta(days=30),
     })
-    access_token = ts.create_access_token(user)
+    access_token = await ts.create_access_token(user, db)
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token_raw,
@@ -250,7 +255,7 @@ async def refresh(
         .values(replaced_by=new_token.id)
     )
     await refresh_repo.session.flush()
-    access_token = ts.create_access_token(user)
+    access_token = await ts.create_access_token(user, db)
     return TokenResponse(
         access_token=access_token,
         refresh_token=new_raw,
@@ -450,7 +455,7 @@ async def impersonate_end(
         })
 
     ts = _token_service(request)
-    access_token = ts.create_access_token(actor)
+    access_token = await ts.create_access_token(actor, db)
 
     audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
     audit_logger = AuditLogger(repository=audit_repo)
@@ -491,7 +496,7 @@ async def impersonate(
         })
 
     ts = _token_service(request)
-    access_token = ts.create_access_token(target, actor_id=current_user.user_id)
+    access_token = await ts.create_access_token(target, db, actor_id=current_user.user_id)
 
     audit_repo = AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
     audit_logger = AuditLogger(repository=audit_repo)

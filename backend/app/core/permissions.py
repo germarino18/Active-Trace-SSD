@@ -15,6 +15,7 @@ class Perm:
     TAREAS_GESTIONAR = "tareas:gestionar"
     AVISOS_PUBLICAR = "avisos:publicar"
     EQUIPOS_GESTIONAR = "equipos:gestionar"
+    EQUIPOS_ASIGNAR = "equipos:asignar"
     ESTRUCTURA_GESTIONAR = "estructura:gestionar"
     USUARIOS_GESTIONAR = "usuarios:gestionar"
     AUDITORIA_VER = "auditoria:ver"

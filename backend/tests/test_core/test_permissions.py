@@ -7,3 +7,7 @@ def test_impersonacion_usar_permission_constant():
 
 def test_existing_permission_constant_unchanged():
     assert Perm.AUDITORIA_VER == "auditoria:ver"
+
+
+def test_equipos_asignar_permission_constant():
+    assert Perm.EQUIPOS_ASIGNAR == "equipos:asignar"

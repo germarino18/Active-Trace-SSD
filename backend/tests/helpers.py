@@ -1,9 +1,15 @@
 """Test helper utilities for the permission system."""
 
+import datetime
 import uuid
 
 from sqlalchemy import text as sql_text
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.asignacion import Asignacion
+from app.models.usuario import Usuario
+from app.models.user import User
+from app.repositories.base import BaseRepository
 
 
 async def seed_permissions_for_tenant(
@@ -41,6 +47,7 @@ async def seed_permissions_for_tenant(
         ("tareas:gestionar", "Gestionar tareas internas", "tareas"),
         ("avisos:publicar", "Publicar avisos", "avisos"),
         ("equipos:gestionar", "Gestionar equipos docentes", "equipos"),
+        ("equipos:asignar", "Asignar roles y contexto a usuarios", "equipos"),
         ("estructura:gestionar", "Gestionar estructura académica", "estructura"),
         ("usuarios:gestionar", "Gestionar usuarios del tenant", "usuarios"),
         ("auditoria:ver", "Ver auditoría", "auditoria"),
@@ -84,6 +91,7 @@ async def seed_permissions_for_tenant(
         ("COORDINADOR", "tareas:gestionar", False),
         ("COORDINADOR", "avisos:publicar", False),
         ("COORDINADOR", "equipos:gestionar", False),
+        ("COORDINADOR", "equipos:asignar", False),
         ("COORDINADOR", "auditoria:ver", True),
         # NEXO — zero permissions
         # ADMIN
@@ -98,6 +106,7 @@ async def seed_permissions_for_tenant(
         ("ADMIN", "tareas:gestionar", False),
         ("ADMIN", "avisos:publicar", False),
         ("ADMIN", "equipos:gestionar", False),
+        ("ADMIN", "equipos:asignar", False),
         ("ADMIN", "estructura:gestionar", False),
         ("ADMIN", "usuarios:gestionar", False),
         ("ADMIN", "auditoria:ver", False),
@@ -171,3 +180,70 @@ def cleanup_permission_cache():
     """Clear the per-request permission cache between tests."""
     from app.services.permission_service import PermissionResolver
     PermissionResolver.clear_cache()
+
+
+async def seed_asignaciones_for_user(
+    db_session: AsyncSession,
+    user: User,
+    roles: list[str] | None,
+) -> Usuario | None:
+    """Mirror migration 007's backfill for a single test user (C-07 Grupo 6).
+
+    The test schema is built via `Base.metadata.create_all`, so migration
+    007's backfill never runs against the test DB. Without this helper,
+    `AsignacionRepository.find_roles_vigentes` would return an empty set for
+    every test user, breaking the auth/RBAC safety net once
+    `TokenService.create_access_token` derives the `roles` claim from
+    `Asignacion` instead of `users.roles`.
+
+    For each role in `roles`, ensures:
+    - a `Usuario` row exists for `(tenant_id, user.id)` (created if absent,
+      same shell defaults as the migration: empty `nombre`/`apellidos`,
+      `facturador=False`, `estado="Activo"`)
+    - an `Asignacion` row with that `rol`, NULL academic context (tenant-global),
+      `desde=today()`, `hasta=None` — matching the migration's backfill shape.
+
+    Returns the `Usuario` row, or `None` if `roles` is empty/None (no
+    Usuario/Asignacion rows are created for a roleless user, matching the
+    migration's `if not roles: continue`).
+    """
+    if not roles:
+        return None
+
+    usuario_repo = BaseRepository(model=Usuario, session=db_session, tenant_id=user.tenant_id)
+    existing = await usuario_repo.find_by(user_id=user.id)
+    usuario = existing[0] if existing else None
+    if usuario is None:
+        usuario = await usuario_repo.create(
+            {
+                "user_id": user.id,
+                "nombre": "",
+                "apellidos": "",
+                "facturador": False,
+                "estado": "Activo",
+            }
+        )
+
+    asignacion_repo = BaseRepository(model=Asignacion, session=db_session, tenant_id=user.tenant_id)
+    hoy = datetime.date.today()
+    for rol in roles:
+        existing_asignacion = await asignacion_repo.find_by(usuario_id=usuario.id, rol=rol)
+        already_global = any(
+            a.dictado_id is None
+            and a.materia_id is None
+            and a.carrera_id is None
+            and a.cohorte_id is None
+            for a in existing_asignacion
+        )
+        if already_global:
+            continue
+        await asignacion_repo.create(
+            {
+                "usuario_id": usuario.id,
+                "rol": rol,
+                "desde": hoy,
+                "hasta": None,
+            }
+        )
+
+    return usuario

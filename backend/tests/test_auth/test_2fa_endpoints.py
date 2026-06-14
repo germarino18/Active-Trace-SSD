@@ -22,12 +22,6 @@ async def _create_user(db_session, tenant_id, email="2fa-endpoint@example.com"):
     })
 
 
-async def _login_and_get_token(client, tenant_id):
-    ts = TokenService()
-    user = await _create_user(None, tenant_id)
-    return ts.create_access_token(user)
-
-
 async def test_enroll_requires_auth(client: AsyncClient):
     response = await client.post("/api/auth/2fa/enroll")
     assert response.status_code == 401
@@ -36,7 +30,7 @@ async def test_enroll_requires_auth(client: AsyncClient):
 async def test_enroll_generates_secret(client: AsyncClient, db_session, test_tenant):
     user = await _create_user(db_session, test_tenant.id)
     ts = TokenService()
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     response = await client.post(
         "/api/auth/2fa/enroll",
         headers={"Authorization": f"Bearer {access}"},
@@ -62,7 +56,7 @@ async def test_enroll_when_already_enabled(client: AsyncClient, db_session, test
     user.totp_enabled_at = __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
     await db_session.flush()
     ts = TokenService()
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     response = await client.post(
         "/api/auth/2fa/enroll",
         headers={"Authorization": f"Bearer {access}"},
@@ -78,7 +72,7 @@ async def test_verify_with_valid_code(client: AsyncClient, db_session, test_tena
     user.totp_secret = encrypted
     await db_session.flush()
     ts = TokenService()
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     totp = pyotp.TOTP(secret)
     code = totp.now()
     response = await client.post(
@@ -95,7 +89,7 @@ async def test_verify_with_valid_code(client: AsyncClient, db_session, test_tena
 async def test_verify_without_enrollment(client: AsyncClient, db_session, test_tenant):
     user = await _create_user(db_session, test_tenant.id)
     ts = TokenService()
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     response = await client.post(
         "/api/auth/2fa/verify",
         json={"totp_code": "123456"},
@@ -114,7 +108,7 @@ async def test_disable_with_correct_password_and_totp(client: AsyncClient, db_se
     user.totp_enabled_at = __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
     await db_session.flush()
     ts = TokenService()
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     totp = pyotp.TOTP(secret)
     code = totp.now()
     response = await client.post(

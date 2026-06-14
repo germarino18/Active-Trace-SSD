@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.services.auth.password_service import PasswordService
-from tests.helpers import seed_permissions_for_tenant
+from tests.helpers import seed_asignaciones_for_user, seed_permissions_for_tenant
 
 
 @pytest_asyncio.fixture
@@ -31,6 +31,7 @@ async def admin_user(db_session: AsyncSession, test_tenant) -> User:
     )
     db_session.add(user)
     await db_session.flush()
+    await seed_asignaciones_for_user(db_session, user, user.roles)
     return user
 
 
@@ -48,6 +49,7 @@ async def profesor_user(db_session: AsyncSession, test_tenant) -> User:
     )
     db_session.add(user)
     await db_session.flush()
+    await seed_asignaciones_for_user(db_session, user, user.roles)
     return user
 
 
@@ -65,6 +67,7 @@ async def alumno_user(db_session: AsyncSession, test_tenant) -> User:
     )
     db_session.add(user)
     await db_session.flush()
+    await seed_asignaciones_for_user(db_session, user, user.roles)
     return user
 
 

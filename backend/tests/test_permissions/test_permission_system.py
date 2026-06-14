@@ -383,6 +383,7 @@ async def test_seed_all_permissions_exist(
         "tareas:gestionar",
         "avisos:publicar",
         "equipos:gestionar",
+        "equipos:asignar",
         "estructura:gestionar",
         "usuarios:gestionar",
         "auditoria:ver",

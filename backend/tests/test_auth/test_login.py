@@ -49,6 +49,23 @@ async def test_login_invalid_password(client: AsyncClient, db_session, test_tena
     assert response.status_code == 401
 
 
+async def test_authenticate_documents_tenant_header_in_openapi(app):
+    schema = app.openapi()
+    params = schema["paths"]["/api/auth/authenticate"]["post"].get("parameters", [])
+    header_names = [p["name"] for p in params if p.get("in") == "header"]
+    assert "X-Tenant-ID" in header_names
+
+
+async def test_login_missing_tenant_header_returns_400(client: AsyncClient, db_session, test_tenant):
+    await _create_test_user(db_session, test_tenant.id)
+    response = await client.post(
+        "/api/auth/authenticate",
+        json={"email": "login@example.com", "password": "TestP@ss1"},
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"]["code"] == "validation_error"
+
+
 async def test_login_nonexistent_email(client: AsyncClient, db_session, test_tenant):
     response = await client.post(
         "/api/auth/authenticate",

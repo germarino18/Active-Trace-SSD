@@ -237,14 +237,15 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 ## FASE 3 — Identidad, Asignaciones y Estructura Documental
 
 ### [C-07] `usuarios-y-asignaciones`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**:
-  - Modelo `Usuario` con PII **cifrada** (`email`, `dni`, `cuil`, `cbu`, `alias_cbu`); legajo como atributo de negocio opcional (no PK, no credencial).
-  - Modelo `Asignacion` (Usuario ↔ Rol ↔ contexto: materia/carrera/cohorte/comisiones), `responsable_id` (jerarquía), vigencia `desde/hasta`, `estado_vigencia` derivado.
-  - ABM usuarios `/api/admin/usuarios` (guard gestión de usuarios, ADMIN); CRUD asignaciones `/api/asignaciones` (`equipos:asignar`).
-  - Unicidad `(tenant_id, email)`. Asignación vencida no otorga permisos pero se conserva (histórico).
-  - `Migración 005: usuario, asignacion`.
-  - Tests: PII cifrada no expuesta en logs/respuestas, unicidad email por tenant, vigencia (vencida no autoriza), multi-rol, jerarquía responsable.
+  - Modelo `Usuario` (tabla nueva, FK 1:1 a `users.id` vía `user_id`) con PII **cifrada AES-256** (`dni`, `cuil`, `cbu`, `alias_cbu` vía `EncryptedString`); `email` NO se duplica (vive solo en `users.email`); legajo/legajo_profesional como atributos de negocio opcionales (no PK, no credencial).
+  - Modelo `Asignacion` (Usuario ↔ Rol ↔ contexto: dictado/materia/carrera/cohorte/comisiones), `responsable_id` (jerarquía), vigencia `desde/hasta`, `estado_vigencia` derivado por fechas (no almacenado).
+  - **BREAKING RBAC**: `Asignacion` vigente reemplaza a `users.roles` como fuente de los roles efectivos (`TokenService.create_access_token` deriva el claim `roles` vía `AsignacionRepository.find_roles_vigentes`); `users.roles` queda deprecada (no se borra).
+  - ABM usuarios `/api/admin/usuarios` (`usuarios:gestionar`); CRUD asignaciones `/api/asignaciones` (`equipos:asignar`, nuevo permiso sembrado para COORDINADOR/ADMIN).
+  - Unicidad parcial `(tenant_id, user_id)` sobre `usuario` vivos. Asignación vencida no otorga permisos pero se conserva (histórico).
+  - `Migración 007: usuario, asignacion` (tablas + índices + seed `equipos:asignar` + backfill `users.roles` → `asignacion`).
+  - Tests: PII cifrada no expuesta en logs/respuestas y ciphertext at-rest, unicidad `(tenant_id, user_id)`, vigencia (vencida no autoriza), multi-rol, jerarquía responsable, fail-closed sin permiso, aislamiento multi-tenant (incluye contexto FK).
 - **Dependencias**: `C-06`
 - **Governance**: CRITICO
 - **Leer antes**:

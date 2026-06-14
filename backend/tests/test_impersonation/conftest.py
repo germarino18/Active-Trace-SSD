@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
 from app.services.auth.password_service import PasswordService
-from tests.helpers import seed_permissions_for_tenant
+from tests.helpers import seed_asignaciones_for_user, seed_permissions_for_tenant
 
 _FALLBACK_SECRET = "a" * 32
 
@@ -78,6 +78,7 @@ async def _make_user(db_session, tenant_id, email, roles):
     )
     db_session.add(user)
     await db_session.flush()
+    await seed_asignaciones_for_user(db_session, user, roles)
     return user
 
 

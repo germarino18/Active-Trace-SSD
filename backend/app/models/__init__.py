@@ -13,10 +13,13 @@ from app.models.carrera import Carrera
 from app.models.materia import Materia
 from app.models.cohorte import Cohorte
 from app.models.dictado import Dictado
+from app.models.usuario import Usuario
+from app.models.asignacion import Asignacion
 
 __all__ = [
     "AuditLog",
     "AuditMixin",
+    "Asignacion",
     "Base",
     "BaseMixin",
     "Carrera",
@@ -33,4 +36,5 @@ __all__ = [
     "Tenant",
     "TenantMixin",
     "User",
+    "Usuario",
 ]

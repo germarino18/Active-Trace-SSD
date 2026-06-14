@@ -64,7 +64,7 @@ async def test_logout_revokes_token(client: AsyncClient, db_session, test_tenant
         "token_hash": token_hash,
         "expires_at": datetime.now(UTC) + timedelta(days=30),
     })
-    access = ts.create_access_token(user)
+    access = await ts.create_access_token(user, db_session)
     response = await client.post(
         "/api/auth/logout",
         json={"refresh_token": raw},
