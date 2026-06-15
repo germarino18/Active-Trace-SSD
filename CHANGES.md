@@ -275,14 +275,15 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 > Todos dependen de `C-07` (usuarios + asignaciones). Se pueden repartir entre los 3 agentes en paralelo.
 
 ### [C-08] `equipos-docentes`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado
 - **Scope**:
-  - Vistas/endpoints sobre `Asignacion`: mis-equipos del docente (F4.2), gestión de asignaciones (F4.3).
-  - Asignación masiva (F4.4): bloque docentes × materia × carrera × cohorte × rol con vigencia.
-  - Clonar equipo entre períodos (F4.5, RN-12): duplica asignaciones vigentes con fechas del nuevo período.
-  - Modificar vigencia general del equipo (F4.6); exportar equipo a archivo (F4.7).
-  - `/api/equipos/*` con guard `equipos:asignar` (COORDINADOR, ADMIN). Genera audit (`ASIGNACION_MODIFICAR`).
-  - Tests: clonado entre cohortes, asignación masiva, modificación de vigencia en bloque, export.
+  - Vistas/endpoints sobre `Asignacion`: mis-equipos del docente (F4.2, `GET /api/equipos/mis-equipos`, sólo sesión — sin guard `equipos:asignar`), gestión de asignaciones (F4.3, `GET /api/equipos`, `GET /api/equipos/docentes`).
+  - Asignación masiva (F4.4, RN-30, `POST /api/equipos/asignacion-masiva`): bloque docentes × materia × carrera × cohorte × rol con vigencia; omite docentes ya asignados sin duplicar.
+  - Clonar equipo entre períodos (F4.5, RN-12, `POST /api/equipos/clonar`): duplica asignaciones vigentes con fechas del nuevo período, excluye vencidas, no duplica lo existente en destino.
+  - Modificar vigencia general del equipo en bloque (F4.6, `PATCH /api/equipos/vigencia`); exportar equipo a CSV descargable (F4.7, D8, `GET /api/equipos/export`).
+  - `/api/equipos/*` (excepto `mis-equipos`) con guard `equipos:asignar` (COORDINADOR, ADMIN), fail-closed. Cada operación de bloque (masiva/clonado/vigencia) es transaccional (un único `commit`) y genera exactamente un audit `ASIGNACION_MODIFICAR`; operaciones de lectura no auditan.
+  - "Equipo" es una tripleta derivada (`materia_id`, `carrera_id`, `cohorte_id`) — no es una entidad persistida, sin migración nueva.
+  - Tests: 69 tests en `tests/test_equipos/` (schemas, repository, service, router) — RBAC 403/200, aislamiento multi-tenant (incluye mis-equipos), clonado entre cohortes, asignación masiva, modificación de vigencia en bloque, export CSV, conteo de audit.
 - **Dependencias**: `C-07`
 - **Governance**: ALTO
 - **Leer antes**:
