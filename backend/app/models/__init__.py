@@ -15,10 +15,16 @@ from app.models.cohorte import Cohorte
 from app.models.dictado import Dictado
 from app.models.usuario import Usuario
 from app.models.asignacion import Asignacion
+from app.models.entrada_padron import EntradaPadron
+from app.models.version_padron import VersionPadron
+from app.models.calificacion import Calificacion, CalificacionOrigen
+from app.models.umbral_materia import UmbralMateria
 
 __all__ = [
     "AuditLog",
     "AuditMixin",
+    "Calificacion",
+    "CalificacionOrigen",
     "Asignacion",
     "Base",
     "BaseMixin",
@@ -26,6 +32,7 @@ __all__ = [
     "Cohorte",
     "ConsumedChallengeToken",
     "Dictado",
+    "EntradaPadron",
     "Materia",
     "Permiso",
     "RecoveryToken",
@@ -36,5 +43,7 @@ __all__ = [
     "Tenant",
     "TenantMixin",
     "User",
+    "UmbralMateria",
     "Usuario",
+    "VersionPadron",
 ]

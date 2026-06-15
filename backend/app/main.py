@@ -10,6 +10,8 @@ from app.api.v1.routers.auth import router as auth_router
 from app.api.v1.routers.equipos import router as equipos_router
 from app.api.v1.routers.estructura import router as estructura_router
 from app.api.v1.routers.health import router as health_router
+from app.api.v1.routers.calificaciones import router as calificaciones_router
+from app.api.v1.routers.padron import router as padron_router
 from app.api.v1.routers.usuarios import router as usuarios_router
 from app.core.config import Settings
 from app.core.database import init_engine
@@ -22,6 +24,7 @@ from app.core.exceptions import (
     UnauthorizedException,
     ValidationException,
 )
+from app.integrations.moodle_ws import MoodleException
 from app.core.logging import setup_logging
 from app.core.observability import setup_observability
 from app.core.tenancy import TenantMiddleware
@@ -50,6 +53,20 @@ async def _app_exception_handler(request: Request, exc: AppException) -> JSONRes
                 "code": exc.code,
                 "message": exc.message,
                 "details": exc.details,
+            }
+        },
+    )
+
+
+async def _moodle_exception_handler(request: Request, exc: MoodleException) -> JSONResponse:
+    logger.warning("Moodle WS error: %s", exc.message)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": {
+                "code": "moodle_error",
+                "message": exc.message,
+                "details": {"retry_after": exc.retry_after},
             }
         },
     )
@@ -93,6 +110,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.add_exception_handler(AppException, _app_exception_handler)
+    app.add_exception_handler(MoodleException, _moodle_exception_handler)
     app.add_exception_handler(Exception, _unhandled_exception_handler)
     app.add_middleware(TenantMiddleware)
     app.include_router(health_router)
@@ -102,4 +120,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(usuarios_router)
     app.include_router(asignaciones_router)
     app.include_router(equipos_router)
+    app.include_router(calificaciones_router)
+    app.include_router(padron_router)
     return app

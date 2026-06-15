@@ -24,3 +24,8 @@ class Perm:
     FACTURAS_GESTIONAR = "facturas:gestionar"
     CONFIGURAR_TENANT = "configurar:tenant"
     IMPERSONACION_USAR = "impersonacion:usar"
+
+    # C-09 padron ingesta
+    PADRON_IMPORTAR = "padron:importar"
+    PADRON_VACIAR = "padron:vaciar"
+    PADRON_VER = "padron:ver"

@@ -55,6 +55,9 @@ async def seed_permissions_for_tenant(
         ("liquidaciones:cerrar", "Calcular/cerrar liquidaciones", "liquidaciones"),
         ("facturas:gestionar", "Gestionar facturas", "facturas"),
         ("configurar:tenant", "Configurar el tenant", "configurar"),
+        ("padron:importar", "Importar padrón de alumnos", "padron"),
+        ("padron:vaciar", "Vaciar datos de dictado", "padron"),
+        ("padron:ver", "Ver padrón de alumnos", "padron"),
     ]
 
     # ── Role-permission matrix ─────────────────────────────────────────
@@ -111,6 +114,9 @@ async def seed_permissions_for_tenant(
         ("ADMIN", "usuarios:gestionar", False),
         ("ADMIN", "auditoria:ver", False),
         ("ADMIN", "configurar:tenant", False),
+        ("ADMIN", "padron:importar", False),
+        ("ADMIN", "padron:vaciar", False),
+        ("ADMIN", "padron:ver", False),
         # FINANZAS
         ("FINANZAS", "avisos:confirmar", False),
         ("FINANZAS", "auditoria:ver", False),
