@@ -78,9 +78,15 @@ The system SHALL provide a `get_current_user` FastAPI dependency that:
 4. Sets `TenantContext` with the tenant_id
 5. Returns the user_id and roles as a `CurrentUser` Pydantic model
 
+The `roles` carried in `CurrentUser` originate from the user's Vigente asignaciones (derived at token issuance), NOT from the deprecated `users.roles` column. The dependency reads the already-derived `roles` claim from the verified JWT.
+
 #### Scenario: Valid token returns current user
 - **WHEN** calling a protected endpoint with a valid non-expired access token
 - **THEN** get_current_user returns the CurrentUser with correct user_id, tenant_id, and roles from the token claims
+
+#### Scenario: Roles reflect Vigente asignaciones
+- **WHEN** a user authenticates and receives a token whose `roles` claim was derived from Vigente asignaciones
+- **THEN** `CurrentUser.roles` equals that derived set, used by `require_permission` for fine-grained checks
 
 #### Scenario: Missing Authorization header
 - **WHEN** calling a protected endpoint without an Authorization header
