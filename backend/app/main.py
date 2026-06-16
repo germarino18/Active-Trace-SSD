@@ -18,6 +18,7 @@ from app.api.v1.routers.encuentros import router as encuentros_router
 from app.api.v1.routers.guardias import router as guardias_router
 from app.api.v1.routers.avisos import router as avisos_router
 from app.api.v1.routers.padron import router as padron_router
+from app.api.v1.routers.tareas import router as tareas_router
 from app.api.v1.routers.usuarios import router as usuarios_router
 from app.core.config import Settings
 from app.core.database import init_engine
@@ -134,4 +135,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(guardias_router)
     app.include_router(avisos_router)
     app.include_router(padron_router)
+    app.include_router(tareas_router)
     return app
