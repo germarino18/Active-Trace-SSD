@@ -88,6 +88,14 @@
       "sessions": 1,
       "memories": 5,
       "prompts": 11
+    },
+    {
+      "id": "c0c55020",
+      "created_by": "navar",
+      "created_at": "2026-06-16T21:40:12Z",
+      "sessions": 1,
+      "memories": 4,
+      "prompts": 6
     }
   ]
 }

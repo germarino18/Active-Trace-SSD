@@ -21,11 +21,14 @@ from app.api.v1.routers.padron import router as padron_router
 from app.api.v1.routers.programas import router as programas_router
 from app.api.v1.routers.fechas_academicas import router as fechas_academicas_router
 from app.api.v1.routers.tareas import router as tareas_router
+from app.api.v1.routers.liquidaciones import router as liquidaciones_router
+from app.api.v1.routers.facturas import router as facturas_router
 from app.api.v1.routers.usuarios import router as usuarios_router
 from app.core.config import Settings
 from app.core.database import init_engine
 from app.core.exceptions import (
     AppException,
+    BusinessRuleViolation,
     ForbiddenException,
     NotFoundException,
     RateLimitException,
@@ -46,6 +49,7 @@ STATUS_CODE_MAP: dict[str, int] = {
     TenantMismatchException.__name__: 403,
     UnauthorizedException.__name__: 401,
     ValidationException.__name__: 422,
+    BusinessRuleViolation.__name__: 409,
     RateLimitException.__name__: 429,
 }
 
@@ -140,4 +144,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(tareas_router)
     app.include_router(programas_router)
     app.include_router(fechas_academicas_router)
+    app.include_router(liquidaciones_router)
+    app.include_router(facturas_router)
     return app

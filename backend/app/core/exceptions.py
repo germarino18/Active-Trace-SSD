@@ -66,6 +66,16 @@ class UnauthorizedException(AppException):
         super().__init__(message=message, code="unauthorized", details=details)
 
 
+class BusinessRuleViolation(AppException):
+    def __init__(
+        self,
+        message: str = "Business rule violation",
+        code: str = "business_rule_violation",
+        details: dict | None = None,
+    ):
+        super().__init__(message=message, code=code, details=details)
+
+
 class RateLimitException(AppException):
     def __init__(
         self,
