@@ -21,6 +21,7 @@ class Tenant(BaseMixin, TenantMixin, SoftDeleteMixin, AuditMixin, Base):
     slug = Column(String(100), nullable=False)
     settings = Column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     is_active = Column(Boolean, nullable=False, server_default=text("true"))
+    aprobacion_comunicaciones = Column(Boolean, nullable=False, server_default=text("false"))
 
     __table_args__ = (
         Index(

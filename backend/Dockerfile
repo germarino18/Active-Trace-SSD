@@ -12,7 +12,10 @@ FROM python:3.13-slim AS runtime
 WORKDIR /app
 
 COPY --from=builder /usr/local /usr/local
+COPY --from=builder /build/alembic.ini .
+COPY --from=builder /build/alembic ./alembic/
 COPY --from=builder /build/app ./app/
+COPY --from=builder /build/workers ./workers/
 
 ENV PYTHONUNBUFFERED=1
 

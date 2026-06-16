@@ -18,6 +18,7 @@ from app.models.asignacion import Asignacion
 from app.models.entrada_padron import EntradaPadron
 from app.models.version_padron import VersionPadron
 from app.models.calificacion import Calificacion, CalificacionOrigen
+from app.models.comunicacion import Comunicacion, ComunicacionEstado
 from app.models.umbral_materia import UmbralMateria
 
 __all__ = [
@@ -25,6 +26,8 @@ __all__ = [
     "AuditMixin",
     "Calificacion",
     "CalificacionOrigen",
+    "Comunicacion",
+    "ComunicacionEstado",
     "Asignacion",
     "Base",
     "BaseMixin",
