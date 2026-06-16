@@ -23,6 +23,10 @@ from app.models.slot_encuentro import DiaSemana, SlotEncuentro
 from app.models.instancia_encuentro import InstanciaEncuentro
 from app.models.guardia import Guardia
 from app.models.umbral_materia import UmbralMateria
+from app.models.evaluacion import Evaluacion, EstadoEvaluacion, TipoEvaluacion
+from app.models.reserva_evaluacion import ReservaEvaluacion
+from app.models.resultado_evaluacion import ResultadoEvaluacion
+from app.models.alumno_convocado import AlumnoConvocado
 
 __all__ = [
     "AuditLog",
@@ -56,4 +60,10 @@ __all__ = [
     "UmbralMateria",
     "Usuario",
     "VersionPadron",
+    "Evaluacion",
+    "EstadoEvaluacion",
+    "TipoEvaluacion",
+    "ReservaEvaluacion",
+    "ResultadoEvaluacion",
+    "AlumnoConvocado",
 ]

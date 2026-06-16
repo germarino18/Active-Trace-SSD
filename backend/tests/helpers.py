@@ -58,6 +58,9 @@ async def seed_permissions_for_tenant(
         ("padron:importar", "Importar padrón de alumnos", "padron"),
         ("padron:vaciar", "Vaciar datos de dictado", "padron"),
         ("padron:ver", "Ver padrón de alumnos", "padron"),
+        ("coloquios:gestionar", "Gestionar convocatorias de coloquio", "coloquios"),
+        ("coloquios:reservar", "Reservar turno de coloquio", "coloquios"),
+        ("coloquios:ver", "Ver coloquios y resultados", "coloquios"),
     ]
 
     # ── Role-permission matrix ─────────────────────────────────────────
@@ -117,6 +120,16 @@ async def seed_permissions_for_tenant(
         ("ADMIN", "padron:importar", False),
         ("ADMIN", "padron:vaciar", False),
         ("ADMIN", "padron:ver", False),
+        # COORDINADOR — coloquios
+        ("COORDINADOR", "coloquios:gestionar", False),
+        ("COORDINADOR", "coloquios:ver", False),
+        # ALUMNO — coloquios
+        ("ALUMNO", "coloquios:reservar", False),
+        # PROFESOR — coloquios (propio)
+        ("PROFESOR", "coloquios:ver", True),
+        # ADMIN — coloquios
+        ("ADMIN", "coloquios:gestionar", False),
+        ("ADMIN", "coloquios:ver", False),
         # FINANZAS
         ("FINANZAS", "avisos:confirmar", False),
         ("FINANZAS", "auditoria:ver", False),

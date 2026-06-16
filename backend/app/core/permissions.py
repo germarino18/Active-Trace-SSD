@@ -25,6 +25,11 @@ class Perm:
     CONFIGURAR_TENANT = "configurar:tenant"
     IMPERSONACION_USAR = "impersonacion:usar"
 
+    # C-14 evaluaciones y coloquios
+    COLOQUIOS_GESTIONAR = "coloquios:gestionar"
+    COLOQUIOS_RESERVAR = "coloquios:reservar"
+    COLOQUIOS_VER = "coloquios:ver"
+
     # C-09 padron ingesta
     PADRON_IMPORTAR = "padron:importar"
     PADRON_VACIAR = "padron:vaciar"
