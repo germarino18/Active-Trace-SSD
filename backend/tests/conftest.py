@@ -61,7 +61,10 @@ def settings(_test_security_env) -> Settings:
 
 @pytest.fixture(scope="session")
 def test_db_url() -> str:
-    return "postgresql+asyncpg://postgres:postgres@127.0.0.1:5433/activia_trace_test"
+    return os.environ.get(
+        "DATABASE_URL_TEST",
+        "postgresql+asyncpg://postgres:postgres@127.0.0.1:5432/activia_trace_test",
+    )
 
 
 @pytest_asyncio.fixture(scope="session")

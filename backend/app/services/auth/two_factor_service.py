@@ -21,7 +21,7 @@ class TwoFactorService:
     @staticmethod
     def verify_code(secret: str, code: str) -> bool:
         totp = pyotp.TOTP(secret)
-        return totp.verify(code, valid_window=1)
+        return totp.verify(code, valid_window=2)
 
     @staticmethod
     def encrypt_secret(secret: str) -> str:

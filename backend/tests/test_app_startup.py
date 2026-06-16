@@ -24,5 +24,5 @@ async def test_app_has_health_route():
         OTEL_ENABLED=False,
     )
     app = create_app(settings)
-    routes = [r.path for r in app.routes]
-    assert "/health" in routes
+    paths = list(app.openapi()["paths"].keys())
+    assert "/health" in paths
