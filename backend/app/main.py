@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.api.v1.routers.admin import router as admin_router
+from app.api.v1.routers.analisis import router as analisis_router
 from app.api.v1.routers.asignaciones import router as asignaciones_router
 from app.api.v1.routers.auth import router as auth_router
 from app.api.v1.routers.equipos import router as equipos_router
@@ -117,6 +118,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router)
     app.include_router(admin_router)
     app.include_router(estructura_router)
+    app.include_router(analisis_router)
     app.include_router(usuarios_router)
     app.include_router(asignaciones_router)
     app.include_router(equipos_router)

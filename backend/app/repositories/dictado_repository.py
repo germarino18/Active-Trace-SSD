@@ -10,6 +10,15 @@ class DictadoRepository(BaseRepository[Dictado]):
     def __init__(self, session, tenant_id: uuid.UUID | None = None):
         super().__init__(model=Dictado, session=session, tenant_id=tenant_id)
 
+    async def find_by_materia(self, materia_id: uuid.UUID) -> list[Dictado]:
+        query = select(self.model).where(
+            self.model.materia_id == materia_id,
+        )
+        query = self._apply_tenant_scope(query)
+        query = self._apply_soft_delete_filter(query)
+        result = await self.session.execute(query)
+        return list(result.unique().scalars().all())
+
     async def find_by_terna(
         self,
         tenant_id: uuid.UUID,

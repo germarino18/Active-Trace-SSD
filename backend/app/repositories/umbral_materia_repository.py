@@ -10,6 +10,14 @@ class UmbralMateriaRepository(BaseRepository[UmbralMateria]):
     def __init__(self, session, tenant_id: uuid.UUID | None = None):
         super().__init__(model=UmbralMateria, session=session, tenant_id=tenant_id)
 
+    async def find_by_dictado(self, dictado_id: uuid.UUID) -> list[UmbralMateria]:
+        query = select(self.model).where(
+            self.model.dictado_id == dictado_id,
+        )
+        query = self._apply_tenant_scope(query)
+        result = await self.session.execute(query)
+        return list(result.unique().scalars().all())
+
     async def find_by_asignacion_dictado(
         self, asignacion_id: uuid.UUID, dictado_id: uuid.UUID
     ) -> UmbralMateria | None:
