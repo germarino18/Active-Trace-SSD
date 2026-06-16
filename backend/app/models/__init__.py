@@ -19,6 +19,9 @@ from app.models.entrada_padron import EntradaPadron
 from app.models.version_padron import VersionPadron
 from app.models.calificacion import Calificacion, CalificacionOrigen
 from app.models.comunicacion import Comunicacion, ComunicacionEstado
+from app.models.slot_encuentro import DiaSemana, SlotEncuentro
+from app.models.instancia_encuentro import InstanciaEncuentro
+from app.models.guardia import Guardia
 from app.models.umbral_materia import UmbralMateria
 
 __all__ = [
@@ -28,6 +31,10 @@ __all__ = [
     "CalificacionOrigen",
     "Comunicacion",
     "ComunicacionEstado",
+    "DiaSemana",
+    "SlotEncuentro",
+    "InstanciaEncuentro",
+    "Guardia",
     "Asignacion",
     "Base",
     "BaseMixin",

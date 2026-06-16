@@ -48,6 +48,14 @@
       "sessions": 1,
       "memories": 0,
       "prompts": 7
+    },
+    {
+      "id": "5a731e4f",
+      "created_by": "huesi",
+      "created_at": "2026-06-16T03:21:28Z",
+      "sessions": 1,
+      "memories": 0,
+      "prompts": 4
     }
   ]
 }
