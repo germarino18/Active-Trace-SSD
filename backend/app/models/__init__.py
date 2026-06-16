@@ -29,6 +29,8 @@ from app.models.resultado_evaluacion import ResultadoEvaluacion
 from app.models.alumno_convocado import AlumnoConvocado
 from app.models.aviso import Aviso, AcknowledgmentAviso, AlcanceAviso, SeveridadAviso
 from app.models.tarea import ComentarioTarea, Tarea, TareaEstado
+from app.models.programa_materia import ProgramaMateria
+from app.models.fecha_academica import FechaAcademica, TipoFechaAcademica
 
 __all__ = [
     "AuditLog",
@@ -75,4 +77,7 @@ __all__ = [
     "ComentarioTarea",
     "Tarea",
     "TareaEstado",
+    "ProgramaMateria",
+    "FechaAcademica",
+    "TipoFechaAcademica",
 ]
