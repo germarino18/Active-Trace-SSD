@@ -119,7 +119,9 @@ Las tablas de Base y Plus tienen fecha de inicio (`desde`) y fecha de fin (`hast
 Existe una **base salarial fija por rol** independiente de la materia dictada. Los roles del dominio con base definida son: COORDINADOR, NEXO, PROFESOR, TUTOR. Los valores concretos son configuración de la grilla salarial, no constantes del sistema.
 
 ### RN-33 — Plus salarial por (categoría de materia × rol)
-Los plus son adicionales identificados por una **clave de categoría** (por ejemplo: una categoría que agrupa materias de programación) cruzada con el rol del docente. El valor del plus es configurable en la grilla. Si un docente tiene asignaciones en N comisiones de la misma categoría, acumula N veces el plus correspondiente.
+Los plus son adicionales identificados por una **clave de categoría** (por ejemplo: una categoría que agrupa materias de programación) cruzada con el rol del docente. El valor del plus es configurable en la grilla.
+
+**Regla de acumulación confirmada**: si un docente tiene asignaciones en N comisiones de la misma categoría, acumula N veces el plus correspondiente (`N × Plus(clave, rol)`). No existe tope de acumulación. La lógica es idéntica para todos los roles (PROFESOR, TUTOR, COORDINADOR, NEXO).
 
 ### RN-34 — Cálculo de liquidación mensual
 La liquidación mensual de un docente se calcula como:

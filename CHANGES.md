@@ -430,10 +430,10 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 - **Dependencias**: `C-07`
 - **Governance**: CRITICO
 - **Leer antes**:
-  - `knowledge-base/04_modelo_de_datos.md` §E17–E20 (Salario, Liquidación, Factura)
+  - `knowledge-base/04_modelo_de_datos.md` §E17–E23 (Salario, Liquidación, Factura, ClavePlus, MateriaClavePlus)
   - `knowledge-base/06_funcionalidades.md` Épica 10 (F10.1–F10.6)
   - `knowledge-base/07_flujos_principales.md` FL-08 (liquidación)
-  - `knowledge-base/10_preguntas_abiertas.md` PA-22, PA-23 (mapeo y acumulación de Plus — confirmar antes)
+  - `knowledge-base/03_actores_y_roles.md` §3.3 (matriz de permisos, rol NEXO)
 
 ### [C-19] `panel-auditoria-metricas`
 - **Estado**: `[ ]` pendiente

@@ -561,6 +561,51 @@ Comunicacion {
 
 ---
 
+### E22 — ClavePlus (categoría de materias para plus salarial)
+
+Catálogo de categorías de materias que determinan el adicional salarial (Plus). Configurable por tenant.
+
+```
+ClavePlus {
+  id          : UUID       — clave interna
+  tenant_id   : UUID       — FK → Tenant
+  codigo      : texto      — código corto único dentro del tenant (ej: "PROG", "BD", "ING", "MAT")
+  descripcion : texto      — descripción legible (ej: "Materias de Programación")
+  desde       : fecha      — inicio de vigencia
+  hasta       : fecha      — fin de vigencia (nulo = vigente sin límite)
+}
+```
+
+**Reglas**:
+- El par `(tenant_id, codigo)` es único.
+- Solo puede haber un `ClavePlus` vigente por código en un instante dado.
+- El catálogo es administrable por el rol FINANZAS (`liquidaciones:configurar-salarios`).
+
+---
+
+### E23 — MateriaClavePlus (asignación de clave a materia con vigencia)
+
+Asigna una `ClavePlus` a una `Materia` con vigencia temporal. Toda materia debe tener una clave asignada. Una materia paga el mismo Plus independientemente de la carrera donde se dicte.
+
+```
+MateriaClavePlus {
+  id            : UUID       — clave interna
+  tenant_id     : UUID       — FK → Tenant
+  materia_id    : UUID       — FK → Materia
+  clave_plus_id : UUID       — FK → ClavePlus
+  desde         : fecha      — desde cuándo aplica esta clave
+  hasta         : fecha      — fin de vigencia (nulo = vigente sin límite)
+}
+```
+
+**Reglas**:
+- El par `(tenant_id, materia_id)` es único entre registros vivos.
+- Solo puede haber una `MateriaClavePlus` vigente por materia en un instante dado.
+- Cuando se liquida un período, se busca la asignación vigente a esa fecha (`desde <= período <= hasta`).
+- Si se modifica la clave de una materia, las liquidaciones de períodos anteriores conservan la clave que estaba vigente en ese momento.
+
+---
+
 ### E-AUD — Log de auditoría
 
 Registro inmutable de toda acción significativa realizada en el sistema.
@@ -633,6 +678,9 @@ Usuario (1) ─── (N) ReservaEvaluacion
 VersionPadron (1) ─── (N) EntradaPadron
 EntradaPadron (1) ─── (N) Calificacion
 
+ClavePlus (1) ─── (N) MateriaClavePlus
+Materia (1) ─── (N) MateriaClavePlus
+
 Asignacion (N) ─── (1) Asignacion   — jerarquía (responsable_id)
 Asignacion (1) ─── (N) UmbralMateria
 Asignacion (1) ─── (N) SlotEncuentro
@@ -660,7 +708,9 @@ Estos valores son ejemplos de datos iniciales esperados en una instalación. No 
 | Cohorte | Múltiples cohortes por carrera (típicamente 2 por año: inicio de primer y segundo cuatrimestre) |
 | Materia | El tenant define su catálogo completo; típicamente decenas de materias |
 | SalarioBase | Un registro por rol activo, con vigencia desde la fecha de acuerdo |
-| SalarioPlus | Uno o más registros por grupo de materias × rol |
+| SalarioPlus | Uno o más registros por clave × rol, con vigencia |
+| ClavePlus | Tantos registros como categorías de materias tenga la institución (PROG, BD, ING, MAT, etc.) |
+| MateriaClavePlus | Un registro por materia, con vigencia desde el inicio del convenio |
 
 ---
 

@@ -28,7 +28,7 @@ El sistema define los siguientes roles. Cada uno representa una **función**, no
 | **TUTOR** | Auxiliar / ayudante de cátedra | Acompañar el seguimiento de alumnos, cubrir guardias, asistir al profesor. |
 | **PROFESOR** | Docente a cargo de una o más comisiones | Gestionar sus comisiones: calificaciones, detección de atrasados, comunicación con alumnos, encuentros. |
 | **COORDINADOR** | Responsable de un conjunto de materias o de una cohorte | Armar equipos docentes, supervisar rendimiento, publicar avisos, coordinar tareas. |
-| **NEXO** | Rol de articulación / enlace transversal | Cumple funciones de puente entre la institución y grupos de docentes o alumnos (no atado a una materia específica). |
+| **NEXO** | Supervisor / enlace institucional asociado a una o más carreras | Consulta y supervisa datos institucionales (calificaciones, atrasados, horarios, faltas, equipos, encuentros, tareas) dentro de su/s carrera/s. Función mixta de supervisión y coordinación. Solo lectura: no escribe ni gestiona. Acumulable con COORDINADOR (configurable por tenant). |
 | **ADMIN** | Administrador del sistema dentro del tenant | Gestionar la estructura académica (carreras, cohortes, materias), usuarios y configuración del tenant. |
 | **FINANZAS** | Responsable de liquidaciones y honorarios | Operar la grilla salarial, calcular y cerrar liquidaciones, gestionar facturas. |
 
@@ -61,28 +61,31 @@ Cada rol agrupa un conjunto de permisos. Los permisos efectivos de un usuario so
 
 > La matriz se expresa por **capacidad de negocio**, no por pantalla ni ruta, para que sea implementable en cualquier arquitectura. `✅` = el rol tiene la capacidad; `—` = no la tiene; `(propio)` = solo sobre sus propios datos, no los de otros usuarios.
 
-| Capacidad / Módulo | ALUMNO | TUTOR | PROFESOR | COORDINADOR | ADMIN | FINANZAS |
-|--------------------|:------:|:-----:|:--------:|:-----------:|:-----:|:--------:|
-| Ver estado académico propio | ✅ | — | — | — | — | — |
-| Reservar instancia de evaluación | ✅ | — | — | — | — | — |
-| Confirmar avisos (acknowledgment) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Importar calificaciones | — | — | ✅ (propio) | ✅ | ✅ | — |
-| Ver alumnos atrasados | — | ✅ | ✅ (propio) | ✅ | ✅ | — |
-| Detectar entregas sin corregir | — | ✅ | ✅ (propio) | ✅ | ✅ | — |
-| Enviar comunicaciones a alumnos | — | — | ✅ (propio) | ✅ | ✅ | — |
-| Aprobar comunicaciones masivas | — | — | — | ✅ | ✅ | — |
-| Gestionar encuentros | — | ✅ | ✅ (propio) | ✅ | ✅ | — |
-| Registrar guardias | — | ✅ (propio) | ✅ (propio) | ✅ | ✅ | — |
-| Gestionar tareas internas | — | — | ✅ (propio) | ✅ | ✅ | — |
-| Publicar avisos | — | — | — | ✅ | ✅ | — |
-| Gestionar equipos docentes (asignaciones) | — | — | — | ✅ | ✅ | — |
-| Gestionar estructura académica (carreras, cohortes, materias) | — | — | — | — | ✅ | — |
-| Gestionar usuarios del tenant | — | — | — | — | ✅ | — |
-| Ver auditoría | — | — | — | ✅ (propio) | ✅ | ✅ |
-| Operar grilla salarial | — | — | — | — | — | ✅ |
-| Calcular / cerrar liquidaciones | — | — | — | — | — | ✅ |
-| Gestionar facturas | — | — | — | — | — | ✅ |
-| Configurar el tenant | — | — | — | — | ✅ | — |
+| Capacidad / Módulo | ALUMNO | TUTOR | PROFESOR | COORDINADOR | **NEXO** | ADMIN | FINANZAS |
+|--------------------|:------:|:-----:|:--------:|:-----------:|:--------:|:-----:|:--------:|
+| Ver estado académico propio | ✅ | — | — | — | — | — | — |
+| Reservar instancia de evaluación | ✅ | — | — | — | — | — | — |
+| Confirmar avisos (acknowledgment) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Importar calificaciones | — | — | ✅ (propio) | ✅ | — | ✅ | — |
+| Ver alumnos atrasados | — | ✅ | ✅ (propio) | ✅ | ✅ (carrera) | ✅ | — |
+| Detectar entregas sin corregir | — | ✅ | ✅ (propio) | ✅ | ✅ (carrera) | ✅ | — |
+| Enviar comunicaciones a alumnos | — | — | ✅ (propio) | ✅ | — | ✅ | — |
+| Aprobar comunicaciones masivas | — | — | — | ✅ | — | ✅ | — |
+| Gestionar encuentros | — | ✅ | ✅ (propio) | ✅ | — | ✅ | — |
+| **Ver** encuentros | — | ✅ | ✅ (propio) | ✅ | ✅ (carrera) | ✅ | — |
+| Registrar guardias | — | ✅ (propio) | ✅ (propio) | ✅ | — | ✅ | — |
+| Gestionar tareas internas | — | — | ✅ (propio) | ✅ | — | ✅ | — |
+| **Ver** tareas internas | — | — | ✅ (propio) | ✅ | ✅ (carrera) | ✅ | — |
+| Publicar avisos | — | — | — | ✅ | — | ✅ | — |
+| Gestionar equipos docentes (asignaciones) | — | — | — | ✅ | — | ✅ | — |
+| **Ver** estructura académica (carreras, cohortes, materias) | — | — | — | ✅ | ✅ (carrera) | ✅ | — |
+| Gestionar estructura académica | — | — | — | — | — | ✅ | — |
+| Gestionar usuarios del tenant | — | — | — | — | — | ✅ | — |
+| Ver auditoría | — | — | — | ✅ (propio) | — | ✅ | ✅ |
+| Operar grilla salarial | — | — | — | — | — | — | ✅ |
+| Calcular / cerrar liquidaciones | — | — | — | — | — | — | ✅ |
+| Gestionar facturas | — | — | — | — | — | — | ✅ |
+| Configurar el tenant | — | — | — | — | — | ✅ | — |
 
 > ⚠️ Esta matriz es el **punto de partida** del diseño de permisos. El equipo de implementación debe modelarla como datos (catálogo rol × permiso administrable), no hardcodearla.
 
