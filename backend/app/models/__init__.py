@@ -27,6 +27,7 @@ from app.models.evaluacion import Evaluacion, EstadoEvaluacion, TipoEvaluacion
 from app.models.reserva_evaluacion import ReservaEvaluacion
 from app.models.resultado_evaluacion import ResultadoEvaluacion
 from app.models.alumno_convocado import AlumnoConvocado
+from app.models.aviso import Aviso, AcknowledgmentAviso, AlcanceAviso, SeveridadAviso
 
 __all__ = [
     "AuditLog",
@@ -66,4 +67,8 @@ __all__ = [
     "ReservaEvaluacion",
     "ResultadoEvaluacion",
     "AlumnoConvocado",
+    "Aviso",
+    "AcknowledgmentAviso",
+    "AlcanceAviso",
+    "SeveridadAviso",
 ]

@@ -60,8 +60,8 @@ async def test_migration_007_up_and_down(test_db_url: str):
         # of Base.metadata via app.models.__init__), seed a tenant and a
         # user with roles so the backfill loop has data to act on.
         async with engine.begin() as conn:
-            await conn.execute(text("DROP TABLE IF EXISTS asignacion"))
-            await conn.execute(text("DROP TABLE IF EXISTS usuario"))
+            await conn.execute(text("DROP TABLE IF EXISTS asignacion CASCADE"))
+            await conn.execute(text("DROP TABLE IF EXISTS usuario CASCADE"))
             await conn.execute(
                 text(
                     "INSERT INTO tenant (id, name, slug, created_at, updated_at) "
@@ -209,8 +209,8 @@ async def test_migration_007_seed_and_backfill_are_idempotent(test_db_url: str):
     engine = create_async_engine(test_db_url)
     try:
         async with engine.begin() as conn:
-            await conn.execute(text("DROP TABLE IF EXISTS asignacion"))
-            await conn.execute(text("DROP TABLE IF EXISTS usuario"))
+            await conn.execute(text("DROP TABLE IF EXISTS asignacion CASCADE"))
+            await conn.execute(text("DROP TABLE IF EXISTS usuario CASCADE"))
             await conn.execute(
                 text(
                     "INSERT INTO tenant (id, name, slug, created_at, updated_at) "
