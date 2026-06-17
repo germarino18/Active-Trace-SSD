@@ -37,6 +37,9 @@ from app.models.clave_plus import ClavePlus
 from app.models.materia_clave_plus import MateriaClavePlus
 from app.models.liquidacion import Liquidacion, EstadoLiquidacion
 from app.models.factura import Factura, EstadoFactura
+from app.models.hilo_conversacion import HiloConversacion
+from app.models.hilo_participante import HiloParticipante
+from app.models.mensaje import Mensaje
 
 __all__ = [
     "AuditLog",
@@ -95,4 +98,7 @@ __all__ = [
     "EstadoLiquidacion",
     "Factura",
     "EstadoFactura",
+    "HiloConversacion",
+    "HiloParticipante",
+    "Mensaje",
 ]

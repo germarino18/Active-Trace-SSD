@@ -34,3 +34,6 @@ class Perm:
     PADRON_IMPORTAR = "padron:importar"
     PADRON_VACIAR = "padron:vaciar"
     PADRON_VER = "padron:ver"
+
+    # C-20 perfil y mensajeria
+    INBOX_ACCEDER = "inbox:acceder"

@@ -64,6 +64,7 @@ async def seed_permissions_for_tenant(
         ("coloquios:gestionar", "Gestionar convocatorias de coloquio", "coloquios"),
         ("coloquios:reservar", "Reservar turno de coloquio", "coloquios"),
         ("coloquios:ver", "Ver coloquios y resultados", "coloquios"),
+        ("inbox:acceder", "Acceder a la bandeja de mensajes interna", "inbox"),
     ]
 
     # ── Role-permission matrix ─────────────────────────────────────────
@@ -73,12 +74,14 @@ async def seed_permissions_for_tenant(
         ("ALUMNO", "estado-academico:ver", False),
         ("ALUMNO", "evaluacion:reservar", False),
         ("ALUMNO", "avisos:confirmar", False),
+        ("ALUMNO", "inbox:acceder", False),
         # TUTOR
         ("TUTOR", "avisos:confirmar", False),
         ("TUTOR", "atrasados:ver", False),
         ("TUTOR", "entregas:sin-corregir", False),
         ("TUTOR", "encuentros:gestionar", False),
         ("TUTOR", "guardias:registrar", True),
+        ("TUTOR", "inbox:acceder", False),
         # PROFESOR
         ("PROFESOR", "avisos:confirmar", False),
         ("PROFESOR", "calificaciones:importar", True),
@@ -88,6 +91,7 @@ async def seed_permissions_for_tenant(
         ("PROFESOR", "encuentros:gestionar", True),
         ("PROFESOR", "guardias:registrar", True),
         ("PROFESOR", "tareas:gestionar", True),
+        ("PROFESOR", "inbox:acceder", False),
         # COORDINADOR
         ("COORDINADOR", "avisos:confirmar", False),
         ("COORDINADOR", "calificaciones:importar", False),
@@ -102,7 +106,9 @@ async def seed_permissions_for_tenant(
         ("COORDINADOR", "equipos:gestionar", False),
         ("COORDINADOR", "equipos:asignar", False),
         ("COORDINADOR", "auditoria:ver", True),
-        # NEXO — zero permissions
+        ("COORDINADOR", "inbox:acceder", False),
+        # NEXO
+        ("NEXO", "inbox:acceder", False),
         # ADMIN
         ("ADMIN", "avisos:confirmar", False),
         ("ADMIN", "calificaciones:importar", False),
@@ -123,6 +129,7 @@ async def seed_permissions_for_tenant(
         ("ADMIN", "padron:importar", False),
         ("ADMIN", "padron:vaciar", False),
         ("ADMIN", "padron:ver", False),
+        ("ADMIN", "inbox:acceder", False),
         # COORDINADOR — coloquios
         ("COORDINADOR", "coloquios:gestionar", False),
         ("COORDINADOR", "coloquios:ver", False),
@@ -142,6 +149,7 @@ async def seed_permissions_for_tenant(
         ("FINANZAS", "liquidaciones:configurar-salarios", False),
         ("FINANZAS", "liquidaciones:cerrar", False),
         ("FINANZAS", "facturas:gestionar", False),
+        ("FINANZAS", "inbox:acceder", False),
     ]
 
     # 1. Insert roles (with generated UUIDs, skip if already exist per tenant)
