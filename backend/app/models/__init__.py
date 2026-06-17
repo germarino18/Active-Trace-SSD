@@ -31,6 +31,12 @@ from app.models.aviso import Aviso, AcknowledgmentAviso, AlcanceAviso, Severidad
 from app.models.tarea import ComentarioTarea, Tarea, TareaEstado
 from app.models.programa_materia import ProgramaMateria
 from app.models.fecha_academica import FechaAcademica, TipoFechaAcademica
+from app.models.salario_base import SalarioBase, RolSalario
+from app.models.salario_plus import SalarioPlus
+from app.models.clave_plus import ClavePlus
+from app.models.materia_clave_plus import MateriaClavePlus
+from app.models.liquidacion import Liquidacion, EstadoLiquidacion
+from app.models.factura import Factura, EstadoFactura
 
 __all__ = [
     "AuditLog",
@@ -80,4 +86,13 @@ __all__ = [
     "ProgramaMateria",
     "FechaAcademica",
     "TipoFechaAcademica",
+    "SalarioBase",
+    "RolSalario",
+    "SalarioPlus",
+    "ClavePlus",
+    "MateriaClavePlus",
+    "Liquidacion",
+    "EstadoLiquidacion",
+    "Factura",
+    "EstadoFactura",
 ]
