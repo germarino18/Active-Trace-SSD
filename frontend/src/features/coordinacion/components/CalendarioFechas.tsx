@@ -8,9 +8,9 @@ interface CalendarioFechasProps {
 }
 
 const tipoColor: Record<TipoFechaAcademica, string> = {
-  Parcial: 'bg-blue-500',
-  TP: 'bg-green-500',
-  Coloquio: 'bg-purple-500',
+  Parcial: 'bg-primary',
+  TP: 'bg-tertiary',
+  Coloquio: 'bg-primary-container',
 };
 
 const tipoLabel: Record<TipoFechaAcademica, string> = {

@@ -400,24 +400,27 @@ async def test_seed_all_permissions_exist(
         "liquidaciones:cerrar",
         "facturas:gestionar",
         "configurar:tenant",
+        "inbox:acceder",
     }
     assert perm_codes == expected
 
 
-async def test_seed_nexo_has_zero_permissions(
+async def test_seed_nexo_has_inbox_only(
     db_session: AsyncSession, test_tenant
 ):
-    """NEXO role should have zero permissions (pending PA-25)."""
+    """NEXO role should only have inbox:acceder (enlace needs messaging)."""
     await seed_permissions_for_tenant(db_session, test_tenant.id)
     rp_repo = RolPermisoRepository(session=db_session, tenant_id=test_tenant.id)
     rol_repo = RolRepository(session=db_session, tenant_id=test_tenant.id)
 
     roles = await rol_repo.find_by(codigo="NEXO")
     assert len(roles) == 1
-    nexo = roles[0]
 
     rows = await rp_repo.find_permisos_for_roles(test_tenant.id, ["NEXO"])
-    assert len(rows) == 0, "NEXO should have zero permissions"
+    assert len(rows) == 1, "NEXO should have exactly one permission"
+    perm_codigo, es_propio = rows[0]
+    assert perm_codigo == "inbox:acceder"
+    assert es_propio is False
 
 
 # ═══════════════════════════════════════════════════════════════════════

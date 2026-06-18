@@ -6,10 +6,10 @@ interface StatusBadgeProps {
 
 const statusConfig: Record<MensajeStatus, { label: string; className: string }> = {
   Pendiente: { label: 'Pendiente', className: 'bg-surface-container-low text-on-surface-variant' },
-  Enviando: { label: 'Enviando', className: 'bg-info/10 text-info' },
-  OK: { label: 'Enviado', className: 'bg-success/10 text-success' },
+  Enviando: { label: 'Enviando', className: 'bg-primary/10 text-primary' },
+  OK: { label: 'Enviado', className: 'bg-tertiary/10 text-tertiary' },
   Fallido: { label: 'Fallido', className: 'bg-error/10 text-error' },
-  Cancelado: { label: 'Cancelado', className: 'bg-warning/10 text-warning' },
+  Cancelado: { label: 'Cancelado', className: 'bg-surface-container-high text-on-surface-variant' },
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {

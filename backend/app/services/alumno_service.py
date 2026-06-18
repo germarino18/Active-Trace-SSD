@@ -27,7 +27,7 @@ from app.schemas.alumno import (
 )
 from app.schemas.auth import CurrentUser
 from app.services.avisos_service import AvisoService
-from app.services.coloquios.coloquio_service import ColoquioService
+from app.services.coloquios import ColoquioService
 from app.services.fechas_academicas_service import FechasAcademicasService
 from app.services.mensajeria_service import MensajeriaService
 

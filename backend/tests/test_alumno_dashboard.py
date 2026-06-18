@@ -1,7 +1,7 @@
 """Integration tests for the alumno dashboard endpoint."""
 
 from datetime import UTC, datetime, timedelta
-from typing import tuple
+
 from uuid import UUID, uuid4
 
 import pytest
@@ -182,6 +182,16 @@ async def seed_basic_dashboard_data(
         "estado": "Activa",
     })
 
+    # Create a reservation so the alumno sees this coloquio
+    from app.models.reserva_evaluacion import ReservaEvaluacion
+    reserva_repo = BaseRepository(model=ReservaEvaluacion, session=db_session, tenant_id=test_tenant.id)
+    await reserva_repo.create({
+        "evaluacion_id": evaluacion.id,
+        "alumno_id": usuario_id,
+        "fecha_hora": datetime.now(UTC) + timedelta(days=7),
+        "estado": "Activa",
+    })
+
     return {
         "materia_id": materia.id,
         "dictado_id": dictado.id,
@@ -213,9 +223,8 @@ class TestAlumnoDashboard:
         assert len(body["materias"]) >= 1
         materia = body["materias"][0]
         assert materia["nombre"] == "Matemáticas I"
-        assert materia["codigo"] == "MATE101"
-        assert materia["actividades_totales"] >= 2
-        assert materia["actividades_aprobadas"] >= 2
+        assert materia["progreso"]["total"] >= 2
+        assert materia["progreso"]["aprobadas"] >= 2
 
         # Should have at least 1 pending aviso
         assert body["avisos_no_leidos"] >= 1

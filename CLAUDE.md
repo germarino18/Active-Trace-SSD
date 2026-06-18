@@ -86,7 +86,7 @@ Qué skill carga cada perfil de agente según el contexto. La columna **Estado**
 |--------|-----|--------|--------|
 | **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos / async | `async-python-patterns`, `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` | ✅ instaladas |
 | **Backend Aux** | Servicios, integraciones, seguridad, performance | `api-security-best-practices`, `postgresql-optimization`, `systematic-debugging` | ⏳ pendiente |
-| **Frontend** | React / TanStack / Tailwind / E2E | `tailwind-design-system`, `vercel-react-best-practices`, `dashboard-crud-page`, `react-expert`, `tanstack-query`, `react-hook-form-zod`, `typescript-advanced` | ✅ instaladas |
+| **Frontend** | React / TanStack / Tailwind / E2E | `tailwind-design-system`, `stitch-ui-design`, `vercel-react-best-practices`, `dashboard-crud-page`, `react-expert`, `tanstack-query`, `react-hook-form-zod`, `typescript-advanced` | ✅ instaladas |
 | | | `playwright-best-practices` | ⏳ pendiente |
 | **DevOps** | Contenedores / build | `multi-stage-dockerfile` | ⏳ pendiente |
 | **Transversal** | Calidad / revisión | `code-review-excellence`, `systematic-debugging` | ⏳ pendiente |
@@ -102,6 +102,7 @@ Estas son las skills que **ya están instaladas** en `.agents/skills/<nombre>/SK
 | `dashboard-crud-page` | Estandariza páginas CRUD del Dashboard: hooks `useFormModal` / `useConfirmDialog` / `usePagination`, `useActionState` en formularios, estructura obligatoria de página, cascade delete y HelpButton. | **Scope**: Frontend — Dashboard (`src/pages/`). **Trigger**: Al crear una página CRUD con tabla + modal + confirmación de borrado. |
 | `kb-creator` | Construye la base de conocimiento estructurada de 10 archivos canónicos en `knowledge-base/`. Modo silencioso (desde `docs/`) o interactivo (acompañamiento estratégico). | **Scope**: Documentación / Onboarding del proyecto. **Trigger**: Al inicializar un proyecto, armar KB desde `docs/`, o "crear base de conocimiento". |
 | `tailwind-design-system` | Design system con Tailwind CSS v4: tokens CSS con OKLCH, CVA components, compound components, grid responsive, dark mode, animaciones nativas. | **Scope**: Frontend — UI System. **Trigger**: Al crear componentes de UI, implementar design system, migrar v3→v4, estandarizar tokens visuales. |
+| `stitch-ui-design` | Design system **Obsidian — High-Contrast Dark** específico de activia-trace: tokens de color (violeta/esmeralda/zinc), tipografía Geist, componentes UI, layout bento grid. Incluye 7 pantallas de referencia HTML exportadas desde Stitch MCP (`stitch-design/`). | **Scope**: Frontend — UI / Design System del proyecto. **Trigger**: Al crear o modificar cualquier componente de UI del frontend, implementar features frontend (C-22 en adelante), o verificar consistencia visual del producto. Complementa a `tailwind-design-system`. |
 | `async-python-patterns` | Patrones avanzados de asyncio, concurrencia y async/await para FastAPI, SQLAlchemy async, workers, colas y operaciones I/O concurrentes. | **Scope**: Backend — todo el stack async (FastAPI + SQLAlchemy 2.0 async + workers). **Trigger**: Al implementar endpoints async, operaciones de DB concurrentes, workers de cola, o cualquier código async del proyecto. |
 | `fastapi-templates` | Proyectos FastAPI production-ready: patrones async, dependency injection, manejo integral de errores, estructura de routers/servicios. | **Scope**: Backend — endpoints y scaffolding de API. **Trigger**: Al crear endpoints/ABM FastAPI o montar la estructura de un módulo de API. _(source: wshobson/agents)_ |
 | `postgresql-table-design` | Diseño y revisión de schema PostgreSQL: tipos de datos, índices, constraints, patrones de performance y features avanzadas. | **Scope**: Backend — modelos y migraciones. **Trigger**: Al diseñar tablas, definir constraints/unicidad, índices o revisar una migración. _(source: wshobson/agents)_ |
@@ -130,9 +131,10 @@ Toda skill nueva específica del proyecto debe instalarse **localmente** y docum
 
 El plan de implementación completo está en [CHANGES.md](CHANGES.md). Resumen:
 
-- **Total**: 24 changes (`C-01`…`C-24`) en 6 fases, organizados con 11 gates de paralelismo y un plan óptimo de 3 agentes (Backend Core / Backend Aux / Frontend).
+- **Total**: 27 changes (`C-01`…`C-27`) en 6 fases (FASE 0–5) + Fase 5 extendida (C-25, C-26, C-27), organizados con 11 gates de paralelismo y un plan óptimo de 3 agentes (Backend Core / Backend Aux / Frontend).
 - **Camino crítico** (10 changes, mínimo irreducible): `C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 → C-12`. Es el flujo de mayor valor: importar → analizar → comunicar, en producción multi-tenant.
 - **Primer change**: `C-01 foundation-setup` (infra, Docker, FastAPI skeleton, DB inicial, OpenTelemetry). Sin dependencias.
+- **Nuevos**: `C-25 frontend-alumno` (en progreso, parcialmente codeado), `C-26 fix-frontend-tutor` (sin artifacts), `C-27 frontend-analytics` (sin artifacts). Ver [CHANGES.md](CHANGES.md) para detalles completos.
 - **Primer fork** (GATE 4, tras `C-04 rbac`): seguridad lista → arrancan en paralelo `C-05 audit-log`, `C-06 estructura-academica` y `C-21 frontend-shell-y-auth`.
 
 **Antes de cualquier `/opsx:propose`**: leé [CHANGES.md](CHANGES.md), identificá el change por su `C-NN`, respetá sus dependencias y leé los archivos de "Leer antes" de ese change.

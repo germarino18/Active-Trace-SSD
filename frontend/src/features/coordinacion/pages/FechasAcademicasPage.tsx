@@ -26,9 +26,9 @@ const fechaSchema = z.object({
 type FechaForm = z.infer<typeof fechaSchema>;
 
 const tipoBadge: Record<TipoFechaAcademica, string> = {
-  Parcial: 'bg-blue-500/10 text-blue-600',
-  TP: 'bg-green-500/10 text-green-600',
-  Coloquio: 'bg-purple-500/10 text-purple-600',
+  Parcial: 'bg-primary/10 text-primary',
+  TP: 'bg-tertiary/10 text-tertiary',
+  Coloquio: 'bg-primary-container/20 text-primary',
 };
 
 export function FechasAcademicasPage() {

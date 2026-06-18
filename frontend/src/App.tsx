@@ -58,6 +58,19 @@ const UsuariosPage = lazy(() => import('@/features/admin/pages/UsuariosPage').th
 const AuditoriaPage = lazy(() => import('@/features/admin/pages/AuditoriaPage').then(m => ({ default: m.AuditoriaPage })));
 const MetricasPage = lazy(() => import('@/features/admin/pages/MetricasPage').then(m => ({ default: m.MetricasPage })));
 
+// Alumno pages
+const AlumnoDashboardPage = lazy(() => import('@/features/alumno/pages/AlumnoDashboardPage').then(m => ({ default: m.AlumnoDashboardPage })));
+const MisMateriasPage = lazy(() => import('@/features/alumno/pages/MisMateriasPage').then(m => ({ default: m.MisMateriasPage })));
+const MateriaDetallePage = lazy(() => import('@/features/alumno/pages/MateriaDetallePage').then(m => ({ default: m.MateriaDetallePage })));
+const MisColoquiosPage = lazy(() => import('@/features/alumno/pages/MisColoquiosPage').then(m => ({ default: m.MisColoquiosPage })));
+const MisAvisosPage = lazy(() => import('@/features/alumno/pages/MisAvisosPage').then(m => ({ default: m.MisAvisosPage })));
+const MisProgramasPage = lazy(() => import('@/features/alumno/pages/MisProgramasPage').then(m => ({ default: m.MisProgramasPage })));
+const MisFechasPage = lazy(() => import('@/features/alumno/pages/MisFechasPage').then(m => ({ default: m.MisFechasPage })));
+const AlumnoInboxPage = lazy(() => import('@/features/alumno/pages/AlumnoInboxPage').then(m => ({ default: m.AlumnoInboxPage })));
+const AlumnoHiloPage = lazy(() => import('@/features/alumno/pages/AlumnoHiloPage').then(m => ({ default: m.AlumnoHiloPage })));
+const MisComunicacionesPage = lazy(() => import('@/features/alumno/pages/MisComunicacionesPage').then(m => ({ default: m.MisComunicacionesPage })));
+const ComunicacionDetallePage = lazy(() => import('@/features/alumno/pages/ComunicacionDetallePage').then(m => ({ default: m.ComunicacionDetallePage })));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -144,6 +157,18 @@ const router = createBrowserRouter([
           { path: '/admin/usuarios', element: <UsuariosPage /> },
           { path: '/admin/auditoria', element: <AuditoriaPage /> },
           { path: '/admin/metricas', element: <MetricasPage /> },
+          // Alumno
+          { path: '/alumno/dashboard', element: <AlumnoDashboardPage /> },
+          { path: '/alumno/materias', element: <MisMateriasPage /> },
+          { path: '/alumno/materias/:id', element: <MateriaDetallePage /> },
+          { path: '/alumno/coloquios', element: <MisColoquiosPage /> },
+          { path: '/alumno/avisos', element: <MisAvisosPage /> },
+          { path: '/alumno/programas', element: <MisProgramasPage /> },
+          { path: '/alumno/fechas', element: <MisFechasPage /> },
+          { path: '/alumno/inbox', element: <AlumnoInboxPage /> },
+          { path: '/alumno/inbox/:id', element: <AlumnoHiloPage /> },
+          { path: '/alumno/comunicaciones', element: <MisComunicacionesPage /> },
+          { path: '/alumno/comunicaciones/:id', element: <ComunicacionDetallePage /> },
         ],
       },
     ],

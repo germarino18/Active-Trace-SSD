@@ -20,6 +20,9 @@ from app.repositories.base import BaseRepository
 
 _TEST_SECRET_KEY = "a" * 32
 _TEST_ENCRYPTION_KEY = "a" * 64
+_TEST_DATABASE_URL = (
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/activia_trace"
+)
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -32,11 +35,17 @@ def _test_security_env():
     `get_encryption_key()` reads `ENCRYPTION_KEY` directly from
     `os.environ`. Pinning both here keeps every code path -- app and
     test-constructed services alike -- using the same keys.
+
+    Also sets `DATABASE_URL` in env so that `Settings()` can validate when
+    `.env` is not in the CWD (pytest's CWD is the project root, not
+    `backend/`).
     """
     old_secret = os.environ.get("SECRET_KEY")
     old_encryption = os.environ.get("ENCRYPTION_KEY")
+    old_db_url = os.environ.get("DATABASE_URL")
     os.environ["SECRET_KEY"] = _TEST_SECRET_KEY
     os.environ["ENCRYPTION_KEY"] = _TEST_ENCRYPTION_KEY
+    os.environ["DATABASE_URL"] = _TEST_DATABASE_URL
     yield
     if old_secret is None:
         os.environ.pop("SECRET_KEY", None)
@@ -46,6 +55,10 @@ def _test_security_env():
         os.environ.pop("ENCRYPTION_KEY", None)
     else:
         os.environ["ENCRYPTION_KEY"] = old_encryption
+    if old_db_url is None:
+        os.environ.pop("DATABASE_URL", None)
+    else:
+        os.environ["DATABASE_URL"] = old_db_url
 
 
 @pytest.fixture(scope="session")
