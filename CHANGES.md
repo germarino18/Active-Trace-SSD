@@ -44,7 +44,7 @@ C-01 foundation-setup (infra, Docker, FastAPI skel, DB inicial, OTel)
             │       ├── C-23 frontend-coordinacion (equipos, avisos, tareas, monitores)
             │       └── C-24 frontend-finanzas-y-admin (liquidaciones, facturas, estructura, auditoría)
 			[x] C-25 frontend-alumno
-			C-26 fix-frontend-tutor — arreglar sidebar y crear vistas para TUTOR
+			[x] C-26 fix-frontend-tutor — arreglar sidebar y crear vistas para TUTOR
 			C-27 frontend-analytics — dashboards analíticos (Fase 2)
 ```
 
@@ -541,7 +541,7 @@ Governance: BAJO
 Leer antes: PRD §6.2 (RF-47..50), KB 03_actores_y_roles.md §3.3 matriz, KB 06_funcionalidades.md
 
 
-C-26 fix-frontend-tutor — Experiencia TUTOR completa 🧑‍🏫
+[x] C-26 fix-frontend-tutor — Experiencia TUTOR completa 🧑‍🏫
 Scope:
 - Ajustar sidebar: cambiar permisos wildcard por permisos específicos donde TUTOR tenga acceso
 - atrasados:* → atrasados:ver

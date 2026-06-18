@@ -25,9 +25,13 @@ export function useSidebar() {
 
 const defaultMenuItems: MenuItem[] = [
   { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-  { label: 'Calificaciones', path: '/materias', icon: 'grading', requiredPermissions: ['calificaciones:*'] },
-  { label: 'Atrasados', path: '/materias', icon: 'warning', requiredPermissions: ['atrasados:*'] },
-  { label: 'Comunicación', path: '/materias', icon: 'send', requiredPermissions: ['comunicacion:*'] },
+  { label: 'Calificaciones', path: '/materias', icon: 'grading', requiredPermissions: ['calificaciones:ver'] },
+  // Tutor items
+  { label: 'Mis Alumnos', path: '/tutor/alumnos', icon: 'group', requiredPermissions: ['tutor:alumnos:ver'] },
+  { label: 'Entregas sin corregir', path: '/entregas-sin-corregir', icon: 'assignment_late', requiredPermissions: ['tutor:entregas:ver'] },
+  { label: 'Guardias', path: '/guardias', icon: 'shield', requiredPermissions: ['tutor:guardias:gestionar'] },
+  { label: 'Atrasados', path: '/materias', icon: 'warning', requiredPermissions: ['atrasados:ver'] },
+  { label: 'Comunicación', path: '/materias', icon: 'send', requiredPermissions: ['comunicacion:ver'] },
   { label: 'Mi Perfil', path: '/profile', icon: 'person' },
   // Alumno
   { label: 'Dashboard', path: '/alumno/dashboard', icon: 'dashboard', requiredPermissions: ['estado-academico:ver'] },
@@ -38,23 +42,23 @@ const defaultMenuItems: MenuItem[] = [
   { label: 'Calendario', path: '/alumno/fechas', icon: 'calendar_month', requiredPermissions: ['estado-academico:ver'] },
   { label: 'Mensajes', path: '/alumno/inbox', icon: 'mail', requiredPermissions: ['inbox:ver'] },
   { label: 'Comunicaciones', path: '/alumno/comunicaciones', icon: 'forward_to_inbox', requiredPermissions: ['comunicacion:ver'] },
-  { label: 'Equipos Docentes', path: '/equipos', icon: 'groups', requiredPermissions: ['equipos:*'] },
-  { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:*'] },
-  { label: 'Tareas', path: '/tareas', icon: 'checklist', requiredPermissions: ['tareas:*'] },
-  { label: 'Encuentros', path: '/encuentros', icon: 'event', requiredPermissions: ['encuentros:*'] },
-  { label: 'Coloquios', path: '/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:*'] },
-  { label: 'Programas', path: '/programas', icon: 'description', requiredPermissions: ['programas:*'] },
-  { label: 'Fechas Académicas', path: '/fechas', icon: 'calendar_month', requiredPermissions: ['programas:*'] },
-  { label: 'Monitores', path: '/monitores/general', icon: 'monitoring', requiredPermissions: ['auditoria:*'] },
+  { label: 'Equipos Docentes', path: '/equipos', icon: 'groups', requiredPermissions: ['equipos:ver'] },
+  { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:ver'] },
+  { label: 'Tareas', path: '/tareas', icon: 'checklist', requiredPermissions: ['tareas:ver'] },
+  { label: 'Encuentros', path: '/encuentros', icon: 'event', requiredPermissions: ['encuentros:gestionar'] },
+  { label: 'Coloquios', path: '/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:gestionar'] },
+  { label: 'Programas', path: '/programas', icon: 'description', requiredPermissions: ['programas:ver'] },
+  { label: 'Fechas Académicas', path: '/fechas', icon: 'calendar_month', requiredPermissions: ['programas:ver'] },
+  { label: 'Monitores', path: '/monitores/general', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
   // Finanzas
-  { label: 'Liquidaciones', path: '/finanzas/liquidaciones', icon: 'payments', requiredPermissions: ['liquidaciones:*'] },
+  { label: 'Liquidaciones', path: '/finanzas/liquidaciones', icon: 'payments', requiredPermissions: ['liquidaciones:ver'] },
   { label: 'Grilla Salarial', path: '/finanzas/grilla', icon: 'badge', requiredPermissions: ['liquidaciones:configurar-salarios'] },
-  { label: 'Facturas', path: '/finanzas/facturas', icon: 'receipt_long', requiredPermissions: ['facturas:*'] },
+  { label: 'Facturas', path: '/finanzas/facturas', icon: 'receipt_long', requiredPermissions: ['facturas:ver'] },
   // Admin
-  { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:*'] },
-  { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:*'] },
-  { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:*'] },
-  { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:*'] },
+  { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:ver'] },
+  { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:ver'] },
+  { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
+  { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
 ];
 
 export function AppLayout() {

@@ -58,6 +58,11 @@ const UsuariosPage = lazy(() => import('@/features/admin/pages/UsuariosPage').th
 const AuditoriaPage = lazy(() => import('@/features/admin/pages/AuditoriaPage').then(m => ({ default: m.AuditoriaPage })));
 const MetricasPage = lazy(() => import('@/features/admin/pages/MetricasPage').then(m => ({ default: m.MetricasPage })));
 
+// Tutor pages
+const TutorAlumnosPage = lazy(() => import('@/features/tutor/pages/TutorAlumnosPage').then(m => ({ default: m.TutorAlumnosPage })));
+const GuardiasListPage = lazy(() => import('@/features/tutor/pages/GuardiasListPage').then(m => ({ default: m.GuardiasListPage })));
+const TutorEntregasSinCorregirPage = lazy(() => import('@/features/tutor/pages/TutorEntregasSinCorregirPage').then(m => ({ default: m.TutorEntregasSinCorregirPage })));
+
 // Alumno pages
 const AlumnoDashboardPage = lazy(() => import('@/features/alumno/pages/AlumnoDashboardPage').then(m => ({ default: m.AlumnoDashboardPage })));
 const MisMateriasPage = lazy(() => import('@/features/alumno/pages/MisMateriasPage').then(m => ({ default: m.MisMateriasPage })));
@@ -103,6 +108,10 @@ const router = createBrowserRouter([
         children: [
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/profile', element: <ProfilePage /> },
+          // Tutor
+          { path: '/tutor/alumnos', element: <TutorAlumnosPage /> },
+          { path: '/entregas-sin-corregir', element: <TutorEntregasSinCorregirPage /> },
+          { path: '/guardias', element: <GuardiasListPage /> },
           { path: '/materias', element: <MateriaListPage /> },
           {
             path: '/materias/:id',
