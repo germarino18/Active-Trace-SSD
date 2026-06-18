@@ -86,8 +86,8 @@ Qué skill carga cada perfil de agente según el contexto. La columna **Estado**
 |--------|-----|--------|--------|
 | **Backend Core** | FastAPI / SQLAlchemy / migraciones / modelos / async | `async-python-patterns`, `fastapi-templates`, `postgresql-table-design`, `python-testing-patterns`, `test-driven-development` | ✅ instaladas |
 | **Backend Aux** | Servicios, integraciones, seguridad, performance | `api-security-best-practices`, `postgresql-optimization`, `systematic-debugging` | ⏳ pendiente |
-| **Frontend** | React / TanStack / Tailwind / E2E | `tailwind-design-system`, `vercel-react-best-practices`, `dashboard-crud-page` | ✅ instaladas |
-| | | `typescript-advanced-types`, `playwright-best-practices` | ⏳ pendiente |
+| **Frontend** | React / TanStack / Tailwind / E2E | `tailwind-design-system`, `vercel-react-best-practices`, `dashboard-crud-page`, `react-expert`, `tanstack-query`, `react-hook-form-zod`, `typescript-advanced` | ✅ instaladas |
+| | | `playwright-best-practices` | ⏳ pendiente |
 | **DevOps** | Contenedores / build | `multi-stage-dockerfile` | ⏳ pendiente |
 | **Transversal** | Calidad / revisión | `code-review-excellence`, `systematic-debugging` | ⏳ pendiente |
 | **Orquestación** | SDD / OPSX / docs | `kb-creator`, `roadmap-generator`, `agent-instruction`, `find-skill`, `skill-registry` | 🌐 framework (entorno) |
@@ -108,6 +108,10 @@ Estas son las skills que **ya están instaladas** en `.agents/skills/<nombre>/SK
 | `python-testing-patterns` | Estrategias de testing con pytest: fixtures, mocking, parametrización y organización de suites. | **Scope**: Backend — tests. **Trigger**: Al escribir tests de Python, armar fixtures o estructurar la suite. _(source: wshobson/agents)_ |
 | `test-driven-development` | Ciclo TDD estricto (red → green → refactor) antes de escribir código de implementación. | **Scope**: Backend (y todo el código). **Trigger**: Al implementar cualquier feature o bugfix — escribir el test que falla primero. _(source: obra/superpowers)_ |
 | `vercel-react-best-practices` | Buenas prácticas de React y optimización de performance de Vercel Engineering: Server Components, renderizado, bundle, async patterns, rerenders, eventos y más. | **Scope**: Frontend — componentes y páginas React (18/19). **Trigger**: Al crear componentes, optimizar renders, implementar Server Components, manejar estado, o mejorar performance de UI. |
+| `react-expert` | Skill oficial de `reactjs/react.dev` con guías de React 18/19: componentes, hooks, renderizado, Server Components, Suspense y arquitectura declarativa. | **Scope**: Frontend — todo React. **Trigger**: Al diseñar componentes, elegir patrones de estado o renderizado, resolver problemas de React. |
+| `tanstack-query` | Patrones de TanStack Query v5: queries, mutations, infinite queries, optimistic updates, cache invalidation, SSR con SSR/SSG. | **Scope**: Frontend — manejo de estado del servidor. **Trigger**: Al crear hooks de fetch, mutaciones, caché de datos de API, o implementar TanStack Query en la app. |
+| `react-hook-form-zod` | Integración React Hook Form + Zod: schemas de validación tipados, formularios complejos, arrays dinámicos, field arrays, errores, submit handling. | **Scope**: Frontend — formularios. **Trigger**: Al crear formularios con validación compleja, schemas Zod, o implementar React Hook Form. |
+| `typescript-advanced` | Patrones avanzados de TypeScript: tipos condicionales, mapped types, template literals, infer, brand types, discriminated unions, utility types. | **Scope**: Frontend y Backend — TypeScript. **Trigger**: Al escribir tipos complejos, genéricos, mejorar type safety, o resolver problemas de tipado avanzado. |
 
 ### Registrar una nueva skill local
 

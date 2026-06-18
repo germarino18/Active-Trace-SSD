@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Professor Control Panel | Activia-Trace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+        
+        body {
+            font-family: 'Geist', sans-serif;
+            background-color: #09090b;
+            color: #fafafa;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 21, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #27272a;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#6ee7b7",
+                        "surface-container-low": "#0f0f12",
+                        "inverse-surface": "#fafafa",
+                        "background": "#09090b",
+                        "on-primary": "#0a0012",
+                        "on-background": "#fafafa",
+                        "secondary-fixed": "#a1a1aa",
+                        "surface-variant": "#18181b",
+                        "surface-container": "#121215",
+                        "on-primary-fixed-variant": "#5b21b6",
+                        "outline": "#52525b",
+                        "on-secondary-fixed": "#18181b",
+                        "on-tertiary-fixed-variant": "#047857",
+                        "on-secondary-fixed-variant": "#3f3f46",
+                        "outline-variant": "#27272a",
+                        "surface-container-high": "#18181b",
+                        "on-secondary": "#09090b",
+                        "tertiary-container": "#065f46",
+                        "secondary-fixed-dim": "#71717a",
+                        "secondary": "#71717a",
+                        "secondary-container": "#27272a",
+                        "on-primary-fixed": "#2e1065",
+                        "on-error": "#1a0000",
+                        "primary-container": "#7c3aed",
+                        "on-surface": "#fafafa",
+                        "on-secondary-container": "#a1a1aa",
+                        "surface-dim": "#0c0c0f",
+                        "surface-bright": "#18181b",
+                        "surface-container-lowest": "#09090b",
+                        "inverse-primary": "#5b21b6",
+                        "surface-container-highest": "#1e1e22",
+                        "error-container": "#3b1111",
+                        "error": "#ef4444",
+                        "surface-tint": "#a78bfa",
+                        "surface": "#0c0c0f",
+                        "on-tertiary-container": "#bbf7d0",
+                        "tertiary-fixed": "#bbf7d0",
+                        "on-tertiary": "#001a12",
+                        "on-tertiary-fixed": "#003318",
+                        "inverse-on-surface": "#09090b",
+                        "primary": "#a78bfa",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "on-primary-container": "#ede9fe",
+                        "on-surface-variant": "#a1a1aa",
+                        "on-error-container": "#fca5a5",
+                        "tertiary": "#34d399",
+                        "primary-fixed": "#ede9fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Geist"],
+                        "display": ["Geist"],
+                        "body": ["Geist"],
+                        "label": ["Geist"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant flex flex-col py-6 px-4 z-50">
+<div class="mb-8 px-2">
+<h1 class="text-xl font-headline font-bold tracking-tighter text-on-surface dark:text-on-surface">Activia-Trace</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant mt-1">Academic Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-primary dark:text-primary font-bold bg-surface-container-highest dark:bg-surface-container-highest border-r-2 border-primary transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body text-label-sm tracking-tight">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-body text-label-sm tracking-tight">Subjects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-body text-label-sm tracking-tight">Schedule</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-body text-label-sm tracking-tight">Exams</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-body text-label-sm tracking-tight">Nexo Portal</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body text-label-sm tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-95 mb-4">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Entry
+            </button>
+<div class="flex items-center gap-3 px-2">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a university professor in their late 40s, wearing a dark turtleneck and glasses. The lighting is dramatic and moody, set against a dark architectural background of a modern campus. The overall aesthetic is clean, academic, and authoritative, matching the Obsidian dark UI theme with soft violet and zinc highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAf9IcWxyxB9b64BjaWJOQLTuPcC3rMCzlEYd2XDrWwlgxLn2EJRiXxRGHTNsTyIGj2btdPHDwW6hCRacxREcMqw-3JntdLQKD_DpRBuAJyRipwMHPs3eQYOCGGXSrInLrDtzYESf2kH6_vuGAUoye9JAsbU0NAj_5kP86SXDud6ifacPiBmEgTaAKulxzp57OUFThcRq64Qs84prj965QcN_MPnaAiKX_xB1x9sKpNLksWphzDM_TwUPTdoJYU2Tu7foJrpTwjoC4"/>
+</div>
+<div class="overflow-hidden">
+<p class="text-xs font-bold text-on-surface truncate">Dr. Aris Thorne</p>
+<p class="text-[10px] text-on-surface-variant">Senior Lead Researcher</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-outline-variant h-16 px-8 flex justify-between items-center">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-lg">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded-lg pl-10 pr-4 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="Search across portal..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-black tracking-tight text-on-surface">Professor Control Panel</h2>
+<p class="text-on-surface-variant mt-1">Manage your academic ecosystem, monitor progress, and deploy assessments.</p>
+</div>
+<div class="flex gap-2">
+<div class="bg-surface-container px-4 py-2 rounded-lg border border-outline-variant text-xs font-medium">
+<span class="text-on-surface-variant">Active Students:</span> <span class="text-tertiary">142</span>
+</div>
+<div class="bg-surface-container px-4 py-2 rounded-lg border border-outline-variant text-xs font-medium">
+<span class="text-on-surface-variant">Live Exams:</span> <span class="text-primary">03</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-6">
+<!-- Section: Material Upload Zone -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<div class="glass-panel p-6 rounded-xl flex flex-col h-full">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">cloud_upload</span>
+                                Material Upload
+                            </h3>
+<button class="text-[10px] font-bold text-primary hover:underline">View All</button>
+</div>
+<div class="flex-1 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-8 bg-surface-container-lowest/50 hover:bg-surface-container-highest/30 transition-all cursor-pointer group" id="drop-zone">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-primary">upload_file</span>
+</div>
+<p class="text-sm font-bold text-center">Drag &amp; drop course materials</p>
+<p class="text-xs text-on-surface-variant text-center mt-2">Support: PDF, ZIP, MP4, Markdown (Max 100MB)</p>
+<button class="mt-6 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg text-xs font-bold hover:bg-outline-variant transition-colors">Select Files</button>
+</div>
+<div class="mt-6 space-y-3">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Recent Uploads</p>
+<div class="flex items-center gap-3 p-3 rounded-lg bg-surface-container-low border border-outline-variant">
+<div class="bg-surface-container-high p-2 rounded">
+<span class="material-symbols-outlined text-tertiary text-lg">description</span>
+</div>
+<div class="flex-1">
+<p class="text-xs font-bold truncate">Intro_to_Quantum_Computing.pdf</p>
+<p class="text-[10px] text-on-surface-variant">2.4 MB • 12 mins ago</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">check_circle</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Assigned Subjects & Exam Toggles -->
+<div class="col-span-12 lg:col-span-8">
+<div class="glass-panel p-6 rounded-xl h-full">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">library_books</span>
+                                Assigned Subjects &amp; Assessments
+                            </h3>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded bg-surface-container-high border border-outline-variant text-[10px] font-bold">Fall 2024</button>
+<button class="px-3 py-1 rounded bg-surface-container-high border border-outline-variant text-[10px] font-bold">Filter</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Subject Row 1 -->
+<div class="group flex items-center justify-between p-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-highest border border-outline-variant">
+<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-transparent">
+<span class="material-symbols-outlined text-primary">terminal</span>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-bold">CS-402: Advanced Algorithms</h4>
+<p class="text-xs text-on-surface-variant">Sec-A • 48 Students enrolled</p>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Final Exam Status</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-tertiary">Active</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background">
+<span class="translate-x-5 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-on-primary shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-outline-variant text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Subject Row 2 -->
+<div class="group flex items-center justify-between p-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-highest border border-outline-variant">
+<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-tertiary/20 to-transparent">
+<span class="material-symbols-outlined text-tertiary">database</span>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-bold">DS-301: Distributed Systems</h4>
+<p class="text-xs text-on-surface-variant">Sec-B • 56 Students enrolled</p>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Midterm Exam Status</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-on-surface-variant">Disabled</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-surface-container-highest border border-outline-variant transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background">
+<span class="translate-x-1 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-on-surface-variant shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-outline-variant text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Subject Row 3 -->
+<div class="group flex items-center justify-between p-4 rounded-xl bg-surface-container hover:bg-surface-container-high border border-outline-variant transition-all">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg overflow-hidden bg-surface-container-highest border border-outline-variant">
+<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary/20 to-transparent">
+<span class="material-symbols-outlined text-secondary">memory</span>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-bold">AR-210: Architecture &amp; Design</h4>
+<p class="text-xs text-on-surface-variant">Sec-C • 38 Students enrolled</p>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Final Exam Status</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-tertiary">Active</span>
+<button class="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ring-offset-background">
+<span class="translate-x-5 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-on-primary shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+<button class="p-2 rounded-lg hover:bg-outline-variant text-on-surface-variant">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Student Submission Progress -->
+<div class="col-span-12">
+<div class="glass-panel p-6 rounded-xl">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">monitoring</span>
+                                Practical Submission Tracker
+                            </h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">Graded</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">Pending Review</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-container-highest border border-outline"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">Incomplete</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Progress Card 1 -->
+<div class="p-5 rounded-xl border border-outline-variant bg-surface-container-low">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-xs font-black">Lab #04: Neural Networks</p>
+<p class="text-[10px] text-on-surface-variant">Due in 2 days</p>
+</div>
+<span class="text-xs font-bold text-tertiary">84%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-6 flex">
+<div class="h-full bg-tertiary" style="width: 65%"></div>
+<div class="h-full bg-primary" style="width: 19%"></div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Close-up avatar of a student, high resolution, dark studio lighting, neutral expression, focus on facial features, Obsidian theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDE3azsttwtNFRg0Te3yTFjVn_B6b-7tGZbZxeQ24QRVPvygx554FG053cg4j2-jyRKRkL-9UzduW4akaSNfIHNGg0rcF7yWwl_2O0bT6nl2UVkGezxWfvLaunOOfwydVBQ3lcS658g33pGF-bufb6eRKJQPfbiNO5Mb7lv4nGMaCRkPSUV1PUQgPjPARUt83m80NHRFkbp6GuvQJ2nSbhVf7-PqSyEPcXNSjKv4lxlmyM_YKqVY2yC4S8UQBt1IVW0bTAd3NcVGII"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Close-up avatar of a diverse student, cinematic lighting, modern academic setting, high contrast dark theme aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYZcFSY2HhIo7rjDg8ZwZFC5kyEtSKkOL9_P7lnWgouzqtn77DUd7sTGu9FR-1N1bmnSju_xUZnP_8aOMgJj2e6Rv1YWxvHC07AOOJBFeSfR7xSi7cuqtIL4C6uXOhe2pDFGreculChCjgJtwYTdibiJ7cA4iPyBtLyJRLhaZAwzfDgkMuoTBDkRNNylqDMchglDCBJWDH2H6brf1ig_N5suG2P20vHdh-C7G6yYf62QB8Zy2A1_a6FQhp9W8mp4ZItMBtsLDCX4w"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Close-up avatar of a student in a hoodie, tech-oriented look, dim ambient lighting with violet accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATD20yxZQBSsw-US9X0doKb4zfA16Rw4ixnAasTVSavbqns2SCJD6Y26CZ3w4qkXnX8cDaFSgeyBKE7HPTf-A_O0j0epdgx7c1neMbE67PSwk-CnKuNgWstp_vstOKAHj6oL363cj0M0d7rU1DTYNi1tA_iumPHhPIROYgDPngHp8FhsKuLx-jeENnVNP6XE43A7VBV9SEZ77jjTi7ornECgY6jew_k6rCJcrJZA_XaeM2kQdbj2a-o-lilvY1xGYH45vgFgduBtw"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold">+28</div>
+</div>
+</div>
+<!-- Progress Card 2 -->
+<div class="p-5 rounded-xl border border-outline-variant bg-surface-container-low">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-xs font-black">Lab #07: Data Structures</p>
+<p class="text-[10px] text-on-surface-variant">Overdue</p>
+</div>
+<span class="text-xs font-bold text-error">42%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-6 flex">
+<div class="h-full bg-tertiary" style="width: 25%"></div>
+<div class="h-full bg-primary" style="width: 17%"></div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Avatar of a student looking thoughtful, modern lighting, sleek dark interface aesthetic background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2_dYYAAz4rsX6-tluR682EltkDunCYKz1eTvOroxTV5MCjIGF6rjAnQxC8-sR9wmX8AVhrEsbT4KFOVmu0ZnGqth3h_pQFKqnlQxXvZBl1SlSMPi1elJ3xcGZfKTrjE360xp3s0Tz2gXb83slYwvjogdOlMCY7j9xoTHXxJd1frXEJqkf5Gf43b7ZMpXurZFyMuC4NEHSLGJy07_j7oFuo2cJlZrs6TrcaBascqa7uSVWamVXEOjSgU88r8N4IKVX1I040iu_X8k"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Avatar of a young scholar, sharp focus, dramatic dark lighting, monochromatic with violet highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0cqu1gF8sPWZm7U_qFwcG4y9LbwZlOtaHEYJRTdQ9btm5WH231Jsrjugqf5yj_dLML0QWCuDM388_ImgglRXnbtN9IxGwTD-8Q43AGwtBt40e9bpRAR2hfquystkR2LjbQXDlWhhpikQ7RSbSL9jEtNLmFf_YCJ61PEGBGCpaSNZa9vpznDmoRX2gjKl2zQNapEKI72So0VIs2qVazSCfRaPa959noiHX2d6kKr2w_d4PEi5xBJXikeRRS7V75FE7CDlemf6mSOI"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold">+14</div>
+</div>
+</div>
+<!-- Progress Card 3 -->
+<div class="p-5 rounded-xl border border-outline-variant bg-surface-container-low">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-xs font-black">Workshop: UI Design Systems</p>
+<p class="text-[10px] text-on-surface-variant">Active</p>
+</div>
+<span class="text-xs font-bold text-primary">92%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mb-6 flex">
+<div class="h-full bg-tertiary" style="width: 70%"></div>
+<div class="h-full bg-primary" style="width: 22%"></div>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Professional profile of a student, modern tech vibes, violet and charcoal lighting scheme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAEn1ljW7iJ7PhhyVzZsrwr6KEHugnmuJAypiT9NVDzTujnk34rrih9TT2zIEejasoLfYaZeZuYKvHu_XXeSqARldDYZ8YfavD1gy_PNMCO-DvK09l9aoGJf5UFFO9bAB0wU9SU8L25XZUNueYEaucstqCmGLELUD5kxm5OJNZl7CCzJyY4DRorF76Oaw8bxCzlXIal_z2O_48aq2jdiHF0A0OdE9TfdY0jtb913iicbNJcA9NGb2kaHis_MrGMjoCefcUjFBECOU"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Smiling student avatar, cinematic bokeh, deep shadows and emerald green lighting accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmQw_UtwIs_bix9M0Luevb_jL4kUpXE62pQxFiF-gDGf3PcLmtXvTZwz9hK3fFfDlgdLwDCnzj501wuFd5_7EjYloiGtsR4ooC0K38MCtSL96pBeeuHHKo_ljFOo_WkRjJgRh3HPR-lH0T6rX26gmVcqqn4phaPaDr2mYzjlL_NeI-wdWu269CQYHqZaWcWGBHVl-8eU0T08SRBduttnvp6_sMgiI3HSHVcfmJ_jUgfu3LJ3nzDHBsYfnD-rw35xPNiRnTt5AtG58"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-low" data-alt="Student with creative appearance, studio lighting, obsidian theme color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR9WYm88hajuNAg-XmMtWl54cVfy2ewxnfuEhcLAyiwG14BF5b3igSMkV_8OeavBAf-y-GGKoiqj2DtxIguo9GvLlxfiZMYKpCb5wLfpihA5OUInHdFOo1WN2lxTC6QcoeXSOujhHZv6WQ9CMIOP_40FNkQ3fr8oRwIwXnuLv9XJaIbS5Q2SiOqbxYdPxT_bZlV8Pq-5CsPlKxPNxEOoiLqWv1hUyRg6mT9fx6EVwvOZM3bNQGEtpVfJML0ZZC_7rz8abLDiAk3C4"/>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-surface-container-low flex items-center justify-center text-[10px] font-bold">+41</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Micro-interaction for Upload Zone
+        const dropZone = document.getElementById('drop-zone');
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('bg-surface-container-highest/60', 'border-primary');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('bg-surface-container-highest/60', 'border-primary');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            alert('File analysis starting... simulating upload in development environment.');
+        });
+
+        // Toggle micro-interaction simulation
+        document.querySelectorAll('button.relative').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const span = this.querySelector('span');
+                const label = this.previousElementSibling;
+                
+                if (span.classList.contains('translate-x-5')) {
+                    span.classList.remove('translate-x-5');
+                    span.classList.add('translate-x-1');
+                    this.classList.remove('bg-primary');
+                    this.classList.add('bg-surface-container-highest', 'border', 'border-outline-variant');
+                    span.classList.remove('bg-on-primary');
+                    span.classList.add('bg-on-surface-variant');
+                    if (label) {
+                        label.textContent = 'Disabled';
+                        label.classList.remove('text-tertiary');
+                        label.classList.add('text-on-surface-variant');
+                    }
+                } else {
+                    span.classList.remove('translate-x-1');
+                    span.classList.add('translate-x-5');
+                    this.classList.add('bg-primary');
+                    this.classList.remove('bg-surface-container-highest', 'border', 'border-outline-variant');
+                    span.classList.add('bg-on-primary');
+                    span.classList.remove('bg-on-surface-variant');
+                    if (label) {
+                        label.textContent = 'Active';
+                        label.classList.add('text-tertiary');
+                        label.classList.remove('text-on-surface-variant');
+                    }
+                }
+            });
+        });
+    </script>
+</body></html>

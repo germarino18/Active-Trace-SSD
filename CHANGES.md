@@ -471,12 +471,13 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 > `C-21` es el shell común. Las features (C-22/23/24) consumen los endpoints ya construidos en backend.
 
 ### [C-21] `frontend-shell-y-auth`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completado — 17 tests pasando, TypeScript clean, archivado 2026-06-17
 - **Scope**:
-  - Scaffolding React 18 + TypeScript + Vite. Estructura feature-based. Tailwind, TanStack Query, React Hook Form + Zod, Axios.
-  - Cliente HTTP centralizado: interceptor de auth + **refresh transparente** de tokens. Manejo de 401/403.
-  - Pantallas de login, 2FA, recuperación de contraseña (consumen `C-03`). Guard de rutas por permiso. Layout/menú adaptado a permisos de la sesión.
-  - Logout. Tests: render de login, flujo de auth (mock), guard redirige sin sesión, refresh transparente.
+  - Scaffolding React 18 + TypeScript + Vite. Estructura feature-based. Tailwind CSS v4, TanStack Query, React Hook Form + Zod, Axios.
+  - Cliente HTTP centralizado: interceptor de auth + **refresh transparente** de tokens (cola de 401s concurrentes). Manejo de 401/403.
+  - Pantallas de login (con 2FA inline), 2FA, recuperación de contraseña (consumen `C-03`). Guard de rutas por permiso. Layout/menú adaptado a permisos de la sesión.
+  - Logout. Tests: 17 tests (login, 2FA, forgot, reset, guards, interceptor) todos pasando. Dockerfile.dev + docker-compose.
+  - **Visual design**: Obsidian High-Contrast Dark (Stitch MCP) — theme tokens en Tailwind v4 `@theme`.
 - **Dependencias**: `C-04`
 - **Governance**: BAJO
 - **Leer antes**:

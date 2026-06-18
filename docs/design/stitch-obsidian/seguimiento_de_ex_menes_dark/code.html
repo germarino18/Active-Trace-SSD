@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Activia-Trace | Real-time Exam Tracking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#6ee7b7",
+                    "surface-container-low": "#0f0f12",
+                    "inverse-surface": "#fafafa",
+                    "background": "#09090b",
+                    "on-primary": "#0a0012",
+                    "on-background": "#fafafa",
+                    "secondary-fixed": "#a1a1aa",
+                    "surface-variant": "#18181b",
+                    "surface-container": "#121215",
+                    "on-primary-fixed-variant": "#5b21b6",
+                    "outline": "#52525b",
+                    "on-secondary-fixed": "#18181b",
+                    "on-tertiary-fixed-variant": "#047857",
+                    "on-secondary-fixed-variant": "#3f3f46",
+                    "outline-variant": "#27272a",
+                    "surface-container-high": "#18181b",
+                    "on-secondary": "#09090b",
+                    "tertiary-container": "#065f46",
+                    "secondary-fixed-dim": "#71717a",
+                    "secondary": "#71717a",
+                    "secondary-container": "#27272a",
+                    "on-primary-fixed": "#2e1065",
+                    "on-error": "#1a0000",
+                    "primary-container": "#7c3aed",
+                    "on-surface": "#fafafa",
+                    "on-secondary-container": "#a1a1aa",
+                    "surface-dim": "#0c0c0f",
+                    "surface-bright": "#18181b",
+                    "surface-container-lowest": "#09090b",
+                    "inverse-primary": "#5b21b6",
+                    "surface-container-highest": "#1e1e22",
+                    "error-container": "#3b1111",
+                    "error": "#ef4444",
+                    "surface-tint": "#a78bfa",
+                    "surface": "#0c0c0f",
+                    "on-tertiary-container": "#bbf7d0",
+                    "tertiary-fixed": "#bbf7d0",
+                    "on-tertiary": "#001a12",
+                    "on-tertiary-fixed": "#003318",
+                    "inverse-on-surface": "#09090b",
+                    "primary": "#a78bfa",
+                    "primary-fixed-dim": "#c4b5fd",
+                    "on-primary-container": "#ede9fe",
+                    "on-surface-variant": "#a1a1aa",
+                    "on-error-container": "#fca5a5",
+                    "tertiary": "#34d399",
+                    "primary-fixed": "#ede9fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "margin-desktop": "48px",
+                    "sm": "16px",
+                    "base": "4px",
+                    "margin-mobile": "16px",
+                    "xl": "64px",
+                    "lg": "40px",
+                    "xs": "8px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "headline": ["Geist"],
+                    "display": ["Geist"],
+                    "body": ["Geist"],
+                    "label": ["Geist"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+        .status-pulse { animation: pulse-opacity 2s infinite; }
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary/30 selection:text-primary">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full w-[280px] bg-surface border-r border-outline-variant flex flex-col py-md px-sm z-50">
+<div class="mb-lg px-xs">
+<h1 class="text-2xl font-bold text-primary">Activia-Trace</h1>
+<p class="text-sm text-on-surface-variant opacity-70">Academic Management</p>
+</div>
+<nav class="flex-1 space-y-base">
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-primary bg-primary/10 border-r-4 border-primary transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-bold">Exam Tracking</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-medium">Results &amp; Analytics</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-medium">Exam Repository</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant hover:bg-surface-variant transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-medium">User Profile</span>
+</a>
+</nav>
+<div class="mt-auto px-xs">
+<button class="w-full bg-primary text-on-primary py-md rounded-xl font-bold hover:brightness-110 transition-all active:scale-[0.98]">
+                New Exam Entry
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant flex justify-between items-center h-16 px-gutter w-full">
+<div class="flex items-center gap-md">
+<h2 class="text-xl font-extrabold text-on-surface">Exam Tracking</h2>
+</div>
+<div class="flex items-center gap-lg">
+<div class="relative hidden lg:block w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container border border-outline-variant rounded-full text-sm focus:ring-1 focus:ring-primary focus:border-primary bg-transparent" placeholder="Search exams or courses..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSxK-0P8wTZrQutKrXfXTwxlE9cjzyifLaV6AunijSfuR9OC83-oXz0btk6pKh8WLL84YHVuAFGjqZfnZdN7AYHDQjDfl8buNsNsLBe9GKP02Vifq0feQkA63cbiQi1WmaQpgMhedb9IjD8JsowqF5kPR2BN2aLWx-_q8OEBR1WUUX5pHfoMfNRTsCokjF-Ae7luoY0fewU9Z1uUC53p3k9B80e7Hy_XpGNWMILGhYbriT4BkVwB-grKezd8segI_6flHwyw_eHvw"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-gutter max-w-7xl mx-auto space-y-lg">
+<!-- Alert & Critical Deadlines Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="col-span-1 md:col-span-2 bg-surface-container rounded-xl p-md border border-outline-variant flex items-center justify-between overflow-hidden relative group">
+<div class="relative z-10 space-y-base">
+<span class="bg-error/20 text-error px-xs py-1 rounded-full text-xs font-bold uppercase tracking-wider">Critical Deadline</span>
+<h3 class="text-2xl font-bold text-on-surface">Advanced Algorithms (CS501)</h3>
+<p class="text-on-surface-variant">Exam portal closes in 02:45:12. Ensure all file uploads are verified.</p>
+<button class="mt-md text-primary font-bold text-sm flex items-center gap-xs hover:gap-sm transition-all">
+                            Review Submission Checklist <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-error/10 rounded-full blur-3xl"></div>
+<span class="material-symbols-outlined text-[120px] opacity-10 text-error absolute right-4 bottom-[-20px] pointer-events-none" data-icon="timer">timer</span>
+</div>
+<div class="bg-primary-container text-on-primary-container rounded-xl p-md flex flex-col justify-between shadow-lg border border-primary/20">
+<div class="flex justify-between items-start">
+<div class="h-12 w-12 bg-black/20 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" data-icon="history">history</span>
+</div>
+<span class="text-xs opacity-60 font-bold uppercase tracking-widest">Session Summary</span>
+</div>
+<div class="mt-md">
+<h4 class="text-4xl font-black">14 / 20</h4>
+<p class="text-sm opacity-80">Exams Graded this Semester</p>
+</div>
+<div class="mt-md w-full bg-black/20 h-2 rounded-full overflow-hidden">
+<div class="bg-on-primary-container h-full w-[70%] rounded-full shadow-[0_0_8px_rgba(255,255,255,0.4)]"></div>
+</div>
+</div>
+</section>
+<!-- Real-time Tracking Grid -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="h-3 w-3 bg-primary rounded-full status-pulse shadow-[0_0_8px_rgba(167,139,250,0.6)]"></span>
+<h3 class="text-xl font-bold text-on-surface">Active Exam Feed</h3>
+</div>
+<div class="flex items-center gap-xs">
+<button class="px-sm py-2 bg-surface-variant border border-outline-variant rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors">Filter</button>
+<button class="px-sm py-2 bg-surface-variant border border-outline-variant rounded-full text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors">Sort</button>
+</div>
+</div>
+<!-- Tracking List Container -->
+<div class="grid grid-cols-1 gap-sm">
+<!-- Exam Card 1: Pending -->
+<div class="bg-surface-container rounded-xl p-md border border-outline-variant hover:border-outline transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-md group">
+<div class="flex items-center gap-md">
+<div class="w-1.5 h-16 bg-outline-variant rounded-full group-hover:bg-outline transition-colors"></div>
+<div class="space-y-base">
+<p class="text-xs text-outline font-bold uppercase tracking-widest">UPCOMING • OCT 24</p>
+<h4 class="text-lg font-bold text-on-surface">Microeconomics Final (ECON101)</h4>
+<div class="flex items-center gap-sm">
+<span class="flex items-center gap-xs text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="schedule">schedule</span> 09:00 AM - 11:30 AM
+                                    </span>
+<span class="flex items-center gap-xs text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span> Hall B-4
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="text-right hidden sm:block">
+<p class="text-xs text-outline font-bold">Proctor</p>
+<p class="text-sm text-on-surface">Dr. Elena Ross</p>
+</div>
+<span class="px-md py-1.5 bg-surface-variant text-on-surface-variant border border-outline-variant rounded-full text-xs font-bold">Pending</span>
+<button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Exam Card 2: Submitted / Processing -->
+<div class="bg-surface-container rounded-xl p-md border border-primary/30 hover:border-primary/50 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-md group">
+<div class="flex items-center gap-md">
+<div class="w-1.5 h-16 bg-primary rounded-full shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+<div class="space-y-base">
+<p class="text-xs text-primary font-bold uppercase tracking-widest">SUBMITTED • TODAY</p>
+<h4 class="text-lg font-bold text-on-surface">Data Visualization (DV202)</h4>
+<div class="flex items-center gap-sm">
+<span class="flex items-center gap-xs text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span> Submission Verified
+                                    </span>
+<span class="flex items-center gap-xs text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="cloud_done">cloud_done</span> 4.2MB Payload
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="text-right hidden sm:block">
+<p class="text-xs text-outline font-bold">Stage</p>
+<p class="text-sm text-primary font-bold">Verifying Artifacts</p>
+</div>
+<span class="px-md py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold flex items-center gap-xs">
+<span class="w-1.5 h-1.5 bg-primary rounded-full status-pulse"></span> Processing
+                            </span>
+<button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="open_in_new">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Exam Card 3: Graded -->
+<div class="bg-surface-container rounded-xl p-md border border-tertiary/30 hover:border-tertiary/50 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-md group">
+<div class="flex items-center gap-md">
+<div class="w-1.5 h-16 bg-tertiary rounded-full shadow-[0_0_8px_rgba(52,211,153,0.4)]"></div>
+<div class="space-y-base">
+<p class="text-xs text-tertiary font-bold uppercase tracking-widest">COMPLETED • OCT 18</p>
+<h4 class="text-lg font-bold text-on-surface">Human-Computer Interaction (HCI105)</h4>
+<div class="flex items-center gap-sm">
+<span class="flex items-center gap-xs text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="grade">grade</span> Final Grade Published
+                                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="text-right hidden sm:block">
+<p class="text-xs text-outline font-bold">Grade</p>
+<p class="text-2xl font-black text-tertiary">A+</p>
+</div>
+<span class="px-md py-1.5 bg-tertiary/20 text-tertiary border border-tertiary/30 rounded-full text-xs font-bold">Graded</span>
+<button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Analytics / Upcoming View -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Course Load Breakdown -->
+<div class="bg-surface-container rounded-xl p-md border border-outline-variant space-y-md">
+<div class="flex items-center justify-between">
+<h4 class="text-xs font-bold uppercase tracking-widest text-outline">Course Load Distribution</h4>
+<span class="material-symbols-outlined text-outline text-[18px]" data-icon="info">info</span>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center justify-between text-sm font-bold">
+<span class="text-on-surface">Computer Science</span>
+<span class="text-primary">45%</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%] rounded-full shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+</div>
+<div class="flex items-center justify-between text-sm font-bold">
+<span class="text-on-surface">Mathematics</span>
+<span class="text-primary">30%</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[30%] rounded-full shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+</div>
+<div class="flex items-center justify-between text-sm font-bold">
+<span class="text-on-surface">Humanities</span>
+<span class="text-primary">25%</span>
+</div>
+<div class="w-full bg-surface-variant h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[25%] rounded-full shadow-[0_0_8px_rgba(167,139,250,0.4)]"></div>
+</div>
+</div>
+</div>
+<!-- Recent Activity / Logs -->
+<div class="bg-surface-container rounded-xl p-md border border-outline-variant">
+<div class="flex items-center justify-between mb-md">
+<h4 class="text-xs font-bold uppercase tracking-widest text-outline">System Activity</h4>
+<button class="text-primary font-bold text-xs hover:underline">View full log</button>
+</div>
+<ul class="space-y-md custom-scrollbar overflow-y-auto max-h-48 pr-xs">
+<li class="flex gap-sm items-start">
+<div class="mt-1 h-2 w-2 rounded-full bg-primary shrink-0 shadow-[0_0_4px_rgba(167,139,250,0.8)]"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Submission receipt sent for DV202</p>
+<p class="text-xs text-outline">14 minutes ago</p>
+</div>
+</li>
+<li class="flex gap-sm items-start">
+<div class="mt-1 h-2 w-2 rounded-full bg-outline shrink-0"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Proctor assigned to ECON101</p>
+<p class="text-xs text-outline">2 hours ago</p>
+</div>
+</li>
+<li class="flex gap-sm items-start">
+<div class="mt-1 h-2 w-2 rounded-full bg-tertiary shrink-0 shadow-[0_0_4px_rgba(52,211,153,0.8)]"></div>
+<div>
+<p class="text-sm font-medium text-on-surface">Grade published: HCI105 Final</p>
+<p class="text-xs text-outline">Yesterday, 18:42</p>
+</div>
+</li>
+</ul>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual FAB -->
+<button class="fixed bottom-gutter right-gutter h-14 w-14 bg-primary text-on-primary rounded-xl shadow-[0_8px_20px_rgba(167,139,250,0.3)] flex items-center justify-center active:scale-95 transition-all group overflow-hidden z-50">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="max-w-0 group-hover:max-w-xs group-hover:ml-2 transition-all duration-300 font-bold text-sm overflow-hidden whitespace-nowrap">Schedule Entry</span>
+</button>
+<script>
+        // Micro-interaction for hover effects on cards
+        document.querySelectorAll('.bg-surface-container').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        if(searchInput) {
+            searchInput.addEventListener('focus', () => {
+                searchInput.parentElement.classList.add('ring-1', 'ring-primary');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchInput.parentElement.classList.remove('ring-1', 'ring-primary');
+            });
+        }
+    </script>
+</body></html>

@@ -25,11 +25,35 @@
       "skillPath": "plugins/python-development/skills/python-testing-patterns/SKILL.md",
       "computedHash": "1306eea409e7eff2288d7658806cb508f18339a0ee9a686d324a0fd2570eae55"
     },
+    "react-expert": {
+      "source": "reactjs/react.dev",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/react-expert/SKILL.md",
+      "computedHash": "e4f38b4f38c6ff4124c0b776d3ff352097bd061ccef5e583bad44a543879c30b"
+    },
+    "react-hook-form-zod": {
+      "source": "ovachiever/droid-tings",
+      "sourceType": "github",
+      "skillPath": "skills/react-hook-form-zod/SKILL.md",
+      "computedHash": "ae74aa8ed25ec6e82aa30d00b4865fa5cff76c65f1b43ff1169eb2a222740e01"
+    },
+    "tanstack-query": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "tanstack-query/SKILL.md",
+      "computedHash": "1df68c6324376fb68f37a215268287e869613199173c26e56f2e30725839ac4d"
+    },
     "test-driven-development": {
       "source": "obra/superpowers",
       "sourceType": "github",
       "skillPath": "skills/test-driven-development/SKILL.md",
       "computedHash": "126f1ebf6ccd414f42544f6e83d8cc5adb089e1108eaffb7c400701e37eecd9f"
+    },
+    "typescript-advanced": {
+      "source": "rohitg00/awesome-claude-code-toolkit",
+      "sourceType": "github",
+      "skillPath": "skills/typescript-advanced/SKILL.md",
+      "computedHash": "0a3ed6c475df5ffc25da79a719e53f0ec47852d11966dd07b34f43d82e012665"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",

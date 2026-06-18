@@ -1,6 +1,6 @@
 """Create hilo_conversacion, hilo_participante, mensaje tables for C-20.
 
-Revision ID: f0e1d2c3b4a5
+Revision ID: d1e2f3a4b5c6
 Revises: 16aeacd08188
 Create Date: 2026-06-17 15:00:00.000000
 
@@ -12,7 +12,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 
-revision: str = "f0e1d2c3b4a5"
+revision: str = "d1e2f3a4b5c6"
 down_revision: Union[str, Sequence[str], None] = "16aeacd08188"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

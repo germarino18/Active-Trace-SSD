@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Activia-Trace | Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#6ee7b7",
+                    "surface-container-low": "#0f0f12",
+                    "inverse-surface": "#fafafa",
+                    "background": "#09090b",
+                    "on-primary": "#0a0012",
+                    "on-background": "#fafafa",
+                    "secondary-fixed": "#a1a1aa",
+                    "surface-variant": "#18181b",
+                    "surface-container": "#121215",
+                    "on-primary-fixed-variant": "#5b21b6",
+                    "outline": "#52525b",
+                    "on-secondary-fixed": "#18181b",
+                    "on-tertiary-fixed-variant": "#047857",
+                    "on-secondary-fixed-variant": "#3f3f46",
+                    "outline-variant": "#27272a",
+                    "surface-container-high": "#18181b",
+                    "on-secondary": "#09090b",
+                    "tertiary-container": "#065f46",
+                    "secondary-fixed-dim": "#71717a",
+                    "secondary": "#71717a",
+                    "secondary-container": "#27272a",
+                    "on-primary-fixed": "#2e1065",
+                    "on-error": "#1a0000",
+                    "primary-container": "#7c3aed",
+                    "on-surface": "#fafafa",
+                    "on-secondary-container": "#a1a1aa",
+                    "surface-dim": "#0c0c0f",
+                    "surface-bright": "#18181b",
+                    "surface-container-lowest": "#09090b",
+                    "inverse-primary": "#5b21b6",
+                    "surface-container-highest": "#1e1e22",
+                    "error-container": "#3b1111",
+                    "error": "#ef4444",
+                    "surface-tint": "#a78bfa",
+                    "surface": "#0c0c0f",
+                    "on-tertiary-container": "#bbf7d0",
+                    "tertiary-fixed": "#bbf7d0",
+                    "on-tertiary": "#001a12",
+                    "on-tertiary-fixed": "#003318",
+                    "inverse-on-surface": "#09090b",
+                    "primary": "#a78bfa",
+                    "primary-fixed-dim": "#c4b5fd",
+                    "on-primary-container": "#ede9fe",
+                    "on-surface-variant": "#a1a1aa",
+                    "on-error-container": "#fca5a5",
+                    "tertiary": "#34d399",
+                    "primary-fixed": "#ede9fe"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Geist"],
+                    "display": ["Geist"],
+                    "body": ["Geist"],
+                    "label": ["Geist"]
+            },
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+        }
+        .progress-bar-inner {
+            transition: width 1s ease-in-out;
+        }
+        /* Custom border for the Obsidian theme */
+        .obsidian-border { border: 1px solid #27272a; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="bg-surface-container dark:bg-surface-container h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline-variant flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 flex items-center gap-3 px-2">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">hub</span>
+</div>
+<div>
+<h1 class="text-xl font-headline font-bold tracking-tighter text-on-surface dark:text-on-surface">Activia-Trace</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-60">Academic Management</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active: Dashboard -->
+<a class="text-primary dark:text-primary font-bold bg-surface-container-highest dark:bg-surface-container-highest border-r-2 border-primary flex items-center gap-3 px-3 py-2.5 rounded-l-md transition-all duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body text-label-sm tracking-tight">Dashboard</span>
+</a>
+<!-- Inactive items -->
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">book</span>
+<span class="font-body text-label-sm tracking-tight">Subjects</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-body text-label-sm tracking-tight">Schedule</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<span class="font-body text-label-sm tracking-tight">Exams</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-body text-label-sm tracking-tight">Nexo Portal</span>
+</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors duration-150 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body text-label-sm tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">add</span>
+<span class="text-sm">New Entry</span>
+</button>
+</div>
+</aside>
+<!-- TopAppBar (Authority: JSON) -->
+<header class="bg-background dark:bg-background border-b border-outline-variant dark:border-outline-variant flex justify-between items-center h-16 px-6 ml-64 sticky top-0 z-40">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background transition-all outline-none" placeholder="Search curriculum, resources, or notes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus-within:ring-2 focus-within:ring-primary rounded-full">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Alex Rivero</p>
+<p class="text-[10px] text-on-surface-variant">Lvl. 4 Student</p>
+</div>
+<div class="w-10 h-10 rounded-full border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional and modern student profile portrait of a young adult with a focused expression, set against a dark studio background with subtle violet rim lighting. The style is clean, high-contrast, and aligns with a developer-grade digital ecosystem, utilizing soft shadows and sharp focus on the facial features." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQp7SY4uPqRU6_Ouh4EG0lLLJ3PMBm_lpNtywCPTybUw09AWnH3ASDFuBulIgwm7LHnSDt7ZUPel0tfqcLhXqAWd1NYJe3erpkD8S7IFJRam9S2qvkSadFoCxCSDOzskQSazwe4wNe6xTk7OiJ_Ewks6X68rcBgVUq-LHZA3SyZI0N27wR751ThevqgduFDclvezyYP-XV0hthY-rqTG4D-pnH1sjanbsRBZVY1MyjO6qq47Y9cykciFpw64Pc4vZzn7ILUOQxfB8"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 p-8 min-h-[calc(100vh-4rem)]">
+<!-- Header Section -->
+<div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<nav class="flex items-center gap-2 text-on-surface-variant text-xs mb-2">
+<span class="hover:text-primary cursor-pointer">Dashboard</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-on-surface">Academic Career</span>
+</nav>
+<h2 class="text-3xl font-headline font-black tracking-tight text-on-surface">Computer Science</h2>
+<div class="flex items-center gap-3 mt-2">
+<span class="px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider obsidian-border">Major: AI &amp; Systems</span>
+<span class="text-on-surface-variant text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">calendar_month</span>
+                        Semester 6 of 8
+                    </span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 obsidian-border bg-surface-container-high rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+                    Transcript
+                </button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">edit</span>
+                    Edit Curriculum
+                </button>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="bento-grid">
+<!-- Hero Stats: Progress -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container p-6 rounded-xl obsidian-border flex flex-col justify-between">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-lg font-bold">Academic Progress</h3>
+<p class="text-sm text-on-surface-variant">Credits earned: 142 / 180</p>
+</div>
+<div class="text-right">
+<span class="text-3xl font-black text-primary">78%</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-highest h-3 rounded-full overflow-hidden mb-6">
+<div class="progress-bar-inner bg-primary h-full rounded-full" style="width: 78.8%"></div>
+</div>
+<div class="grid grid-cols-4 gap-4">
+<div class="p-3 bg-surface-container-low rounded-lg obsidian-border">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter mb-1">GPA</p>
+<p class="text-lg font-bold">3.82</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg obsidian-border">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter mb-1">Attendance</p>
+<p class="text-lg font-bold">94%</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg obsidian-border">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter mb-1">Projects</p>
+<p class="text-lg font-bold">12/15</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg obsidian-border">
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter mb-1">Rank</p>
+<p class="text-lg font-bold">#14</p>
+</div>
+</div>
+</div>
+<!-- Side Card: Quick Stats or Upcoming Activity -->
+<div class="col-span-12 lg:col-span-4 bg-surface-container p-6 rounded-xl obsidian-border relative overflow-hidden group">
+<div class="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+
+</div>
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2 relative z-10">
+<span class="material-symbols-outlined text-tertiary">bolt</span>
+                    Upcoming Practical
+                </h3>
+<div class="space-y-4 relative z-10">
+<div class="p-4 bg-surface-container-high rounded-lg obsidian-border border-l-4 border-l-tertiary">
+<p class="text-xs text-on-surface-variant mb-1">Tomorrow, 10:00 AM</p>
+<p class="font-bold text-sm">Advanced Kernel Debugging</p>
+<p class="text-[10px] text-on-surface-variant mt-1">Lab 402 • Engineering Wing</p>
+</div>
+<div class="p-4 bg-surface-container-low opacity-60 rounded-lg obsidian-border">
+<p class="text-xs text-on-surface-variant mb-1">Friday, 02:30 PM</p>
+<p class="font-bold text-sm">Neural Networks Workshop</p>
+</div>
+<button class="w-full py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors underline decoration-outline-variant underline-offset-4">
+                        View Full Schedule
+                    </button>
+</div>
+</div>
+<!-- Subject Grid -->
+<div class="col-span-12">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">book_2</span>
+                        Current Subjects
+                    </h3>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container rounded obsidian-border text-on-surface-variant"><span class="material-symbols-outlined">filter_list</span></button>
+<button class="p-2 bg-surface-container rounded obsidian-border text-on-surface-variant"><span class="material-symbols-outlined">grid_view</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+<!-- Subject 1 -->
+<div class="bg-surface-container p-5 rounded-xl obsidian-border hover:bg-surface-container-high transition-all duration-300 group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-primary/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">terminal</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary px-2 py-0.5 rounded bg-tertiary/10">Active</span>
+</div>
+<h4 class="font-bold mb-1">Distributed Systems</h4>
+<p class="text-xs text-on-surface-variant mb-4">CS-402 • Prof. K. Vance</p>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
+<span>Progress</span>
+<span>65%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[65%]"></div>
+</div>
+</div>
+</div>
+<!-- Subject 2 -->
+<div class="bg-surface-container p-5 rounded-xl obsidian-border hover:bg-surface-container-high transition-all duration-300 group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-tertiary/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary px-2 py-0.5 rounded bg-tertiary/10">Active</span>
+</div>
+<h4 class="font-bold mb-1">Artificial Intelligence</h4>
+<p class="text-xs text-on-surface-variant mb-4">CS-415 • Dr. S. Mehta</p>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
+<span>Progress</span>
+<span>42%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[42%]"></div>
+</div>
+</div>
+</div>
+<!-- Subject 3 -->
+<div class="bg-surface-container p-5 rounded-xl obsidian-border hover:bg-surface-container-high transition-all duration-300 group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-primary/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">data_object</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary px-2 py-0.5 rounded bg-tertiary/10">Active</span>
+</div>
+<h4 class="font-bold mb-1">Data Warehousing</h4>
+<p class="text-xs text-on-surface-variant mb-4">CS-408 • Prof. L. Zhang</p>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
+<span>Progress</span>
+<span>88%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%]"></div>
+</div>
+</div>
+</div>
+<!-- Subject 4 -->
+<div class="bg-surface-container p-5 rounded-xl obsidian-border hover:bg-surface-container-high transition-all duration-300 group">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 bg-primary/20 rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+</div>
+<span class="text-[10px] font-bold text-tertiary px-2 py-0.5 rounded bg-tertiary/10">Active</span>
+</div>
+<h4 class="font-bold mb-1">Cybersecurity Ethics</h4>
+<p class="text-xs text-on-surface-variant mb-4">CS-390 • Dr. J. Foster</p>
+<div class="space-y-2">
+<div class="flex justify-between text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">
+<span>Progress</span>
+<span>25%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[25%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Study Material Area -->
+<div class="col-span-12 lg:col-span-12 mt-4">
+<div class="bg-surface-container p-6 rounded-xl obsidian-border">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant">folder_open</span>
+                                Study Materials
+                            </h3>
+<p class="text-xs text-on-surface-variant mt-1">Available downloads and course resources</p>
+</div>
+<button class="text-xs font-bold text-primary flex items-center gap-1">
+                            Manage All Files <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<!-- Folder 1 -->
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-lg obsidian-border hover:border-primary transition-all group cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary opacity-80 group-hover:opacity-100" style="font-variation-settings: 'FILL' 1;">folder</span>
+<div>
+<p class="text-sm font-bold truncate max-w-[120px]">Lecture Notes</p>
+<p class="text-[10px] text-on-surface-variant">24 PDF Files</p>
+</div>
+<span class="material-symbols-outlined text-sm ml-auto text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+<!-- Folder 2 -->
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-lg obsidian-border hover:border-primary transition-all group cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-tertiary opacity-80 group-hover:opacity-100" style="font-variation-settings: 'FILL' 1;">folder</span>
+<div>
+<p class="text-sm font-bold truncate max-w-[120px]">Project Assets</p>
+<p class="text-[10px] text-on-surface-variant">156 MB • ZIP</p>
+</div>
+<span class="material-symbols-outlined text-sm ml-auto text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+<!-- Folder 3 -->
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-lg obsidian-border hover:border-primary transition-all group cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary opacity-80 group-hover:opacity-100" style="font-variation-settings: 'FILL' 1;">folder</span>
+<div>
+<p class="text-sm font-bold truncate max-w-[120px]">Exam Archive</p>
+<p class="text-[10px] text-on-surface-variant">2018-2023 Docs</p>
+</div>
+<span class="material-symbols-outlined text-sm ml-auto text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+<!-- Folder 4 -->
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-lg obsidian-border hover:border-primary transition-all group cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary opacity-80 group-hover:opacity-100" style="font-variation-settings: 'FILL' 1;">folder_zip</span>
+<div>
+<p class="text-sm font-bold truncate max-w-[120px]">API Reference</p>
+<p class="text-[10px] text-on-surface-variant">Offline Documentation</p>
+</div>
+<span class="material-symbols-outlined text-sm ml-auto text-on-surface-variant group-hover:text-primary">download</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Info -->
+<footer class="mt-12 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4 opacity-40">
+<p class="text-[10px] uppercase tracking-widest">© 2024 Activia-Trace • Nexo Academic Systems</p>
+<div class="flex gap-6">
+<a class="text-[10px] uppercase tracking-widest hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-[10px] uppercase tracking-widest hover:text-primary transition-colors" href="#">System Status</a>
+<a class="text-[10px] uppercase tracking-widest hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</footer>
+</main>
+<script>
+        // Micro-interactions for progress bars
+        document.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.progress-bar-inner');
+            bars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+        });
+
+        // Search highlight effect
+        const searchInput = document.querySelector('input[type="text"]');
+        searchInput.addEventListener('focus', () => {
+            searchInput.parentElement.classList.add('scale-[1.01]');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.parentElement.classList.remove('scale-[1.01]');
+        });
+    </script>
+</body></html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexo Portal | Activia-Trace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#6ee7b7",
+                        "surface-container-low": "#0f0f12",
+                        "inverse-surface": "#fafafa",
+                        "background": "#09090b",
+                        "on-primary": "#0a0012",
+                        "on-background": "#fafafa",
+                        "secondary-fixed": "#a1a1aa",
+                        "surface-variant": "#18181b",
+                        "surface-container": "#121215",
+                        "on-primary-fixed-variant": "#5b21b6",
+                        "outline": "#52525b",
+                        "on-secondary-fixed": "#18181b",
+                        "on-tertiary-fixed-variant": "#047857",
+                        "on-secondary-fixed-variant": "#3f3f46",
+                        "outline-variant": "#27272a",
+                        "surface-container-high": "#18181b",
+                        "on-secondary": "#09090b",
+                        "tertiary-container": "#065f46",
+                        "secondary-fixed-dim": "#71717a",
+                        "secondary": "#71717a",
+                        "secondary-container": "#27272a",
+                        "on-primary-fixed": "#2e1065",
+                        "on-error": "#1a0000",
+                        "primary-container": "#7c3aed",
+                        "on-surface": "#fafafa",
+                        "on-secondary-container": "#a1a1aa",
+                        "surface-dim": "#0c0c0f",
+                        "surface-bright": "#18181b",
+                        "surface-container-lowest": "#09090b",
+                        "inverse-primary": "#5b21b6",
+                        "surface-container-highest": "#1e1e22",
+                        "error-container": "#3b1111",
+                        "error": "#ef4444",
+                        "surface-tint": "#a78bfa",
+                        "surface": "#0c0c0f",
+                        "on-tertiary-container": "#bbf7d0",
+                        "tertiary-fixed": "#bbf7d0",
+                        "on-tertiary": "#001a12",
+                        "on-tertiary-fixed": "#003318",
+                        "inverse-on-surface": "#09090b",
+                        "primary": "#a78bfa",
+                        "primary-fixed-dim": "#c4b5fd",
+                        "on-primary-container": "#ede9fe",
+                        "on-surface-variant": "#a1a1aa",
+                        "on-error-container": "#fca5a5",
+                        "tertiary": "#34d399",
+                        "primary-fixed": "#ede9fe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Geist"],
+                        "display": ["Geist"],
+                        "body": ["Geist"],
+                        "label": ["Geist"]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Geist', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .glass-card {
+            background: rgba(18, 18, 21, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #27272a;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface custom-scrollbar overflow-x-hidden">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container border-r border-outline-variant flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-8 px-2">
+<h1 class="text-xl font-headline font-bold tracking-tighter text-on-surface">Activia-Trace</h1>
+<p class="font-body text-label-sm tracking-tight text-on-surface-variant">Academic Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body text-label-sm tracking-tight">Dashboard</span>
+</a>
+<!-- Subjects (Inactive) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="book">book</span>
+<span class="font-body text-label-sm tracking-tight">Subjects</span>
+</a>
+<!-- Schedule (Inactive) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-body text-label-sm tracking-tight">Schedule</span>
+</a>
+<!-- Exams (Inactive) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="quiz">quiz</span>
+<span class="font-body text-label-sm tracking-tight">Exams</span>
+</a>
+<!-- Nexo Portal (Active) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary font-bold bg-surface-container-highest border-r-2 border-primary active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span class="font-body text-label-sm tracking-tight">Nexo Portal</span>
+</a>
+<!-- Settings (Inactive) -->
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors duration-150 group active:scale-[0.98] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body text-label-sm tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant">
+<button class="w-full py-2.5 bg-primary-container text-on-primary-container rounded-lg font-bold text-label-sm flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Entry
+            </button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 min-h-screen flex flex-col relative">
+<!-- TopAppBar Component -->
+<header class="sticky top-0 z-40 flex justify-between items-center h-16 px-6 bg-background border-b border-outline-variant">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 rounded-lg transition-all">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container border-none rounded-lg py-2 pl-10 pr-4 text-body-medium focus:ring-0 placeholder:text-outline text-on-surface" placeholder="Search for queries, FAQs, or support..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6 ml-6">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-6">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a woman with a friendly expression, soft cinematic lighting, obsidian dark background, high contrast, violet accent tones in clothing, ultra-high resolution photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfVzK9EAlCF3jjQ_T1VTFbgHHNmY4uxiJlgIEvNf4Ivb2YbNCyX1UsQiXj8KSnuZqVAq9TZWfqcmHWQKR3jxvtZAxV0jd1O28QY-Iiw0Ff7hU_yhRCvLPqgmNDl3UImzX2pUYxuxgkrHyGwgpu92l9LhunaZS3-QdiQqU3tpmCH5DxOG1FoomcgZ7t8UbtAhSsIif003B6AUBoSzIPul7VVpAqMCn-hiIZWI6eQc2JujzeT5mmjn1fpPKJhq_CMmcRUjduz2k3e10"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Hero Content Section -->
+<section class="relative px-8 pt-12 pb-20 overflow-hidden">
+<!-- Animated Background Placeholder -->
+<div class="absolute inset-0 -z-10 opacity-30">
+
+</div>
+<div class="max-w-6xl mx-auto">
+<div class="mb-12">
+<span class="text-primary font-bold text-sm tracking-widest uppercase mb-2 block">Knowledge Base</span>
+<h2 class="text-5xl font-headline font-black tracking-tighter mb-4 text-on-surface">Nexo Portal <span class="text-primary">Support</span></h2>
+<p class="text-on-surface-variant max-w-2xl text-lg">Centralized external queries for prospective students, alumni, and institutional partners. Find answers fast or connect with our support team.</p>
+</div>
+<!-- Category Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Category Card 1 -->
+<div class="glass-card p-8 rounded-xl flex flex-col hover:border-primary transition-all group cursor-pointer">
+<div class="w-12 h-12 bg-primary-container/20 rounded-lg flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="how_to_reg">how_to_reg</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Inscriptions</h3>
+<p class="text-on-surface-variant text-sm flex-1">Admission processes, document requirements, deadlines, and registration tracking for new students.</p>
+<div class="mt-6 flex items-center gap-2 text-primary font-bold text-sm">
+                            Learn more <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<!-- Category Card 2 -->
+<div class="glass-card p-8 rounded-xl flex flex-col hover:border-tertiary transition-all group cursor-pointer">
+<div class="w-12 h-12 bg-tertiary/10 rounded-lg flex items-center justify-center text-tertiary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="verified">verified</span>
+</div>
+<h3 class="text-xl font-bold mb-3">Certificates</h3>
+<p class="text-on-surface-variant text-sm flex-1">Request academic transcripts, diplomas, and official institutional verifications for graduates and students.</p>
+<div class="mt-6 flex items-center gap-2 text-tertiary font-bold text-sm">
+                            Access Portal <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<!-- Category Card 3 -->
+<div class="glass-card p-8 rounded-xl flex flex-col hover:border-secondary transition-all group cursor-pointer">
+<div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="support_agent">support_agent</span>
+</div>
+<h3 class="text-xl font-bold mb-3">General Support</h3>
+<p class="text-on-surface-variant text-sm flex-1">Contact information, live chat, and general inquiries not covered in specific categories.</p>
+<div class="mt-6 flex items-center gap-2 text-secondary font-bold text-sm">
+                            Contact Us <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Dynamic Content Section: Form & Live Chat -->
+<section class="px-8 pb-16 bg-surface-dim">
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 pt-16">
+<!-- FAQ Section -->
+<div class="lg:col-span-7">
+<h3 class="text-2xl font-bold mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="lightbulb">lightbulb</span>
+                        Trending FAQs
+                    </h3>
+<div class="space-y-4">
+<div class="p-6 bg-surface-container rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface">What documents are required for international inscriptions?</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<div class="p-6 bg-surface-container rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface">How long does it take to process a diploma certificate?</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<div class="p-6 bg-surface-container rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface">Can I change my major after the first semester?</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+<div class="p-6 bg-surface-container rounded-xl border border-outline-variant hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="flex justify-between items-center">
+<h4 class="font-bold text-on-surface">Where do I find the scholarship application portal?</h4>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact Form / Widget -->
+<div class="lg:col-span-5">
+<div class="glass-card p-8 rounded-2xl sticky top-24">
+<h3 class="text-2xl font-bold mb-2">Can't find an answer?</h3>
+<p class="text-on-surface-variant text-sm mb-8">Submit a query to the Nexo team or start a live chat session now.</p>
+<form class="space-y-4 mb-8">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-outline mb-1.5 ml-1">Full Name</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="John Doe" type="text"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-outline mb-1.5 ml-1">Email Address</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary focus:outline-none transition-all" placeholder="john@example.com" type="email"/>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-outline mb-1.5 ml-1">Query Category</label>
+<select class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary focus:outline-none transition-all">
+<option>Select category...</option>
+<option>Inscriptions</option>
+<option>Certificates</option>
+<option>Financial Support</option>
+<option>Other</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-outline mb-1.5 ml-1">Message</label>
+<textarea class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 text-on-surface focus:ring-2 focus:ring-primary focus:outline-none transition-all h-32" placeholder="Tell us how we can help..."></textarea>
+</div>
+<button class="w-full bg-primary text-on-primary font-black py-4 rounded-lg hover:opacity-90 transition-opacity active:scale-[0.98] transition-transform" type="submit">
+                                SEND QUERY
+                            </button>
+</form>
+<div class="pt-6 border-t border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div>
+<span class="text-sm font-bold text-on-surface">Agents Online</span>
+</div>
+<button class="flex items-center gap-2 text-primary font-bold text-sm hover:underline">
+<span class="material-symbols-outlined text-lg" data-icon="chat_bubble">chat_bubble</span>
+                                Start Live Chat
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer Info -->
+<footer class="mt-auto px-8 py-12 border-t border-outline-variant bg-surface-container-low">
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start">
+<h4 class="font-headline font-black text-on-surface text-lg">Activia-Trace</h4>
+<p class="text-on-surface-variant text-sm mt-1">Nexo Portal — Public Access Tier 1.4</p>
+</div>
+<div class="flex gap-8 text-on-surface-variant text-sm">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Campus Map</a>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="language">language</span>
+</div>
+<div class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-surface-container-high cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="mail">mail</span>
+</div>
+</div>
+</div>
+</footer>
+</main>
+<!-- Floating Trigger for Mobile -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center md:hidden active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</button>
+<script>
+        // Simple micro-interaction for FAQ toggles
+        document.querySelectorAll('.cursor-pointer.group').forEach(item => {
+            item.addEventListener('click', () => {
+                const icon = item.querySelector('.material-symbols-outlined:last-child');
+                if (icon) {
+                    const isExpanded = icon.textContent === 'expand_less';
+                    icon.textContent = isExpanded ? 'expand_more' : 'expand_less';
+                    // Simulation of expansion logic
+                }
+            });
+        });
+    </script>
+</body></html>

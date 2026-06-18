@@ -14,11 +14,14 @@ from app.core.permissions import Perm
 from app.models.consumed_challenge_token import ConsumedChallengeToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User
+from app.models.usuario import Usuario
 from app.repositories.audit_log_repository import AuditLogRepository
 from app.repositories.consumed_challenge_token_repository import ConsumedChallengeTokenRepository
 from app.repositories.recovery_token_repository import RecoveryTokenRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.usuario_repository import UsuarioRepository
+from app.services.permission_service import PermissionResolver
 from app.schemas.auth import (
     AuthenticateRequest,
     AuthenticateResponse,
@@ -376,6 +379,46 @@ async def disable_2fa(
     user.totp_enabled_at = None
     await db.flush()
     return {"message": "2FA disabled successfully"}
+
+
+@router.get(
+    "/api/auth/me",
+    summary="Get current user profile (identity, roles, permissions)",
+)
+async def get_me(
+    current_user: CurrentUser = Depends(get_current_user),
+    db=Depends(get_db),
+):
+    user_repo = UserRepository(session=db, tenant_id=current_user.tenant_id)
+    user = await user_repo.find_by_id(current_user.user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail={
+            "code": "not_found",
+            "message": "User not found",
+        })
+
+    nombre = user.display_name
+    apellido = ""
+    usuario_repo = UsuarioRepository(session=db, tenant_id=current_user.tenant_id)
+    usuario_profile = await usuario_repo.find_by_user_id(current_user.tenant_id, current_user.user_id)
+    if usuario_profile is not None:
+        nombre = usuario_profile.nombre
+        apellido = usuario_profile.apellidos
+
+    resolver = PermissionResolver(db)
+    permissions = await resolver.get_effective_permissions(
+        current_user.tenant_id, current_user.roles
+    )
+
+    return {
+        "id": str(current_user.user_id),
+        "email": user.email,
+        "nombre": nombre,
+        "apellido": apellido,
+        "roles": current_user.roles,
+        "permissions": sorted(permissions),
+        "tenant_id": str(current_user.tenant_id),
+    }
 
 
 @router.post(
