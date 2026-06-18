@@ -43,7 +43,7 @@ C-01 foundation-setup (infra, Docker, FastAPI skel, DB inicial, OTel)
             │       ├── C-22 frontend-academico-docente (importación, atrasados, comunicaciones)
             │       ├── C-23 frontend-coordinacion (equipos, avisos, tareas, monitores)
             │       └── C-24 frontend-finanzas-y-admin (liquidaciones, facturas, estructura, auditoría)
-			C-25 frontend-alumno
+			[x] C-25 frontend-alumno
 			C-26 fix-frontend-tutor — arreglar sidebar y crear vistas para TUTOR
 			C-27 frontend-analytics — dashboards analíticos (Fase 2)
 ```
@@ -527,7 +527,7 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
 
 ---
 
-C-25 frontend-alumno — Portal del Estudiante 🧑‍🎓
+[x] C-25 frontend-alumno — Portal del Estudiante 🧑‍🎓
 Scope:
 - Dashboard alumno con cards por materia + barra de progreso (consume C-10/C-11)
 - Vista "Mi estado académico": calificaciones, atrasos, promedio

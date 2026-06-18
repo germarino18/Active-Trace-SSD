@@ -25,13 +25,13 @@
 - [x] 4.2 Crear `components/MateriaCard.tsx` con barra de progreso y estado
 - [x] 4.3 Crear `components/AlertasPanel.tsx` con avisos no leídos, comunicaciones, coloquios próximos
 - [x] 4.4 Implementar empty state y error state
-- [ ] 4.5 Tests del dashboard
+- [x] 4.5 Tests del dashboard
 
 ## 5. Frontend — Estado académico
 
 - [x] 5.1 Crear `pages/MisMateriasPage.tsx` con listado de materias del alumno
 - [x] 5.2 Crear `pages/MateriaDetallePage.tsx` con calificaciones, actividades y estado
-- [ ] 5.3 Tests de vistas de estado académico
+- [x] 5.3 Tests de vistas de estado académico
 
 ## 6. Frontend — Reserva de coloquios
 
@@ -39,29 +39,29 @@
 - [x] 6.2 Crear componente `components/ReservaTurnoModal.tsx` para seleccionar fecha y confirmar
 - [x] 6.3 Implementar flujo de reserva (seleccionar → confirmar → feedback)
 - [x] 6.4 Implementar cancelación de reserva propia
-- [ ] 6.5 Tests de reserva/cancelación
+- [x] 6.5 Tests de reserva/cancelación
 
 ## 7. Frontend — Avisos y acknowledgment
 
 - [x] 7.1 Crear `pages/MisAvisosPage.tsx` con tablón de avisos activos
 - [x] 7.2 Implementar botón "Confirmar lectura" para avisos con require_ack
 - [x] 7.3 Implementar filtro de avisos leídos/no leídos
-- [ ] 7.4 Tests de avisos
+- [x] 7.4 Tests de avisos
 
 ## 8. Frontend — Programas y fechas académicas
 
 - [x] 8.1 Crear `pages/MisProgramasPage.tsx` con listado de programas por materia
 - [x] 8.2 Crear `pages/MisFechasPage.tsx` con calendario de fechas académicas
-- [ ] 8.3 Tests de programas y fechas
+- [x] 8.3 Tests de programas y fechas
 
 ## 9. Frontend — Inbox (bandeja de mensajes)
 
 - [x] 9.1 Crear `pages/AlumnoInboxPage.tsx` con listado de hilos
 - [x] 9.2 Crear `pages/AlumnoHiloPage.tsx` con detalle del hilo y formulario de respuesta
-- [ ] 9.3 Tests de inbox
+- [x] 9.3 Tests de inbox
 
 ## 10. Frontend — Comunicaciones recibidas
 
 - [x] 10.1 Crear `pages/MisComunicacionesPage.tsx` con historial de comunicaciones
 - [x] 10.2 Crear `pages/ComunicacionDetallePage.tsx` con contenido completo
-- [ ] 10.3 Tests de comunicaciones
+- [x] 10.3 Tests de comunicaciones
