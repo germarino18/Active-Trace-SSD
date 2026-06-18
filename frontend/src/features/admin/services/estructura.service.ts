@@ -1,0 +1,123 @@
+import apiClient, * as api from '@/shared/services/api';
+import type {
+  Carrera,
+  Cohorte,
+  Materia,
+  Evaluacion,
+  CarrerasResponse,
+  CohortesResponse,
+  MateriasResponse,
+  EvaluacionesResponse,
+  CrearCarreraData,
+  ActualizarCarreraData,
+  CrearCohorteData,
+  ActualizarCohorteData,
+  CrearMateriaData,
+  ActualizarMateriaData,
+  CrearEvaluacionData,
+} from '../types/estructura';
+
+// ─── Carreras ──────────────────────────────────────────────────
+
+export async function getCarreras(activa?: boolean): Promise<CarrerasResponse> {
+  return api.get<CarrerasResponse>('/api/v1/carreras', activa !== undefined ? { activa } : undefined);
+}
+
+export async function getCarrera(id: string): Promise<Carrera> {
+  return api.get<Carrera>(`/api/v1/carreras/${id}`);
+}
+
+export async function crearCarrera(data: CrearCarreraData): Promise<Carrera> {
+  return api.post<Carrera>('/api/v1/carreras', data);
+}
+
+export async function actualizarCarrera(id: string, data: ActualizarCarreraData): Promise<Carrera> {
+  return api.put<Carrera>(`/api/v1/carreras/${id}`, data);
+}
+
+export async function eliminarCarrera(id: string): Promise<void> {
+  return api.del<void>(`/api/v1/carreras/${id}`);
+}
+
+export async function toggleCarreraEstado(id: string): Promise<Carrera> {
+  return api.patch<Carrera>(`/api/v1/carreras/${id}/estado`);
+}
+
+// ─── Cohortes ──────────────────────────────────────────────────
+
+export async function getCohortes(activa?: boolean): Promise<CohortesResponse> {
+  return api.get<CohortesResponse>('/api/v1/cohortes', activa !== undefined ? { activa } : undefined);
+}
+
+export async function getCohorte(id: string): Promise<Cohorte> {
+  return api.get<Cohorte>(`/api/v1/cohortes/${id}`);
+}
+
+export async function crearCohorte(data: CrearCohorteData): Promise<Cohorte> {
+  return api.post<Cohorte>('/api/v1/cohortes', data);
+}
+
+export async function actualizarCohorte(id: string, data: ActualizarCohorteData): Promise<Cohorte> {
+  return api.put<Cohorte>(`/api/v1/cohortes/${id}`, data);
+}
+
+export async function eliminarCohorte(id: string): Promise<void> {
+  return api.del<void>(`/api/v1/cohortes/${id}`);
+}
+
+export async function toggleCohorteEstado(id: string): Promise<Cohorte> {
+  return api.patch<Cohorte>(`/api/v1/cohortes/${id}/estado`);
+}
+
+// ─── Materias ──────────────────────────────────────────────────
+
+export async function getMaterias(activa?: boolean): Promise<MateriasResponse> {
+  return api.get<MateriasResponse>('/api/v1/materias', activa !== undefined ? { activa } : undefined);
+}
+
+export async function getMateria(id: string): Promise<Materia> {
+  return api.get<Materia>(`/api/v1/materias/${id}`);
+}
+
+export async function crearMateria(data: CrearMateriaData): Promise<Materia> {
+  return api.post<Materia>('/api/v1/materias', data);
+}
+
+export async function actualizarMateria(id: string, data: ActualizarMateriaData): Promise<Materia> {
+  return api.put<Materia>(`/api/v1/materias/${id}`, data);
+}
+
+export async function toggleMateriaEstado(id: string): Promise<Materia> {
+  return api.patch<Materia>(`/api/v1/materias/${id}/estado`);
+}
+
+// ─── Programas (file upload) ───────────────────────────────────
+
+export async function subirPrograma(
+  materiaId: string,
+  file: File,
+  titulo: string,
+): Promise<{ id: string; archivo_url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('titulo', titulo);
+  const response = await apiClient.post<{ id: string; archivo_url: string }>(
+    `/api/v1/materias/${materiaId}/programas`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } },
+  );
+  return response.data;
+}
+
+// ─── Evaluaciones ──────────────────────────────────────────────
+
+export async function getEvaluaciones(materiaId?: string): Promise<EvaluacionesResponse> {
+  return api.get<EvaluacionesResponse>(
+    '/api/v1/evaluaciones',
+    materiaId ? { materia_id: materiaId } : undefined,
+  );
+}
+
+export async function crearEvaluacion(data: CrearEvaluacionData): Promise<Evaluacion> {
+  return api.post<Evaluacion>('/api/v1/evaluaciones', data);
+}

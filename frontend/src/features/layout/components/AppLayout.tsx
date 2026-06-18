@@ -29,6 +29,23 @@ const defaultMenuItems: MenuItem[] = [
   { label: 'Atrasados', path: '/materias', icon: 'warning', requiredPermissions: ['atrasados:*'] },
   { label: 'Comunicación', path: '/materias', icon: 'send', requiredPermissions: ['comunicacion:*'] },
   { label: 'Mi Perfil', path: '/profile', icon: 'person' },
+  { label: 'Equipos Docentes', path: '/equipos', icon: 'groups', requiredPermissions: ['equipos:*'] },
+  { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:*'] },
+  { label: 'Tareas', path: '/tareas', icon: 'checklist', requiredPermissions: ['tareas:*'] },
+  { label: 'Encuentros', path: '/encuentros', icon: 'event', requiredPermissions: ['encuentros:*'] },
+  { label: 'Coloquios', path: '/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:*'] },
+  { label: 'Programas', path: '/programas', icon: 'description', requiredPermissions: ['programas:*'] },
+  { label: 'Fechas Académicas', path: '/fechas', icon: 'calendar_month', requiredPermissions: ['programas:*'] },
+  { label: 'Monitores', path: '/monitores/general', icon: 'monitoring', requiredPermissions: ['auditoria:*'] },
+  // Finanzas
+  { label: 'Liquidaciones', path: '/finanzas/liquidaciones', icon: 'payments', requiredPermissions: ['liquidaciones:*'] },
+  { label: 'Grilla Salarial', path: '/finanzas/grilla', icon: 'badge', requiredPermissions: ['liquidaciones:configurar-salarios'] },
+  { label: 'Facturas', path: '/finanzas/facturas', icon: 'receipt_long', requiredPermissions: ['facturas:*'] },
+  // Admin
+  { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:*'] },
+  { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:*'] },
+  { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:*'] },
+  { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:*'] },
 ];
 
 export function AppLayout() {

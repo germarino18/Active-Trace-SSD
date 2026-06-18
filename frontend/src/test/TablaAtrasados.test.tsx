@@ -47,7 +47,7 @@ describe('TablaAtrasados', () => {
   it('highlights atrasado rows', () => {
     const { container } = renderTable(mockData);
     const rows = container.querySelectorAll('tbody tr');
-    expect(rows[0].className).toContain('bg-error/5');
-    expect(rows[1].className).not.toContain('bg-error/5');
+    expect(rows[0]!.className).toContain('bg-error/5');
+    expect(rows[1]!.className).not.toContain('bg-error/5');
   });
 });

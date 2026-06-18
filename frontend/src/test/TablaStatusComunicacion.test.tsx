@@ -52,7 +52,7 @@ describe('TablaStatusComunicacion', () => {
   it('highlights failed rows', () => {
     const { container } = render(<TablaStatusComunicacion mensajes={mockMensajes} />);
     const rows = container.querySelectorAll('tbody tr');
-    expect(rows[2].className).toContain('bg-error/5');
+    expect(rows[2]!.className).toContain('bg-error/5');
   });
 
   it('shows error tooltip on failed messages', () => {
