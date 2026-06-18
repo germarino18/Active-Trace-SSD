@@ -43,6 +43,9 @@ C-01 foundation-setup (infra, Docker, FastAPI skel, DB inicial, OTel)
             │       ├── C-22 frontend-academico-docente (importación, atrasados, comunicaciones)
             │       ├── C-23 frontend-coordinacion (equipos, avisos, tareas, monitores)
             │       └── C-24 frontend-finanzas-y-admin (liquidaciones, facturas, estructura, auditoría)
+			C-25 frontend-alumno
+			C-26 fix-frontend-tutor — arreglar sidebar y crear vistas para TUTOR
+			C-27 frontend-analytics — dashboards analíticos (Fase 2)
 ```
 
 ### Paralelismo por fase
@@ -523,6 +526,45 @@ C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 →
   - `knowledge-base/07_flujos_principales.md` FL-08, FL-11, FL-12
 
 ---
+
+C-25 frontend-alumno — Portal del Estudiante 🧑‍🎓
+Scope:
+- Dashboard alumno con cards por materia + barra de progreso (consume C-10/C-11)
+- Vista "Mi estado académico": calificaciones, atrasos, promedio
+- Reserva de coloquios (consume C-14): listar convocatorias activas, reservar/cancelar turno
+- Tablón de avisos recibidos + botón "Confirmar lectura" (consume C-15)
+- Programas y fechas académicas (consume C-17): lista + descarga
+- Bandeja de mensajes internos (consume C-20)
+- Login: por ahora email+password como todos (RF-47 dice SSO Moodle, pero se puede PHASEAR)
+Dependencias: C-21 (shell frontend)
+Governance: BAJO
+Leer antes: PRD §6.2 (RF-47..50), KB 03_actores_y_roles.md §3.3 matriz, KB 06_funcionalidades.md
+
+
+C-26 fix-frontend-tutor — Experiencia TUTOR completa 🧑‍🏫
+Scope:
+- Ajustar sidebar: cambiar permisos wildcard por permisos específicos donde TUTOR tenga acceso
+- atrasados:* → atrasados:ver
+- encuentros:* → encuentros:gestionar
+- Agregar items para "Guardias" y "Entregas sin corregir"
+- Vista "Mis alumnos": alumnos asignados al tutor por materia 
+- Vista de atrasados para TUTOR (scope propio, ya existe backend)
+- Vista de entregas sin corregir (scope propio)
+- Registro de guardias desde frontend (backend ya funciona)
+- Confirmación de avisos desde frontend
+Dependencias: C-21
+Governance: BAJO
+Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
+
+
+
+C-27 frontend-analytics — Dashboards Analíticos (Fase 2) 📊
+Scope:
+- Dashboard de tendencias (atrasados por cohorte vs tiempo, distribución de notas)
+- Reportes exportables PDF/Excel
+- Predicción de abandono básica (riesgo bajo/medio/alto)
+Dependencias: C-21, C-19
+Governance: BAJO
 
 ## Resumen
 
