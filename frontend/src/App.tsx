@@ -57,6 +57,7 @@ const EstructuraAcademicaPage = lazy(() => import('@/features/admin/pages/Estruc
 const UsuariosPage = lazy(() => import('@/features/admin/pages/UsuariosPage').then(m => ({ default: m.UsuariosPage })));
 const AuditoriaPage = lazy(() => import('@/features/admin/pages/AuditoriaPage').then(m => ({ default: m.AuditoriaPage })));
 const MetricasPage = lazy(() => import('@/features/admin/pages/MetricasPage').then(m => ({ default: m.MetricasPage })));
+const AnalyticsDashboardPage = lazy(() => import('@/features/analytics/pages/AnalyticsDashboardPage').then(m => ({ default: m.AnalyticsDashboardPage })));
 
 // Tutor pages
 const TutorAlumnosPage = lazy(() => import('@/features/tutor/pages/TutorAlumnosPage').then(m => ({ default: m.TutorAlumnosPage })));
@@ -166,6 +167,7 @@ const router = createBrowserRouter([
           { path: '/admin/usuarios', element: <UsuariosPage /> },
           { path: '/admin/auditoria', element: <AuditoriaPage /> },
           { path: '/admin/metricas', element: <MetricasPage /> },
+          { path: '/admin/analytics', element: <AnalyticsDashboardPage /> },
           // Alumno
           { path: '/alumno/dashboard', element: <AlumnoDashboardPage /> },
           { path: '/alumno/materias', element: <MisMateriasPage /> },

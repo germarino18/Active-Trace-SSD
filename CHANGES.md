@@ -558,7 +558,7 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
 
 
 
-C-27 frontend-analytics — Dashboards Analíticos (Fase 2) 📊
+			[x] C-27 frontend-analytics — Dashboards Analíticos (Fase 2) 📊
 Scope:
 - Dashboard de tendencias (atrasados por cohorte vs tiempo, distribución de notas)
 - Reportes exportables PDF/Excel

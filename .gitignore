@@ -29,3 +29,6 @@ htmlcov/
 .nox/
 .tox/
 
+
+# Uploads from tests
+backend/uploads/programas/

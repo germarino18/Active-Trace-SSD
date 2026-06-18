@@ -59,6 +59,7 @@ const defaultMenuItems: MenuItem[] = [
   { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:ver'] },
   { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
   { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
+  { label: 'Analytics', path: '/admin/analytics', icon: 'insights', requiredPermissions: ['auditoria:ver'] },
 ];
 
 export function AppLayout() {
