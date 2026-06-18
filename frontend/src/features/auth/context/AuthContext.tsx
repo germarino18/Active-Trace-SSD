@@ -75,6 +75,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     tenantRef.current = tenant;
     const result = await authService.login({ email, password });
 
+    // Use the resolved tenant_id from the response if available
+    const resolvedTenantId = 'tenant_id' in result ? (result as { tenant_id?: string }).tenant_id : null;
+    if (resolvedTenantId) {
+      setTenantId(resolvedTenantId);
+      tenantRef.current = resolvedTenantId;
+    }
+
     if ('requires_2fa' in result && result.requires_2fa === true) {
       return result;
     }

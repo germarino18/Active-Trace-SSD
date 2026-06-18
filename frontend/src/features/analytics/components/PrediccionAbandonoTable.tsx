@@ -27,7 +27,7 @@ function LoadingSkeleton() {
 
 const RISKO_STYLES: Record<string, { bg: string; text: string }> = {
   alto: { bg: 'bg-error/10', text: 'text-error' },
-  medio: { bg: 'bg-[#f59e0b]/10', text: 'text-[#f59e0b]' },
+  medio: { bg: 'bg-warning/10', text: 'text-warning' },
   bajo: { bg: 'bg-tertiary/10', text: 'text-tertiary' },
 };
 

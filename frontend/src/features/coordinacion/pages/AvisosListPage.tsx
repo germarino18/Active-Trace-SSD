@@ -157,7 +157,9 @@ export function AvisosListPage() {
                 Anterior
               </button>
               <span className="text-label-sm text-on-surface-variant">
-                Página {page + 1} de {Math.ceil(data.total / pageSize)}
+                <span className="hidden sm:inline">Página </span>
+                {page + 1}
+                <span className="hidden sm:inline"> de {Math.ceil(data.total / pageSize)}</span>
               </span>
               <button
                 onClick={() => setPage((p) => p + 1)}

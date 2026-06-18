@@ -85,7 +85,7 @@ export function EquipoDetallePage() {
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => navigate(`/coordinacion/equipos/editar/${row.id}`)}
+                  onClick={() => navigate(`/equipos/${row.id}`)}
                   className="rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-container-low hover:text-primary"
                   title="Editar"
                 >
@@ -112,7 +112,7 @@ export function EquipoDetallePage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate('/coordinacion/equipos')}
+            onClick={() => navigate('/equipos')}
             className="rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-container-low"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>

@@ -13,6 +13,7 @@ from app.core.dependencies import get_db
 from app.core.permissions import Perm
 from app.models.consumed_challenge_token import ConsumedChallengeToken
 from app.models.refresh_token import RefreshToken
+from app.models.tenant import Tenant
 from app.models.user import User
 from app.models.usuario import Usuario
 from app.repositories.audit_log_repository import AuditLogRepository
@@ -60,6 +61,27 @@ async def _find_user_by_email_any_tenant(db, email: str) -> User | None:
     return result.unique().scalar_one_or_none()
 
 
+async def _resolve_tenant(db, tenant_id_or_slug: str) -> uuid.UUID:
+    """Resolve X-Tenant-ID header to a tenant UUID.
+    Accepts either a UUID or a slug (e.g. 'demo')."""
+    # Try parsing as UUID first
+    try:
+        return uuid.UUID(tenant_id_or_slug)
+    except ValueError:
+        pass
+    # Fallback: look up by slug
+    result = await db.execute(
+        select(Tenant.id).where(Tenant.slug == tenant_id_or_slug, Tenant.deleted_at.is_(None))
+    )
+    tenant_id = result.scalar_one_or_none()
+    if tenant_id is None:
+        raise HTTPException(status_code=400, detail={
+            "code": "validation_error",
+            "message": f"Tenant not found for slug: {tenant_id_or_slug}",
+        })
+    return tenant_id
+
+
 @router.post(
     "/api/auth/authenticate",
     response_model=AuthenticateResponse,
@@ -73,7 +95,7 @@ async def authenticate(
     x_tenant_id: str | None = Header(
         default=None,
         alias="X-Tenant-ID",
-        description="UUID of the tenant to authenticate against (required)",
+        description="UUID or slug of the tenant to authenticate against (required)",
     ),
 ):
     ip = request.client.host if request.client else "unknown"
@@ -94,13 +116,7 @@ async def authenticate(
             "code": "validation_error",
             "message": "X-Tenant-ID header is required",
         })
-    try:
-        tenant_id = uuid.UUID(tenant_id_str)
-    except ValueError:
-        raise HTTPException(status_code=400, detail={
-            "code": "validation_error",
-            "message": "Invalid X-Tenant-ID format",
-        })
+    tenant_id = await _resolve_tenant(db, tenant_id_str)
     user_repo = UserRepository(session=db, tenant_id=tenant_id)
     user = await user_repo.find_by_email(tenant_id, body.email)
     if user is None or not _password_service.verify_password(body.password, user.password_hash):
@@ -119,6 +135,7 @@ async def authenticate(
         return AuthenticateResponse(
             challenge_token=challenge_token,
             requires_2fa=True,
+            tenant_id=str(tenant_id),
         )
     refresh_token_raw, refresh_token_hash = ts.generate_refresh_token()
     refresh_repo = RefreshTokenRepository(session=db)
@@ -133,6 +150,7 @@ async def authenticate(
         refresh_token=refresh_token_raw,
         token_type="bearer",
         expires_in=ACCESS_TOKEN_EXPIRES_SECONDS,
+        tenant_id=str(tenant_id),
     )
 
 

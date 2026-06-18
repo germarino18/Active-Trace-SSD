@@ -35,7 +35,7 @@ export function Header({ breadcrumbs }: HeaderProps) {
       <div className="flex items-center gap-md">
         <button
           onClick={toggle}
-          className="text-on-surface-variant hover:text-primary transition-colors lg:hidden"
+          className="text-on-surface-variant hover:text-primary transition-colors md:hidden"
           aria-label="Toggle sidebar"
         >
           <span className="material-symbols-outlined">menu</span>

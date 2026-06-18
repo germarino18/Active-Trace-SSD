@@ -41,6 +41,7 @@ class AuthenticateResponse(BaseModel):
     requires_2fa: bool = False
     token_type: str | None = "bearer"
     expires_in: int | None = None
+    tenant_id: str | None = None
 
 
 class CurrentUser(BaseModel):

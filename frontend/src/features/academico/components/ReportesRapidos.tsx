@@ -10,7 +10,7 @@ interface ReportesRapidosProps {
 export function ReportesRapidos({ data, isLoading }: ReportesRapidosProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-24 animate-pulse rounded-xl bg-surface-container-low" />
         ))}
@@ -30,7 +30,7 @@ export function ReportesRapidos({ data, isLoading }: ReportesRapidosProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:grid-cols-4">
       {cards.map((card) => (
         <div
           key={card.label}

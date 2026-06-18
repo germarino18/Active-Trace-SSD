@@ -5,7 +5,7 @@ import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { AuthGuard } from '@/features/auth/components/AuthGuard';
 import { GuestGuard } from '@/features/auth/components/GuestGuard';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
-import { TwoFactorPage } from '@/features/auth/pages/TwoFactorPage';
+
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { AppLayout } from '@/features/layout/components/AppLayout';
@@ -96,7 +96,7 @@ const router = createBrowserRouter([
     element: <GuestGuard />,
     children: [
       { path: '/login', element: <LoginPage /> },
-      { path: '/2fa', element: <TwoFactorPage /> },
+
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
       { path: '/reset-password', element: <ResetPasswordPage /> },
     ],

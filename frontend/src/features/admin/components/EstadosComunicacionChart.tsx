@@ -14,7 +14,7 @@ const ESTADO_COLORS: Record<string, { bg: string; text: string; icon: string; la
 
 function LoadingSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="h-24 animate-pulse rounded-xl bg-surface-container-low" />
       ))}
@@ -49,7 +49,7 @@ export function EstadosComunicacionChart({ data, isLoading }: EstadosComunicacio
   return (
     <div className="rounded-xl border border-outline-variant bg-surface p-4">
       <h4 className="text-label-sm font-medium text-on-surface-variant mb-4">Estado de comunicaciones</h4>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {data.map((item) => {
           const color = ESTADO_COLORS[item.estado] ?? {
             bg: 'bg-outline/10',

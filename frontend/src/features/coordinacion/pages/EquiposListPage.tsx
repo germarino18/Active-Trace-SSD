@@ -148,7 +148,7 @@ export function EquiposListPage() {
               <div className="flex items-center gap-1">
                 <button
                   type="button"
-                  onClick={() => navigate(`/coordinacion/equipos/editar/${row.id}`)}
+                  onClick={() => navigate(`/equipos/${row.id}`)}
                   className="rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-container-low hover:text-primary"
                   title="Editar"
                 >
@@ -185,7 +185,7 @@ export function EquiposListPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => navigate('/coordinacion/equipos/nuevo')}
+              onClick={() => navigate('/equipos/asignar')}
               className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
@@ -193,7 +193,7 @@ export function EquiposListPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/coordinacion/equipos/asignacion-masiva')}
+              onClick={() => navigate('/equipos/masiva')}
               className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
               <span className="material-symbols-outlined text-[18px]">group_add</span>
@@ -201,7 +201,7 @@ export function EquiposListPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/coordinacion/equipos/clonar')}
+              onClick={() => navigate('/equipos/clonar')}
               className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
               <span className="material-symbols-outlined text-[18px]">content_copy</span>
@@ -209,7 +209,7 @@ export function EquiposListPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/coordinacion/equipos/vigencia')}
+              onClick={() => navigate('/equipos/vigencia')}
               className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
               <span className="material-symbols-outlined text-[18px]">calendar_month</span>

@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import type { MenuItem as MenuItemType } from '@/shared/types';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSidebar } from './AppLayout';
+import { Logo } from '@/shared/components/Logo';
 
 interface SidebarProps {
   menuItems: MenuItemType[];
@@ -20,27 +21,19 @@ export function Sidebar({ menuItems }: SidebarProps) {
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={close}
         />
       )}
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-outline-variant bg-surface-container-lowest px-sm py-md transition-transform duration-300 lg:static lg:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 flex h-full w-[280px] flex-col border-r border-outline-variant bg-surface-container-lowest px-sm py-md transition-transform duration-300 md:static md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="mb-lg px-xs">
-          <div className="flex items-center gap-xs">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-on-primary">
-              <span className="material-symbols-outlined">analytics</span>
-            </div>
-            <div>
-              <h1 className="text-headline-md text-sm font-bold text-on-surface">Activia-Trace</h1>
-              <p className="text-label-sm text-outline">Academic Management</p>
-            </div>
-          </div>
+          <Logo size="md" />
         </div>
-        <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto min-h-0">
           {visibleItems.map((item) => (
             <MenuItem key={item.path} item={item} onClick={close} />
           ))}
@@ -76,10 +69,10 @@ function MenuItem({ item, onClick }: MenuItemProps) {
       to={item.path}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center gap-sm px-sm py-md rounded-lg text-label-md font-medium transition-colors duration-200 ${
+        `flex items-center gap-sm px-sm py-md text-label-md transition-colors duration-200 ${
           isActive
-            ? 'text-primary bg-surface-container-low border-r-4 border-primary'
-            : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+            ? 'font-bold text-primary bg-surface-container-low border-r-4 border-primary'
+            : 'text-on-surface-variant hover:bg-surface-container-low'
         }`
       }
     >

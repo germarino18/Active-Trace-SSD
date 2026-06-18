@@ -28,7 +28,7 @@ export function ModificarVigenciaPage() {
         cohorte_id: cohorteId,
         vigencia_hasta: vigenciaHasta,
       });
-      navigate('/coordinacion/equipos');
+      navigate('/equipos');
     } catch {
       // Error handled by mutation
     }
@@ -102,7 +102,7 @@ export function ModificarVigenciaPage() {
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => navigate('/coordinacion/equipos')}
+            onClick={() => navigate('/equipos')}
             className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar

@@ -58,6 +58,18 @@
   --color-error-container: #3b1111;
   --color-on-error-container: #fca5a5;
 
+  /* ── Semantic: Success — Emerald (same as tertiary) ── */
+  --color-success: #34d399;
+  --color-success-container: #065f46;
+
+  /* ── Semantic: Warning — Amber ── */
+  --color-warning: #f59e0b;
+  --color-warning-container: #451a03;
+
+  /* ── Semantic: Info — Sky Blue ── */
+  --color-info: #60a5fa;
+  --color-info-container: #1e3a5f;
+
   /* ── Text / On colors — High contrast ── */
   --color-on-surface: #fafafa;
   --color-on-surface-variant: #a1a1aa;
@@ -144,9 +156,51 @@ body {
   vertical-align: middle;
 }
 
+/* ── Bento Grid (12-column, gap=gutter) ── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--spacing-gutter);
+}
+
+/* ── Glass Panel / Glass Card (backdrop blur + semi-transparent) ── */
+.glass-panel,
+.glass-card {
+  background: rgba(18, 18, 21, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-outline-variant);
+}
+
+/* ── Chart Bar Hover ── */
+.chart-bar-hover:hover {
+  filter: brightness(1.2) scaleY(1.02);
+}
+
+/* ── Progress Bar Inner (animated width) ── */
+.progress-bar-inner {
+  transition: width 1s ease-in-out;
+}
+
+/* ── Selection styling ── */
+::selection {
+  background: rgba(167, 139, 250, 0.3);
+  color: var(--color-on-surface);
+}
+
+/* ── Pulse opacity animation (for status indicators) ── */
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-opacity {
+  animation: pulse-opacity 2s ease-in-out infinite;
+}
+
 /* ── Custom Scrollbar (zinc style) ── */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
@@ -154,4 +208,46 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-outline);
   border-radius: 10px;
+}
+
+/* ── Responsive Touch Targets — minimum 44px (WCAG 2.2) ── */
+button:not([class*="h-"]):not([class*="size-"]) {
+  min-height: 44px;
+}
+/* Icon-only buttons (just a Material Symbol) */
+button:has(> .material-symbols-outlined:only-child):not([class*="w-"]):not([class*="size-"]) {
+  min-width: 44px;
+}
+
+/* ── Responsive: wrap toolbar / action button groups on mobile ── */
+@media (max-width: 640px) {
+  /* Form action footers: mt-6 flex justify-end gap-3 (modal & inline footers) */
+  .flex.justify-end.gap-3:has(> button) {
+    flex-wrap: wrap;
+  }
+  /* Toolbar action rows: items-center.gap-2 with buttons */
+  .flex.items-center.gap-2:has(> button) {
+    flex-wrap: wrap;
+  }
+  /* Inline form actions: flex.gap-3 with buttons */
+  .flex.gap-3:has(> button) {
+    flex-wrap: wrap;
+  }
+  /* Restore nowrap for nav bars */
+  nav.flex:has(> button) {
+    flex-wrap: nowrap;
+  }
+  /* ── Tab bars: scroll horizontally on mobile ── */
+  [role="tablist"],
+  .border-b > nav.flex,
+  nav.flex.rounded-xl {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  [role="tablist"]::-webkit-scrollbar,
+  .border-b > nav.flex::-webkit-scrollbar {
+    display: none;
+  }
 }

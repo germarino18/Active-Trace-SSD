@@ -15,12 +15,14 @@ export interface AuthTokens {
   token_type: string;
   requires_2fa?: false;
   challenge_token?: null;
+  tenant_id?: string;
 }
 
 export interface TwoFactorChallenge {
   requires_2fa: true;
   challenge_token: string;
   temp_token?: string;
+  tenant_id?: string;
 }
 
 export type LoginResponse = AuthTokens | TwoFactorChallenge;

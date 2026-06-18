@@ -84,7 +84,7 @@ export function DataTable<T extends object>({
             {columns.map((col) => (
               <label
                 key={col.key}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-label-sm text-on-surface transition-colors hover:bg-surface-container-low"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2.5 text-label-sm text-on-surface transition-colors hover:bg-surface-container-low min-h-[44px]"
               >
                 <input
                   type="checkbox"

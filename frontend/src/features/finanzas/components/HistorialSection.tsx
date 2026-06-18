@@ -82,7 +82,7 @@ export function HistorialSection({ items, isLoading }: HistorialSectionProps) {
                       Liquidación cerrada — solo lectura
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-body-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-body-sm">
                     <div>
                       <span className="text-on-surface-variant">Período: </span>
                       <span className="text-on-surface font-medium">{item.periodo}</span>

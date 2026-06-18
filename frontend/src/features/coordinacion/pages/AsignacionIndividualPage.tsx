@@ -54,7 +54,7 @@ export function AsignacionIndividualPage() {
     try {
       await crearMutation.mutateAsync(data);
       reset();
-      navigate('/coordinacion/equipos');
+      navigate('/equipos');
     } catch {
       // Error handled by mutation
     }
@@ -109,7 +109,7 @@ export function AsignacionIndividualPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={labelClass}>Carrera</label>
               <input
@@ -149,7 +149,7 @@ export function AsignacionIndividualPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={labelClass}>Vigencia desde</label>
               <input type="date" {...register('vigencia_desde')} className={fieldClass} />
@@ -171,7 +171,7 @@ export function AsignacionIndividualPage() {
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => navigate('/coordinacion/equipos')}
+            onClick={() => navigate('/equipos')}
             className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar

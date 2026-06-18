@@ -65,7 +65,7 @@ export function ConvocatoriaCrearPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-label-sm text-on-surface-variant">Materia</label>
               <input
@@ -117,7 +117,7 @@ export function ConvocatoriaCrearPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-label-xs text-on-surface-variant">Fecha</label>
                     <input
@@ -129,7 +129,7 @@ export function ConvocatoriaCrearPage() {
                       <p className="mt-1 text-label-xs text-error">{errors.dias[index]?.fecha?.message}</p>
                     )}
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <div>
                       <label className="mb-1 block text-label-xs text-on-surface-variant">Inicio</label>
                       <input

@@ -3,7 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Spinner } from '@/shared/components/Spinner';
+import { Card } from '@/shared/components/ui/Card';
+import { Input } from '@/shared/components/ui/Input';
+import { Button } from '@/shared/components/ui/Button';
+import { Logo } from '@/shared/components/Logo';
 import { useAuth } from '../hooks/useAuth';
 import type { TwoFactorChallenge } from '@/shared/types';
 
@@ -21,12 +24,11 @@ export function LoginPage() {
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { tenant: '' },
@@ -34,7 +36,6 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setError(null);
-    setIsSubmitting(true);
     try {
       const result = await login(data.email, data.password, data.tenant);
       if ('requires_2fa' in result && result.requires_2fa === true) {
@@ -46,13 +47,7 @@ export function LoginPage() {
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { error?: { message?: string } } } };
       const message = apiError?.response?.data?.error?.message;
-      if (message) {
-        setError(message);
-      } else {
-        setError('Credenciales inválidas');
-      }
-    } finally {
-      setIsSubmitting(false);
+      setError(message ?? 'Credenciales inválidas');
     }
   };
 
@@ -61,64 +56,68 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-screen items-center justify-center bg-background overflow-hidden p-4">
+      {/* Decorative background glow */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="h-[500px] w-[500px] rounded-full bg-primary/3 blur-[120px]" />
+      </div>
+      <div className="relative w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <span className="material-symbols-outlined text-on-primary text-2xl">analytics</span>
-          </div>
-          <h1 className="text-headline-md font-semibold text-on-surface">Activia-Trace</h1>
-          <p className="text-body-md text-on-surface-variant mt-1">Iniciar sesión</p>
+          <Logo size="lg" className="justify-center mb-3" />
+          <h1 className="text-headline-md font-semibold text-on-surface">Iniciar sesión</h1>
+          <p className="text-body-md text-on-surface-variant mt-1">Ingrese sus credenciales para acceder</p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="text-label-md font-label-md text-on-surface mb-1 block">Email</label>
-            <input
-              id="email"
-              type="email"
-              {...register('email')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="usuario@example.com"
-            />
-            {errors.email && <p className="text-error text-label-sm mt-1">{errors.email.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="password" className="text-label-md font-label-md text-on-surface mb-1 block">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              {...register('password')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="••••••••"
-            />
-            {errors.password && <p className="text-error text-label-sm mt-1">{errors.password.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="tenant" className="text-label-md font-label-md text-on-surface mb-1 block">Tenant</label>
-            <input
-              id="tenant"
-              type="text"
-              {...register('tenant')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="ID del tenant"
-            />
-            {errors.tenant && <p className="text-error text-label-sm mt-1">{errors.tenant.message}</p>}
-          </div>
-          {error && (
-            <div className="rounded-lg border border-error/30 bg-error-container px-3 py-2">
-              <p className="text-error text-label-sm">{error}</p>
+        <Card padding="lg">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input
+                id="email"
+                label="Email"
+                type="email"
+                placeholder="usuario@example.com"
+                icon="mail"
+                error={errors.email?.message}
+                {...register('email')}
+              />
+              <Input
+                id="password"
+                label="Contraseña"
+                type="password"
+                placeholder="••••••••"
+                icon="lock"
+                error={errors.password?.message}
+                {...register('password')}
+              />
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+            <Input
+              id="tenant"
+              label="Tenant"
+              type="text"
+              placeholder="ID del tenant"
+              icon="business"
+              error={errors.tenant?.message}
+              {...register('tenant')}
+            />
+            {error && (
+              <div className="rounded-lg border border-error/30 bg-error-container px-3.5 py-2.5">
+                <p className="text-error text-label-sm">{error}</p>
+              </div>
+            )}
+            <Button
+              type="submit"
+              loading={isSubmitting}
+              className="w-full"
+              size="lg"
+            >
+              Iniciar sesión
+            </Button>
+          </form>
+        </Card>
+        <div className="mt-5 text-center">
+          <Link
+            to="/forgot-password"
+            className="text-label-sm text-primary hover:underline transition-colors"
           >
-            {isSubmitting ? <Spinner size="sm" /> : 'Iniciar sesión'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <Link to="/forgot-password" className="text-label-sm text-primary hover:underline">
             ¿Olvidó su contraseña?
           </Link>
         </div>
@@ -157,37 +156,41 @@ function TwoFactorChallenge({ challenge }: { challenge: TwoFactorChallenge }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <span className="material-symbols-outlined text-on-primary text-2xl">verified</span>
-          </div>
+          <Logo size="lg" className="justify-center mb-3" />
           <h1 className="text-headline-md font-semibold text-on-surface">Verificación en dos pasos</h1>
           <p className="text-body-md text-on-surface-variant mt-1">Ingrese el código de su aplicación autenticadora</p>
         </div>
-        <form onSubmit={handleVerify} className="space-y-4">
-          <div>
-            <label htmlFor="code" className="text-label-md font-label-md text-on-surface mb-1 block">Código</label>
-            <input
-              id="code"
-              type="text"
-              inputMode="numeric"
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-center text-2xl tracking-widest text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="000000"
-            />
-            {error && <p className="text-error text-label-sm mt-1">{error}</p>}
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting || code.length !== 6}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? <Spinner size="sm" /> : 'Verificar'}
-          </button>
-        </form>
+        <Card padding="lg">
+          <form onSubmit={handleVerify} className="space-y-4">
+            <div>
+              <label htmlFor="code" className="block text-label-md font-label-md text-on-surface mb-1.5">
+                Código
+              </label>
+              <input
+                id="code"
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2.5 text-center text-2xl tracking-[0.5em] text-on-surface placeholder:text-outline outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                placeholder="000000"
+              />
+              {error && <p className="text-error text-label-sm mt-1">{error}</p>}
+            </div>
+            <Button
+              type="submit"
+              loading={isSubmitting}
+              disabled={code.length !== 6}
+              className="w-full"
+              size="lg"
+            >
+              Verificar
+            </Button>
+          </form>
+        </Card>
       </div>
     </div>
   );

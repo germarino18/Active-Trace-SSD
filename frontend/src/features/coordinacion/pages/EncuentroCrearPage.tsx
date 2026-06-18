@@ -160,7 +160,7 @@ export function EncuentroCrearPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-label-sm text-on-surface-variant">Día de la semana</label>
               <select
@@ -187,7 +187,7 @@ export function EncuentroCrearPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-label-sm text-on-surface-variant">Hora inicio</label>
               <input
@@ -265,7 +265,7 @@ export function EncuentroCrearPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-label-sm text-on-surface-variant">Hora inicio</label>
               <input

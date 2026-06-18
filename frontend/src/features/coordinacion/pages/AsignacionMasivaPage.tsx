@@ -84,7 +84,7 @@ export function AsignacionMasivaPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-md space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={labelClass}>Materia</label>
               <input
@@ -107,7 +107,7 @@ export function AsignacionMasivaPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={labelClass}>Carrera</label>
               <input
@@ -130,7 +130,7 @@ export function AsignacionMasivaPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={labelClass}>Vigencia desde</label>
               <input
@@ -204,7 +204,7 @@ export function AsignacionMasivaPage() {
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => navigate('/coordinacion/equipos')}
+            onClick={() => navigate('/equipos')}
             className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
@@ -241,7 +241,7 @@ export function AsignacionMasivaPage() {
               type="button"
               onClick={() => {
                 setSuccessModal(null);
-                navigate('/coordinacion/equipos');
+                navigate('/equipos');
               }}
               className="mt-5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
             >

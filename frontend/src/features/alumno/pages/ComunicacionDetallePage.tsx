@@ -28,7 +28,7 @@ export function ComunicacionDetallePage() {
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant p-6">
         <h2 className="font-headline-lg text-headline-lg text-on-surface mb-4">{data.asunto}</h2>
 
-        <div className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-outline-variant">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-label-xs text-on-surface-variant">Remitente</p>
             <p className="text-label-sm text-on-surface">{data.remitente}</p>

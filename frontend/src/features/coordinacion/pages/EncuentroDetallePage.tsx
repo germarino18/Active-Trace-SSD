@@ -107,7 +107,7 @@ export function EncuentroDetallePage() {
       </div>
 
       <div className="space-y-4 rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-label-sm text-on-surface-variant">Fecha</p>
             <p className="text-body-md text-on-surface">{encuentro.fecha}</p>

@@ -12,7 +12,7 @@ export function HelpButton({ tooltip }: HelpButtonProps) {
       >
         <span className="material-symbols-outlined text-[18px]">help</span>
       </button>
-      <div className="absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 whitespace-nowrap rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-label-xs text-on-surface shadow-lg group-hover:block">
+      <div className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 hidden -translate-x-1/2 rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-1.5 text-label-xs text-on-surface shadow-lg group-hover:block max-w-[280px] text-wrap whitespace-normal break-words">
         {tooltip}
         <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-outline-variant" />
       </div>

@@ -48,7 +48,7 @@ function DocenteDetailRow({ docente }: { docente: LiquidacionDocente }) {
           <td colSpan={7} className="px-4 py-3">
             <div className="rounded-lg border border-outline-variant bg-surface p-4">
               <h4 className="text-label-sm text-on-surface-variant mb-2">Detalle de liquidación</h4>
-              <div className="grid grid-cols-2 gap-4 text-body-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-body-sm">
                 <div>
                   <span className="text-on-surface-variant">Salario base: </span>
                   <span className="text-on-surface font-medium">${docente.salario_base.toLocaleString('es-AR')}</span>

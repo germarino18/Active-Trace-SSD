@@ -119,7 +119,7 @@ export function TareaDetallePage() {
       </div>
 
       <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6 space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <span className="text-label-xs text-outline uppercase tracking-wider">Asignado a</span>
             <p className="text-body-sm text-on-surface">{tarea.asignado_nombre}</p>

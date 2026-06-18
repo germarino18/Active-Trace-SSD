@@ -17,7 +17,8 @@ async def main() -> None:
     async with session_factory() as session:
         # Check if already seeded
         r = await session.execute(text("SELECT COUNT(*) FROM tenant"))
-        if r.scalar() and r.scalar() > 0:
+        count = r.scalar()
+        if count and count > 0:
             print("Ya hay datos — omitiendo seed.")
             await engine.dispose()
             return
@@ -68,6 +69,13 @@ async def main() -> None:
                 "name": "Nexo",
                 "apellidos": "Demo",
                 "roles": ["NEXO"],
+            },
+            {
+                "email": "alumno@demo.com",
+                "pw": "Demo123!",
+                "name": "Alumno",
+                "apellidos": "Demo",
+                "roles": ["ALUMNO"],
             },
         ]
 
@@ -135,6 +143,7 @@ async def main() -> None:
         print("║  PROFESOR     │ profesor@demo.com       │ Demo123!     ║")
         print("║  FINANZAS     │ finanzas@demo.com       │ Fin123!      ║")
         print("║  NEXO         │ nexo@demo.com           │ Nexo123!     ║")
+        print("║  ALUMNO       │ alumno@demo.com         │ Demo123!     ║")
         print("╚══════════════════════════════════════════════════════════╝\n")
 
     await engine.dispose()
