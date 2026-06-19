@@ -259,22 +259,22 @@ async def main() -> None:
                 {"id": uuid.uuid4(), "tid": tid, "aid": asi_id, "did": did},
             )
         for did, tipo, num, periodo, fecha, titulo in [
-            (dictado1_id, "TP",           1, "2026-1", "2026-03-25 10:00:00+00", "TP 1 — Fundamentos"),
-            (dictado1_id, "TP",           2, "2026-1", "2026-04-22 10:00:00+00", "TP 2 — Estructuras de control"),
-            (dictado1_id, "Parcial",      1, "2026-1", "2026-04-15 09:00:00+00", "Primer Parcial"),
-            (dictado1_id, "TP",           3, "2026-1", "2026-05-20 10:00:00+00", "TP 3 — Funciones"),
-            (dictado1_id, "Parcial",      2, "2026-1", "2026-06-03 09:00:00+00", "Segundo Parcial"),
-            (dictado1_id, "Coloquio",     1, "2026-1", "2026-06-24 09:00:00+00", "Coloquio Final"),
-            (dictado2_id, "TP",           1, "2026-1", "2026-03-30 10:00:00+00", "TP 1 — Modelo relacional"),
-            (dictado2_id, "Parcial",      1, "2026-1", "2026-04-20 09:00:00+00", "Primer Parcial"),
-            (dictado2_id, "Recuperatorio",1, "2026-1", "2026-05-06 09:00:00+00", "Recuperatorio Parcial 1"),
-            (dictado2_id, "TP",           2, "2026-1", "2026-05-27 10:00:00+00", "TP 2 — SQL avanzado"),
-            (dictado2_id, "Parcial",      2, "2026-1", "2026-06-10 09:00:00+00", "Segundo Parcial"),
-            (dictado2_id, "Coloquio",     1, "2026-1", "2026-06-27 09:00:00+00", "Coloquio Final"),
+            (dictado1_id, "TP",            1, "2026-1", "2026-03-25 10:00:00+00", "TP 1 — Fundamentos"),
+            (dictado1_id, "TP",            2, "2026-1", "2026-04-22 10:00:00+00", "TP 2 — Estructuras de control"),
+            (dictado1_id, "Parcial",       1, "2026-1", "2026-04-15 09:00:00+00", "Primer Parcial"),
+            (dictado1_id, "TP",            3, "2026-1", "2026-05-20 10:00:00+00", "TP 3 — Funciones"),
+            (dictado1_id, "Parcial",       2, "2026-1", "2026-06-03 09:00:00+00", "Segundo Parcial"),
+            (dictado1_id, "Coloquio",      1, "2026-1", "2026-06-24 09:00:00+00", "Coloquio Final"),
+            (dictado2_id, "TP",            1, "2026-1", "2026-03-30 10:00:00+00", "TP 1 — Modelo relacional"),
+            (dictado2_id, "Parcial",       1, "2026-1", "2026-04-20 09:00:00+00", "Primer Parcial"),
+            (dictado2_id, "Recuperatorio", 1, "2026-1", "2026-05-06 09:00:00+00", "Recuperatorio Parcial 1"),
+            (dictado2_id, "TP",            2, "2026-1", "2026-05-27 10:00:00+00", "TP 2 — SQL avanzado"),
+            (dictado2_id, "Parcial",       2, "2026-1", "2026-06-10 09:00:00+00", "Segundo Parcial"),
+            (dictado2_id, "Coloquio",      1, "2026-1", "2026-06-27 09:00:00+00", "Coloquio Final"),
         ]:
             await session.execute(
-                text("INSERT INTO fecha_academica (id, tenant_id, dictado_id, tipo, numero, periodo, fecha, titulo, created_at, updated_at) VALUES (:id, :tid, :did, :tipo, :num, :per, :fecha, :titulo, NOW(), NOW())"),
-                {"id": uuid.uuid4(), "tid": tid, "did": did, "tipo": tipo, "num": num, "per": periodo, "fecha": fecha, "titulo": titulo},
+                text(f"INSERT INTO fecha_academica (id, tenant_id, dictado_id, tipo, numero, periodo, fecha, titulo, created_at, updated_at) VALUES (:id, :tid, :did, :tipo, :num, :per, '{fecha}', :titulo, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "did": did, "tipo": tipo, "num": num, "per": periodo, "titulo": titulo},
             )
 
         # ── 6. Programas de materia ───────────────────────────────────────────
@@ -291,37 +291,35 @@ async def main() -> None:
         slot1_id = uuid.uuid4()
         slot2_id = uuid.uuid4()
         for slot_id, asi_id, did, titulo, hora, dia, fecha_inicio in [
-            (slot1_id, tutor_asi1_id, dictado1_id, "Tutoría Programación I",  "18:00:00", "Martes",   "2026-03-04"),
-            (slot2_id, tutor_asi2_id, dictado2_id, "Tutoría Bases de Datos",  "19:00:00", "Jueves",   "2026-03-06"),
+            (slot1_id, tutor_asi1_id, dictado1_id, "Tutoría Programación I", "18:00:00", "Martes",  "2026-03-04"),
+            (slot2_id, tutor_asi2_id, dictado2_id, "Tutoría Bases de Datos", "19:00:00", "Jueves",  "2026-03-06"),
         ]:
             await session.execute(
                 text(
-                    "INSERT INTO slot_encuentro (id, tenant_id, dictado_id, asignacion_id, titulo, hora, dia_semana, fecha_inicio, cant_semanas, vig_desde, created_at, updated_at) "
-                    "VALUES (:id, :tid, :did, :aid, :titulo, :hora, :dia, :fi, 16, :fi, NOW(), NOW())"
+                    f"INSERT INTO slot_encuentro (id, tenant_id, dictado_id, asignacion_id, titulo, hora, dia_semana, fecha_inicio, cant_semanas, vig_desde, created_at, updated_at) "
+                    f"VALUES (:id, :tid, :did, :aid, :titulo, '{hora}', :dia, '{fecha_inicio}', 16, '{fecha_inicio}', NOW(), NOW())"
                 ),
-                {"id": slot_id, "tid": tid, "did": did, "aid": asi_id, "titulo": titulo, "hora": hora, "dia": dia, "fi": fecha_inicio},
+                {"id": slot_id, "tid": tid, "did": did, "aid": asi_id, "titulo": titulo, "dia": dia},
             )
         for slot_id, asi_id, did, fechas in [
             (slot1_id, tutor_asi1_id, dictado1_id, [
-                ("2026-03-11", "Realizado"), ("2026-03-18", "Realizado"), ("2026-04-01", "Realizado"), ("2026-06-17", "Programado"),
+                ("2026-03-11", "Realizado"), ("2026-03-18", "Realizado"),
+                ("2026-04-01", "Realizado"), ("2026-06-17", "Programado"),
             ]),
             (slot2_id, tutor_asi2_id, dictado2_id, [
-                ("2026-03-13", "Realizado"), ("2026-03-20", "Realizado"), ("2026-06-19", "Programado"),
+                ("2026-03-13", "Realizado"), ("2026-03-20", "Realizado"),
+                ("2026-06-19", "Programado"),
             ]),
         ]:
             for fecha, estado in fechas:
                 hora = "18:00:00" if did == dictado1_id else "19:00:00"
+                titulo_inst = "Tutoría Programación I" if did == dictado1_id else "Tutoría Bases de Datos"
                 await session.execute(
                     text(
-                        "INSERT INTO instancia_encuentro (id, tenant_id, slot_id, dictado_id, asignacion_id, fecha, hora, titulo, estado, created_at, updated_at) "
-                        "VALUES (:id, :tid, :sid, :did, :aid, :fecha, :hora, :titulo, :estado, NOW(), NOW())"
+                        f"INSERT INTO instancia_encuentro (id, tenant_id, slot_id, dictado_id, asignacion_id, fecha, hora, titulo, estado, created_at, updated_at) "
+                        f"VALUES (:id, :tid, :sid, :did, :aid, '{fecha}', '{hora}', :titulo, :estado, NOW(), NOW())"
                     ),
-                    {
-                        "id": uuid.uuid4(), "tid": tid, "sid": slot_id, "did": did, "aid": asi_id,
-                        "fecha": fecha, "hora": hora,
-                        "titulo": "Tutoría Programación I" if did == dictado1_id else "Tutoría Bases de Datos",
-                        "estado": estado,
-                    },
+                    {"id": uuid.uuid4(), "tid": tid, "sid": slot_id, "did": did, "aid": asi_id, "titulo": titulo_inst, "estado": estado},
                 )
 
         # ── 8. Guardias de consulta ───────────────────────────────────────────
@@ -424,8 +422,8 @@ async def main() -> None:
         )
         for uid in [coordinador_uid, profesor_uid]:
             await session.execute(
-                text("INSERT INTO hilo_participante (id, tenant_id, hilo_id, usuario_id, created_at, updated_at) VALUES (:id, :tid, :hid, :uid, NOW(), NOW())"),
-                {"id": uuid.uuid4(), "tid": tid, "hid": hilo_id, "uid": uid},
+                text("INSERT INTO hilo_participante (hilo_id, usuario_id) VALUES (:hid, :uid)"),
+                {"hid": hilo_id, "uid": uid},
             )
         for remitente_id, contenido in [
             (coordinador_uid, "Hola Carlos, ¿cómo van las notas del TP 3? Necesito el informe antes del viernes para cerrar el período."),
@@ -497,8 +495,8 @@ async def main() -> None:
         # Factura del profesor (facturador=True)
         await session.execute(
             text(
-                "INSERT INTO factura (id, tenant_id, usuario_id, detalle, estado, created_at, updated_at) "
-                "VALUES (:id, :tid, :uid, :det, 'Pendiente', NOW(), NOW())"
+                "INSERT INTO factura (id, tenant_id, usuario_id, periodo, detalle, estado, created_at, updated_at) "
+                "VALUES (:id, :tid, :uid, '2026-06', :det, 'Pendiente', NOW(), NOW())"
             ),
             {
                 "id": uuid.uuid4(), "tid": tid, "uid": profesor_uid,
