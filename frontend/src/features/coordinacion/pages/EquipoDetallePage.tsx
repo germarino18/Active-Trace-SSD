@@ -118,10 +118,10 @@ export function EquipoDetallePage() {
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
               {data?.asignaciones?.[0]?.materia_nombre ?? 'Detalle del equipo'}
             </h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               {data?.asignaciones?.[0]?.carrera_nombre} — Cohorte{' '}
               {data?.asignaciones?.[0]?.cohorte_nombre}
             </p>

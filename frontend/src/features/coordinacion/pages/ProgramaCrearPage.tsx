@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCrearPrograma } from '../hooks/useProgramas';
+import { Button } from '@/shared/components/ds';
 
 const programaSchema = z.object({
   materia_id: z.string().min(1, 'La materia es requerida'),
@@ -46,8 +47,8 @@ export function ProgramaCrearPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Subir Programa</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Subir Programa</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Cargá un nuevo programa de estudio en formato PDF.
         </p>
       </div>
@@ -105,23 +106,20 @@ export function ProgramaCrearPage() {
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={crearPrograma.isPending || !file}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {crearPrograma.isPending && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
             Subir programa
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/programas')}
-            className="rounded-lg border border-outline-variant px-6 py-2.5 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
 
         {crearPrograma.isError && (

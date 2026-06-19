@@ -12,29 +12,35 @@ export function MateriaLayout() {
   const { id } = useParams<{ id: string }>();
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Materia</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">ID: {id}</p>
+          <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Materia</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>ID: {id}</p>
         </div>
       </div>
 
-      <div className="border-b border-outline-variant">
-        <nav className="flex gap-4 -mb-px">
+      <div style={{ borderBottom: '1px solid var(--outline-variant)' }}>
+        <nav style={{ display: 'flex', gap: 4, marginBottom: -1 }}>
           {tabs.map((tab) => (
             <NavLink
               key={tab.path}
               to={tab.path}
-              className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-3 text-label-md font-medium border-b-2 transition-colors ${
-                  isActive
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'
-                }`
-              }
+              style={({ isActive }) => ({
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 500,
+                fontFamily: 'var(--font-sans)',
+                textDecoration: 'none',
+                borderBottom: `2px solid ${isActive ? 'var(--primary)' : 'transparent'}`,
+                color: isActive ? 'var(--primary)' : 'var(--on-surface-variant)',
+                transition: 'color .15s ease, border-color .15s ease',
+              })}
             >
-              <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{tab.icon}</span>
               {tab.label}
             </NavLink>
           ))}

@@ -6,6 +6,7 @@ import { Spinner } from '@/shared/components/Spinner';
 import { EmptyState } from '@/features/academico/components/EmptyState';
 import type { Asignacion } from '../types';
 import * as equiposService from '../services/equipos.service';
+import { Button } from '@/shared/components/ds';
 
 const roleLabels: Record<string, string> = {
   PROFESOR: 'Profesor',
@@ -137,17 +138,17 @@ export function MisEquiposPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Mis Equipos</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">Tus asignaciones docentes activas</p>
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Mis Equipos</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Tus asignaciones docentes activas</p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          icon="download"
           onClick={handleExport}
-          className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
         >
-          <span className="material-symbols-outlined text-[18px]">download</span>
           Exportar
-        </button>
+        </Button>
       </div>
 
       <DataTable

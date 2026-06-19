@@ -2,46 +2,31 @@ import { useState } from 'react';
 import { CarrerasPage } from './CarrerasPage';
 import { CohortesPage } from './CohortesPage';
 import { MateriasPage } from './MateriasPage';
+import { Tabs } from '@/shared/components/ds';
 
-const tabs = [
-  { key: 'carreras', label: 'Carreras' },
-  { key: 'cohortes', label: 'Cohortes' },
-  { key: 'materias', label: 'Materias' },
-] as const;
+const TABS = [
+  { id: 'carreras', label: 'Carreras', icon: 'school' },
+  { id: 'cohortes', label: 'Cohortes', icon: 'calendar_view_month' },
+  { id: 'materias', label: 'Materias', icon: 'menu_book' },
+];
 
-type TabKey = (typeof tabs)[number]['key'];
+type TabKey = 'carreras' | 'cohortes' | 'materias';
 
 export function EstructuraAcademicaPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('carreras');
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
           Estructura Académica
         </h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Gestioná carreras, cohortes y materias del plan académico
         </p>
       </div>
 
-      <div className="flex gap-1 rounded-xl bg-surface-container-low p-1" role="tablist">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            role="tab"
-            aria-selected={activeTab === tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 rounded-lg px-4 py-2 text-label-sm font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'bg-surface text-on-surface shadow-sm'
-                : 'text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <Tabs tabs={TABS} value={activeTab} onChange={(id) => setActiveTab(id as TabKey)} />
 
       {activeTab === 'carreras' && <CarrerasPage />}
       {activeTab === 'cohortes' && <CohortesPage />}

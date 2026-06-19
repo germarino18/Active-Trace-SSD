@@ -4,6 +4,7 @@ import { useTarea, useCambiarEstado, useAgregarComentario, useDelegarTarea } fro
 import { TareaStateBadge } from '../components/TareaStateBadge';
 import { CommentThread } from '../components/CommentThread';
 import { Spinner } from '@/shared/components/Spinner';
+import { Button } from '@/shared/components/ds';
 
 type TareaEstado = 'Pendiente' | 'En progreso' | 'Resuelta' | 'Cancelada';
 
@@ -112,7 +113,7 @@ export function TareaDetallePage() {
         </button>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">{tarea.titulo}</h2>
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>{tarea.titulo}</h2>
             <TareaStateBadge estado={tarea.estado} />
           </div>
         </div>
@@ -159,25 +160,25 @@ export function TareaDetallePage() {
 
       <div className="flex flex-wrap gap-2">
         {availableTransitions.map((transition) => (
-          <button
+          <Button
             key={transition.to}
             type="button"
+            variant="primary"
             onClick={() => handleCambiarEstado(transition.to, transition.requiresReason)}
             disabled={cambiarEstado.isPending}
-            className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {transition.label}
-          </button>
+          </Button>
         ))}
         {tarea.estado !== 'Cancelada' && tarea.estado !== 'Resuelta' && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            icon="swap_horiz"
             onClick={() => setShowDelegar(!showDelegar)}
-            className="inline-flex items-center gap-1 rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
-            <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
             Delegar
-          </button>
+          </Button>
         )}
       </div>
 
@@ -194,21 +195,21 @@ export function TareaDetallePage() {
             className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none placeholder:text-outline focus:border-primary"
           />
           <div className="flex gap-2">
-            <button
+            <Button
               type="button"
+              variant="danger"
               onClick={handleCancelConfirm}
               disabled={!razonCancelacion.trim() || cambiarEstado.isPending}
-              className="inline-flex items-center gap-1 rounded-lg bg-error px-4 py-2 text-label-sm font-medium text-on-error transition-colors hover:bg-error/90 disabled:opacity-50"
             >
               Confirmar cancelación
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => { setShowCancelInput(false); setRazonCancelacion(''); setCancelTargetEstado(null); }}
-              className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
               Volver
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -226,21 +227,21 @@ export function TareaDetallePage() {
             className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none placeholder:text-outline focus:border-primary"
           />
           <div className="flex gap-2">
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={handleDelegar}
               disabled={!nuevoAsignadoId.trim() || delegarTarea.isPending}
-              className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               Delegar
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => { setShowDelegar(false); setNuevoAsignadoId(''); }}
-              className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
               Cancelar
-            </button>
+            </Button>
           </div>
         </div>
       )}

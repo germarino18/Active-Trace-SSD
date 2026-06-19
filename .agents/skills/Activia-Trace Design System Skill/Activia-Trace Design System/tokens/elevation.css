@@ -1,0 +1,31 @@
+/* Elevation — Obsidian relies on BORDERS, not shadows, for separation.
+   Shadows are minimal and reserved for truly floating elements (FAB, popovers,
+   dropdowns). Focus rings are a 2px violet outline with a 2px offset. */
+
+:root {
+  /* Borders do the work of elevation */
+  --hairline: 1px solid var(--outline-variant);
+  --hairline-strong: 1px solid var(--outline);
+
+  /* The few real shadows that exist */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  /* Tinted glow under primary CTAs (subtle) */
+  --shadow-primary: 0 8px 24px color-mix(in srgb, var(--primary) 12%, transparent);
+
+  /* Focus ring */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--primary);
+
+  /* Backdrop blur for glass panels (headers, floating menus) */
+  --glass-bg: color-mix(in srgb, var(--surface-container) 80%, transparent);
+  --glass-blur: 12px;
+}
+
+/* Utility for the standard focus treatment */
+.focus-ring:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}

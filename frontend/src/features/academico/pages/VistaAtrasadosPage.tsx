@@ -5,6 +5,7 @@ import { TablaRanking } from '../components/TablaRanking';
 import { TablaNotasFinales } from '../components/TablaNotasFinales';
 import { ReportesRapidos } from '../components/ReportesRapidos';
 import { useAtrasados, useRanking, useNotasFinales, useReportesRapidos } from '../hooks/useAtrasados';
+import { Tabs } from '@/shared/components/ds';
 
 const subTabs = [
   { id: 'atrasados', label: 'Atrasados' },
@@ -25,32 +26,19 @@ export function VistaAtrasadosPage() {
   const { data: reportesData, isLoading: loadingReportes } = useReportesRapidos(materiaId!);
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Alumnos Atrasados</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Alumnos Atrasados</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Visualizá los alumnos con actividades pendientes o por debajo del umbral.
         </p>
       </div>
 
-      <div className="border-b border-outline-variant">
-        <nav className="flex gap-4 -mb-px">
-          {subTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-3 text-label-md font-medium border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <Tabs
+        tabs={subTabs.map((t) => ({ id: t.id, label: t.label }))}
+        value={activeTab}
+        onChange={(id) => setActiveTab(id as SubTab)}
+      />
 
       {activeTab === 'atrasados' && (
         <TablaAtrasados

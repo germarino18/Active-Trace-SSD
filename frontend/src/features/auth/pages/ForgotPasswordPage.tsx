@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
-import { Spinner } from '@/shared/components/Spinner';
+import { Button, Input } from '@/shared/components/ds';
 import { useAuth } from '../hooks/useAuth';
 
 const forgotSchema = z.object({
-  email: z.string().email('Ingrese un email válido'),
+  email: z.string().email('Ingresá un email válido'),
 });
 
 type ForgotForm = z.infer<typeof forgotSchema>;
@@ -18,11 +18,7 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ForgotForm>({
+  const { register, handleSubmit, formState: { errors } } = useForm<ForgotForm>({
     resolver: zodResolver(forgotSchema),
   });
 
@@ -42,53 +38,60 @@ export function ForgotPasswordPage() {
 
   if (successMessage) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center">
-          <span className="material-symbols-outlined text-tertiary text-4xl mb-2">mail</span>
-          <h1 className="text-headline-md font-semibold text-on-surface">Solicitud enviada</h1>
-          <p className="text-body-md text-on-surface-variant mt-2">{successMessage}</p>
-          <Link to="/login" className="text-primary hover:underline mt-4 inline-block">Volver al inicio de sesión</Link>
+      <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--tertiary)', display: 'block', marginBottom: 12, fontVariationSettings: "'FILL' 1" }}>mark_email_read</span>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--on-surface)', margin: '0 0 8px' }}>Revisá tu email</h1>
+          <p style={{ fontSize: 14, color: 'var(--on-surface-variant)', margin: '0 0 20px' }}>{successMessage}</p>
+          <Link to="/login" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Volver al inicio de sesión</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <span className="material-symbols-outlined text-primary text-4xl mb-2">lock_reset</span>
-          <h1 className="text-headline-md font-semibold text-on-surface">Recuperar contraseña</h1>
-          <p className="text-body-md text-on-surface-variant mt-1">Ingrese su email para recibir un enlace de recuperación</p>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, borderRadius: '50%', pointerEvents: 'none', background: 'color-mix(in srgb, var(--primary) 8%, transparent)', filter: 'blur(140px)' }} />
+      <div style={{ width: 400, maxWidth: '100%', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>analytics</span>
+          </div>
           <div>
-            <label htmlFor="email" className="text-label-md font-label-md text-on-surface mb-1 block">Email</label>
-            <input
-              id="email"
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-surface)' }}>Activia-Trace</div>
+            <div style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', opacity: 0.6 }}>Academic Management</div>
+          </div>
+        </div>
+
+        <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
+          <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Recuperar contraseña</h1>
+          <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>Ingresá tu email y te enviamos un enlace de recuperación.</p>
+
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Email"
+              icon="mail"
               type="email"
-              {...register('email')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="usuario@example.com"
+              error={errors.email?.message}
+              {...register('email')}
             />
-            {errors.email && <p className="text-error text-label-sm mt-1">{errors.email.message}</p>}
-          </div>
-          {error && (
-            <div className="rounded-lg border border-error/30 bg-error-container px-3 py-2">
-              <p className="text-error text-label-sm">{error}</p>
+
+            {error && (
+              <div style={{ background: 'var(--error-container)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)', borderRadius: 'var(--radius-md)', padding: '8px 12px' }}>
+                <span style={{ fontSize: 13, color: 'var(--on-error-container)' }}>{error}</span>
+              </div>
+            )}
+
+            <Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting}>
+              {isSubmitting ? 'Enviando…' : 'Enviar enlace de recuperación'}
+            </Button>
+
+            <div style={{ textAlign: 'center' }}>
+              <Link to="/login" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Volver al inicio de sesión</Link>
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? <Spinner size="sm" /> : 'Enviar enlace de recuperación'}
-          </button>
-          <div className="text-center">
-            <Link to="/login" className="text-label-sm text-primary hover:underline">Volver al inicio de sesión</Link>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

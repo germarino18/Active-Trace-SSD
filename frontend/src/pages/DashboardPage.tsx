@@ -1,35 +1,91 @@
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { StatCard, Card } from '@/shared/components/ds';
+
+const ROLE_CONFIG: Record<string, { icon: string; stats: Array<{ label: string; value: string; icon: string; trend?: string }> }> = {
+  ALUMNO: {
+    icon: 'school',
+    stats: [
+      { label: 'Materias activas', value: '—', icon: 'menu_book' },
+      { label: 'Promedio general', value: '—', icon: 'grade' },
+      { label: 'Comunicaciones', value: '—', icon: 'mail' },
+    ],
+  },
+  PROFESOR: {
+    icon: 'person_book',
+    stats: [
+      { label: 'Materias asignadas', value: '—', icon: 'class' },
+      { label: 'Alumnos en riesgo', value: '—', icon: 'warning', trend: 'Requieren atención' },
+      { label: 'Entregas pendientes', value: '—', icon: 'assignment_late' },
+    ],
+  },
+  TUTOR: {
+    icon: 'supervisor_account',
+    stats: [
+      { label: 'Alumnos a cargo', value: '—', icon: 'people' },
+      { label: 'En riesgo', value: '—', icon: 'warning' },
+      { label: 'Guardias esta semana', value: '—', icon: 'calendar_today' },
+    ],
+  },
+  COORDINADOR: {
+    icon: 'manage_accounts',
+    stats: [
+      { label: 'Equipos activos', value: '—', icon: 'groups' },
+      { label: 'Alumnos totales', value: '—', icon: 'people' },
+      { label: 'Tareas pendientes', value: '—', icon: 'task_alt' },
+    ],
+  },
+  ADMIN: {
+    icon: 'admin_panel_settings',
+    stats: [
+      { label: 'Usuarios activos', value: '—', icon: 'person' },
+      { label: 'Alumnos en riesgo', value: '—', icon: 'warning' },
+      { label: 'Progreso promedio', value: '—', icon: 'trending_up', trend: 'del tenant' },
+    ],
+  },
+};
+
+const FALLBACK_CONFIG = ROLE_CONFIG.ADMIN;
 
 export function DashboardPage() {
   const { session } = useAuth();
 
+  if (session.status !== 'authenticated') return null;
+
+  const { user } = session;
+  const primaryRole = user.roles[0]?.toUpperCase() ?? '';
+  const config = ROLE_CONFIG[primaryRole] ?? FALLBACK_CONFIG;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Panel Principal</h2>
-          {session.status === 'authenticated' && (
-            <p className="text-body-md text-on-surface-variant mt-1">
-              Bienvenido, {session.user.nombre} {session.user.apellido}
-            </p>
-          )}
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div>
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Panel Principal</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
+          Bienvenido, {user.nombre} {user.apellido}
+        </p>
       </div>
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-8 rounded-xl border border-outline-variant bg-surface-container-lowest p-md">
-          <h3 className="text-label-md font-bold uppercase tracking-wider text-outline mb-4">Resumen Académico</h3>
-          <p className="text-body-md text-on-surface-variant">El contenido del dashboard se agregará en próximas actualizaciones.</p>
-        </div>
-        <div className="col-span-12 lg:col-span-4 grid grid-rows-2 gap-6">
-          <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-md">
-            <h3 className="text-label-md font-bold uppercase tracking-wider text-outline">Cursos Activos</h3>
-            <p className="text-headline-lg font-semibold text-on-surface mt-2">—</p>
-          </div>
-          <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-md">
-            <h3 className="text-label-md font-bold uppercase tracking-wider text-outline">Notificaciones</h3>
-            <p className="text-headline-lg font-semibold text-on-surface mt-2">0</p>
-          </div>
-        </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+        {config.stats.map((stat) => (
+          <StatCard
+            key={stat.label}
+            label={stat.label}
+            value={stat.value}
+            icon={stat.icon}
+            trend={stat.trend}
+          />
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 16 }}>
+        <Card
+          title="Resumen"
+          icon={config.icon}
+          variant="default"
+        >
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--on-surface-variant)' }}>
+            Los datos en tiempo real se cargarán al conectar el backend. Navegá a las secciones del menú lateral para gestionar tu actividad.
+          </p>
+        </Card>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { UsuarioFilters, type UsuarioFilterValues } from '../components/UsuarioFilters';
 import { UsuarioTable } from '../components/UsuarioTable';
 import { UsuarioFormModal } from '../components/UsuarioFormModal';
+import { Button } from '@/shared/components/ds';
 import type { Usuario, CrearUsuarioData, EditarUsuarioData } from '../types';
 
 const initialFilters: UsuarioFilterValues = {
@@ -94,14 +95,9 @@ export function UsuariosPage() {
           </p>
         </div>
         {canCreate && (
-          <button
-            type="button"
-            onClick={handleOpenCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+          <Button type="button" variant="primary" icon="add" onClick={handleOpenCreate}>
             Nuevo usuario
-          </button>
+          </Button>
         )}
       </div>
 
@@ -126,23 +122,13 @@ export function UsuariosPage() {
 
           {total > pageSize && (
             <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={page === 0}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
-              >
+              <Button variant="secondary" size="sm" icon="chevron_left" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
                 Anterior
-              </button>
-              <span className="text-label-sm text-on-surface-variant">
-                Página {page + 1} de {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={(page + 1) * pageSize >= total}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
-              >
+              </Button>
+              <span style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>Página {page + 1} de {totalPages}</span>
+              <Button variant="secondary" size="sm" trailingIcon="chevron_right" onClick={() => setPage((p) => p + 1)} disabled={(page + 1) * pageSize >= total}>
                 Siguiente
-              </button>
+              </Button>
             </div>
           )}
         </>

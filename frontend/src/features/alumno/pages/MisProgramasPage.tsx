@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from '@/shared/components/Spinner';
-import { EmptyState } from '../components/EmptyState';
-import { ErrorState } from '../components/ErrorState';
+import { EmptyState, Card, Button } from '@/shared/components/ds';
 import * as alumnoService from '../services/alumno.service';
 
 export function MisProgramasPage() {
@@ -11,50 +10,65 @@ export function MisProgramasPage() {
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
-  if (error) return <ErrorState message="Error al cargar programas" onRetry={() => refetch()} />;
-  if (!data || data.length === 0) return <EmptyState message="No hay programas disponibles" icon="description" />;
+
+  if (error) {
+    return (
+      <EmptyState
+        icon="error"
+        title="Error al cargar programas"
+        action={<Button variant="secondary" icon="refresh" onClick={() => refetch()}>Reintentar</Button>}
+      />
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <PageHeader />
+        <EmptyState icon="description" title="No hay programas disponibles" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Programas</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">Programas de estudio por materia</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <PageHeader />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
         {data.map((programa) => (
-          <div
+          <Card
             key={programa.id}
-            className="bg-surface-container-lowest rounded-xl border border-outline-variant p-4"
+            title={programa.materia_nombre}
+            icon="description"
+            action={
+              programa.referencia_archivo ? (
+                <a href={programa.referencia_archivo} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="secondary" icon="download">Descargar</Button>
+                </a>
+              ) : undefined
+            }
           >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1 min-w-0">
-                <h3 className="text-label-md font-medium text-on-surface truncate">{programa.materia_nombre}</h3>
-                <p className="text-label-sm text-on-surface-variant mt-0.5 truncate">{programa.programa_nombre}</p>
-              </div>
-              <span className="material-symbols-outlined text-outline text-[20px] shrink-0">description</span>
+            <div style={{ fontSize: 13, color: 'var(--on-surface)', marginBottom: 6, fontWeight: 500 }}>
+              {programa.programa_nombre}
             </div>
-
-            <p className="text-label-xs text-on-surface-variant mb-3">
+            <div style={{ fontSize: 12, color: 'var(--outline)', fontFamily: 'var(--font-mono)' }}>
               Publicado: {new Date(programa.fecha_publicacion).toLocaleDateString('es-AR')}
-            </p>
-
-            {programa.referencia_archivo ? (
-              <a
-                href={programa.referencia_archivo}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-label-xs font-medium text-on-primary transition-colors hover:bg-primary/90"
-              >
-                <span className="material-symbols-outlined text-[16px]">download</span>
-                Descargar
-              </a>
-            ) : (
-              <span className="text-label-xs text-outline">Sin archivo disponible</span>
+            </div>
+            {!programa.referencia_archivo && (
+              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--outline)' }}>Sin archivo disponible</div>
             )}
-          </div>
+          </Card>
         ))}
       </div>
+    </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div>
+      <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Programas</h2>
+      <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Programas de estudio por materia</p>
     </div>
   );
 }

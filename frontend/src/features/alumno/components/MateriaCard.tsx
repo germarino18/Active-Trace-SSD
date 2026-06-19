@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
+import { Badge, ProgressBar } from '@/shared/components/ds';
 import type { MateriaDashboardItem } from '../types/alumno.types';
 
 interface MateriaCardProps {
   materia: MateriaDashboardItem;
 }
 
-const estadoStyles: Record<string, string> = {
-  al_dia: 'bg-tertiary/10 text-tertiary border-tertiary/30',
-  atrasado: 'bg-error/10 text-error border-error/30',
-  sin_actividad: 'bg-surface-container-high text-on-surface-variant border-outline-variant',
+const estadoTone: Record<string, 'success' | 'danger' | 'neutral'> = {
+  al_dia: 'success',
+  atrasado: 'danger',
+  sin_actividad: 'neutral',
 };
 
 const estadoLabels: Record<string, string> = {
@@ -25,29 +26,45 @@ export function MateriaCard({ materia }: MateriaCardProps) {
   return (
     <Link
       to={`/alumno/materias/${materia.id}`}
-      className="block bg-surface-container-lowest rounded-xl border border-outline-variant p-4 transition-colors hover:border-primary/50 hover:bg-surface-container-low"
+      style={{ textDecoration: 'none', display: 'block' }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-label-md font-medium text-on-surface truncate">{materia.nombre}</h3>
-          <p className="text-label-sm text-on-surface-variant mt-0.5 truncate">{materia.profesor}</p>
+      <div
+        style={{
+          background: 'var(--surface-container-lowest)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--outline-variant)',
+          padding: 16,
+          transition: 'border-color .15s ease, background .15s ease',
+          cursor: 'pointer',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--primary) 50%, transparent)';
+          e.currentTarget.style.background = 'var(--surface-container-low)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--outline-variant)';
+          e.currentTarget.style.background = 'var(--surface-container-lowest)';
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {materia.nombre}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {materia.profesor}
+            </div>
+          </div>
+          <div style={{ marginLeft: 8, flexShrink: 0 }}>
+            <Badge tone={estadoTone[materia.estado]}>{estadoLabels[materia.estado]}</Badge>
+          </div>
         </div>
-        <span className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-label-xs font-medium ${estadoStyles[materia.estado]}`}>
-          {estadoLabels[materia.estado]}
-        </span>
-      </div>
 
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-label-xs text-on-surface-variant">
-          <span>Progreso</span>
-          <span>{materia.progreso.aprobadas}/{materia.progreso.total} actividades</span>
-        </div>
-        <div className="h-2 w-full rounded-full bg-surface-container">
-          <div
-            className="h-full rounded-full bg-primary transition-all"
-            style={{ width: `${progreso}%` }}
-          />
-        </div>
+        <ProgressBar
+          value={progreso}
+          label={`${materia.progreso.aprobadas}/${materia.progreso.total} actividades`}
+          showValue
+        />
       </div>
     </Link>
   );

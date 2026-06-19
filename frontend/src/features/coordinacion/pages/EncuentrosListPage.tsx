@@ -6,6 +6,7 @@ import { LoadingState } from '@/features/academico/components/LoadingState';
 import { EmptyState } from '@/features/academico/components/EmptyState';
 import { Spinner } from '@/shared/components/Spinner';
 import type { InstanciaEstado } from '../types';
+import { Button } from '@/shared/components/ds';
 
 const estadoConfig: Record<InstanciaEstado, { label: string; className: string }> = {
   Pendiente: { label: 'Pendiente', className: 'bg-warning/10 text-warning' },
@@ -41,8 +42,8 @@ export function EncuentrosListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Encuentros</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Encuentros</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
             Administración de encuentros y clases en vivo.
           </p>
         </div>
@@ -165,23 +166,25 @@ export function EncuentrosListPage() {
 
           {data.total > pageSize && (
             <div className="flex items-center justify-center gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
               >
                 Anterior
-              </button>
+              </Button>
               <span className="text-label-sm text-on-surface-variant">
                 Página {page + 1} de {Math.ceil(data.total / pageSize)}
               </span>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={(page + 1) * pageSize >= data.total}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
               >
                 Siguiente
-              </button>
+              </Button>
             </div>
           )}
         </>

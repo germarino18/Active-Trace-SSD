@@ -6,6 +6,7 @@ import { ConfirmDialog } from '../components/ConfirmDialog';
 import { HelpButton } from '../components/HelpButton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { ProgramaMateria } from '../types';
+import { Button } from '@/shared/components/ds';
 
 export function ProgramasListPage() {
   const navigate = useNavigate();
@@ -66,22 +67,22 @@ export function ProgramasListPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Programas</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Programas</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná los programas de estudio subidos por materia.
             </p>
           </div>
           <HelpButton tooltip="Listado de programas de estudio cargados en el sistema. Podés descargar o eliminar cada programa." />
         </div>
         {canManage && (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            icon="upload_file"
             onClick={() => navigate('/programas/nuevo')}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
           >
-            <span className="material-symbols-outlined text-[18px]">upload_file</span>
             Subir programa
-          </button>
+          </Button>
         )}
       </div>
 

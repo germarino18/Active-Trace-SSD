@@ -6,6 +6,7 @@ import { HelpButton } from '../components/HelpButton';
 import { Spinner } from '@/shared/components/Spinner';
 import { EmptyState } from '@/features/academico/components/EmptyState';
 import type { Docente } from '../types';
+import { Button } from '@/shared/components/ds';
 
 export function AsignacionMasivaPage() {
   const { hasAnyPermission } = useAuth();
@@ -74,8 +75,8 @@ export function AsignacionMasivaPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-2">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Asignación Masiva</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Asignación Masiva</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
             Asigná múltiples docentes a una misma materia en una sola operación
           </p>
         </div>
@@ -202,22 +203,22 @@ export function AsignacionMasivaPage() {
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/coordinacion/equipos')}
-            className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="primary"
             disabled={masivaMutation.isPending || selectedIds.size === 0}
-            className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {masivaMutation.isPending
               ? 'Asignando...'
               : `Asignar (${selectedIds.size} docentes)`}
-          </button>
+          </Button>
         </div>
       </form>
 
@@ -237,16 +238,16 @@ export function AsignacionMasivaPage() {
             <p className="mt-2 text-body-md text-on-surface-variant">
               {successModal.creadas} asignaciones creadas correctamente
             </p>
-            <button
+            <Button
               type="button"
+              variant="primary"
               onClick={() => {
                 setSuccessModal(null);
                 navigate('/coordinacion/equipos');
               }}
-              className="mt-5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
             >
               Ir a equipos
-            </button>
+            </Button>
           </div>
         </div>
       )}

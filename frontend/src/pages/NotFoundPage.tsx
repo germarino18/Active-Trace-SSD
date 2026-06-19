@@ -1,15 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { EmptyState, Button } from '@/shared/components/ds';
 
 export function NotFoundPage() {
+  const navigate = useNavigate();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="text-center">
-        <h1 className="font-headline-xl text-headline-xl font-bold text-on-surface">404</h1>
-        <p className="text-body-lg text-on-surface-variant mt-2">Página no encontrada</p>
-        <Link to="/dashboard" className="text-primary hover:underline mt-4 inline-block">
-          Volver al inicio
-        </Link>
-      </div>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <EmptyState
+        code="404"
+        title="Página no encontrada"
+        message="La ruta que buscás no existe o fue movida. Verificá la dirección e intentá de nuevo."
+        action={<Button variant="secondary" icon="home" onClick={() => navigate('/dashboard')}>Volver al inicio</Button>}
+      />
     </div>
   );
 }

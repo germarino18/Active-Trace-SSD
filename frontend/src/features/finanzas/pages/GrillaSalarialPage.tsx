@@ -6,6 +6,7 @@ import { SalaryFormModal } from '../components/SalaryFormModal';
 import { HelpButton } from '@/features/coordinacion/components/HelpButton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { SalarioBase, PlusSalarial, SalarioBaseFormData, PlusFormData } from '../types/grilla-salarial';
+import { Button } from '@/shared/components/ds';
 
 type ActiveTab = 'salarios-base' | 'plus';
 
@@ -85,22 +86,22 @@ export function GrillaSalarialPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Grilla Salarial</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Grilla Salarial</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná los salarios base y plus por rol docente.
             </p>
           </div>
           <HelpButton tooltip="Configuración de la grilla salarial: salarios base por rol y plus adicionales con sus respectivas vigencias." />
         </div>
         {canEdit && (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            icon="add"
             onClick={handleCreate}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
             {activeTab === 'salarios-base' ? 'Nuevo salario base' : 'Nuevo plus'}
-          </button>
+          </Button>
         )}
       </div>
 

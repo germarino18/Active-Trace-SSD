@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCrearTarea } from '../hooks/useTareas';
+import { Button } from '@/shared/components/ds';
 
 const tareaSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido'),
@@ -49,8 +50,8 @@ export function TareaCrearPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Crear Tarea</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Crear Tarea</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Asigná una nueva tarea a un usuario del sistema.
         </p>
       </div>
@@ -106,23 +107,20 @@ export function TareaCrearPage() {
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={crearTarea.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {crearTarea.isPending && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
             Crear Tarea
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/tareas')}
-            className="rounded-lg border border-outline-variant px-6 py-2.5 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
 
         {crearTarea.isError && (

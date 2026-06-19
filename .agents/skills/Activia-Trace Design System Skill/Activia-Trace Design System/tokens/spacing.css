@@ -1,0 +1,30 @@
+/* Spacing & radii — 4px base grid. Names mirror the product config. */
+
+:root {
+  /* Spacing scale */
+  --space-base: 4px;   /* atomic unit */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 40px;
+  --space-xl: 64px;
+
+  /* Layout */
+  --gutter: 24px;            /* grid/bento gap + page padding */
+  --margin-desktop: 48px;
+  --margin-mobile: 16px;
+  --sidebar-width: 256px;    /* 264–280px in places; 256 is canonical */
+  --header-height: 64px;
+
+  /* Radii */
+  --radius-sm: 4px;    /* default — chips, small tiles, inputs-tight */
+  --radius-md: 8px;    /* cards, inputs, buttons */
+  --radius-lg: 12px;   /* large panels, bento cards */
+  --radius-full: 9999px;
+
+  /* aliases */
+  --radius-card: var(--radius-lg);
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-pill: var(--radius-full);
+}

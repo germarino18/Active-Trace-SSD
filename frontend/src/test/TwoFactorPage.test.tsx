@@ -27,7 +27,7 @@ describe('TwoFactorPage', () => {
         </Routes>
       </MemoryRouter>,
     );
-    expect(screen.getByText(/no se encontró una sesión/i)).toBeInTheDocument();
+    expect(screen.getByText(/no hay una sesión de verificación/i)).toBeInTheDocument();
   });
 
   it('renders code input when token is present', () => {
@@ -38,7 +38,8 @@ describe('TwoFactorPage', () => {
         </Routes>
       </MemoryRouter>,
     );
-    expect(screen.getByPlaceholderText('000000')).toBeInTheDocument();
+    expect(screen.getByText(/verificación 2fa/i)).toBeInTheDocument();
+    expect(screen.getAllByRole('textbox')).toHaveLength(6);
     expect(screen.getByRole('button', { name: /verificar/i })).toBeInTheDocument();
   });
 });

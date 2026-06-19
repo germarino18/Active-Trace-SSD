@@ -5,6 +5,7 @@ import { ActivityPreviewTable } from '../components/ActivityPreviewTable';
 import { ThresholdInput } from '../components/ThresholdInput';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useUploadCalificaciones, useConfirmarImportacion, useConfigurarUmbral } from '../hooks/useImportarCalificaciones';
+import { Button } from '@/shared/components/ds';
 import type { ImportPreviewResponse } from '../types';
 
 export function ImportarCalificacionesPage() {
@@ -78,20 +79,22 @@ export function ImportarCalificacionesPage() {
             isLoading={uploadMutation.isPending}
           />
           {file && !fileError && (
-            <div className="flex items-center gap-3">
-              <span className="text-label-md text-on-surface">{file.name}</span>
-              <button
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 14, color: 'var(--on-surface)' }}>{file.name}</span>
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
+                icon="upload"
                 onClick={handleUpload}
                 disabled={uploadMutation.isPending}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
-                {uploadMutation.isPending ? 'Analizando...' : 'Analizar archivo'}
-              </button>
+                {uploadMutation.isPending ? 'Analizando…' : 'Analizar archivo'}
+              </Button>
               {uploadMutation.isError && (
-                <p className="text-label-sm text-error">
+                <span style={{ fontSize: 13, color: 'var(--error)' }}>
                   {uploadMutation.error?.message || 'Error al subir el archivo'}
-                </p>
+                </span>
               )}
             </div>
           )}
@@ -131,31 +134,26 @@ export function ImportarCalificacionesPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Button
               type="button"
+              variant="primary"
+              icon="check_circle"
               onClick={handleConfirm}
               disabled={selectedActivityIds.size === 0 || confirmMutation.isPending}
-              className="rounded-lg bg-primary px-6 py-2 text-label-md font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              {confirmMutation.isPending ? 'Importando...' : 'Confirmar importación'}
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-lg border border-outline-variant px-4 py-2 text-label-md font-medium text-on-surface transition-colors hover:bg-surface-container-low"
-            >
+              {confirmMutation.isPending ? 'Importando…' : 'Confirmar importación'}
+            </Button>
+            <Button type="button" variant="secondary" onClick={handleReset}>
               Cancelar
-            </button>
+            </Button>
           </div>
 
           {confirmMutation.isSuccess && (
-            <p className="text-label-sm text-success">
-              Importación confirmada correctamente
-            </p>
+            <p style={{ fontSize: 13, color: 'var(--tertiary)' }}>Importación confirmada correctamente</p>
           )}
           {confirmMutation.isError && (
-            <p className="text-label-sm text-error">
+            <p style={{ fontSize: 13, color: 'var(--error)' }}>
               {confirmMutation.error?.message || 'Error al confirmar la importación'}
             </p>
           )}

@@ -3,17 +3,30 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Spinner } from '@/shared/components/Spinner';
+import { Button, Input } from '@/shared/components/ds';
 import { useAuth } from '../hooks/useAuth';
 import type { TwoFactorChallenge } from '@/shared/types';
 
 const loginSchema = z.object({
-  email: z.string().email('Ingrese un email válido'),
+  email: z.string().email('Ingresá un email válido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-  tenant: z.string().min(1, 'El tenant es requerido'),
+  tenant: z.string().min(1, 'El ID de institución es requerido'),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
+
+const glowLeft: React.CSSProperties = {
+  position: 'absolute', bottom: '-20%', left: '-10%',
+  width: 600, height: 600, borderRadius: '50%', pointerEvents: 'none',
+  background: 'color-mix(in srgb, var(--tertiary) 5%, transparent)',
+  filter: 'blur(150px)',
+};
+const glowRight: React.CSSProperties = {
+  position: 'absolute', top: '-20%', right: '-10%',
+  width: 600, height: 600, borderRadius: '50%', pointerEvents: 'none',
+  background: 'color-mix(in srgb, var(--primary) 8%, transparent)',
+  filter: 'blur(140px)',
+};
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -23,11 +36,7 @@ export function LoginPage() {
   const [challenge, setChallenge] = useState<TwoFactorChallenge | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginForm>({
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: { tenant: '' },
   });
@@ -46,97 +55,107 @@ export function LoginPage() {
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { error?: { message?: string } } } };
       const message = apiError?.response?.data?.error?.message;
-      if (message) {
-        setError(message);
-      } else {
-        setError('Credenciales inválidas');
-      }
+      setError(message ?? 'Credenciales inválidas');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   if (challenge) {
-    return <TwoFactorChallenge challenge={challenge} />;
+    return <TwoFactorStep challenge={challenge} />;
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <span className="material-symbols-outlined text-on-primary text-2xl">analytics</span>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+      <div style={glowRight} />
+      <div style={glowLeft} />
+      <div style={{ width: 400, maxWidth: '100%', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>analytics</span>
           </div>
-          <h1 className="text-headline-md font-semibold text-on-surface">Activia-Trace</h1>
-          <p className="text-body-md text-on-surface-variant mt-1">Iniciar sesión</p>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="email" className="text-label-md font-label-md text-on-surface mb-1 block">Email</label>
-            <input
-              id="email"
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-surface)' }}>Activia-Trace</div>
+            <div style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', opacity: 0.6 }}>Academic Management</div>
+          </div>
+        </div>
+
+        <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
+          <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Iniciar sesión</h1>
+          <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>Ingresá a tu institución para continuar.</p>
+
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Email"
+              icon="mail"
               type="email"
-              {...register('email')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="usuario@example.com"
+              error={errors.email?.message}
+              {...register('email')}
             />
-            {errors.email && <p className="text-error text-label-sm mt-1">{errors.email.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="password" className="text-label-md font-label-md text-on-surface mb-1 block">Contraseña</label>
-            <input
-              id="password"
+            <Input
+              label="Contraseña"
+              icon="lock"
               type="password"
-              {...register('password')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="••••••••"
+              error={errors.password?.message}
+              {...register('password')}
             />
-            {errors.password && <p className="text-error text-label-sm mt-1">{errors.password.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="tenant" className="text-label-md font-label-md text-on-surface mb-1 block">Tenant</label>
-            <input
-              id="tenant"
-              type="text"
+            <Input
+              label="ID de Institución (tenant)"
+              icon="domain"
+              placeholder="ej: universidad-central"
+              helper="Identificador provisto por tu institución"
+              error={errors.tenant?.message}
               {...register('tenant')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="ID del tenant"
             />
-            {errors.tenant && <p className="text-error text-label-sm mt-1">{errors.tenant.message}</p>}
-          </div>
-          {error && (
-            <div className="rounded-lg border border-error/30 bg-error-container px-3 py-2">
-              <p className="text-error text-label-sm">{error}</p>
+
+            {error && (
+              <div style={{ background: 'var(--error-container)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)', borderRadius: 'var(--radius-md)', padding: '8px 12px' }}>
+                <span style={{ fontSize: 13, color: 'var(--on-error-container)' }}>{error}</span>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -4 }}>
+              <Link to="/forgot-password" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>¿Olvidaste tu contraseña?</Link>
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? <Spinner size="sm" /> : 'Iniciar sesión'}
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <Link to="/forgot-password" className="text-label-sm text-primary hover:underline">
-            ¿Olvidó su contraseña?
-          </Link>
+
+            <Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting} trailingIcon={isSubmitting ? undefined : 'arrow_forward'}>
+              {isSubmitting ? 'Ingresando…' : 'Continuar'}
+            </Button>
+          </form>
         </div>
+
+        <p style={{ textAlign: 'center', margin: '20px 0 0', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--outline)' }}>
+          © {new Date().getFullYear()} Activia-Trace · Nexo Academic Systems
+        </p>
       </div>
     </div>
   );
 }
 
-function TwoFactorChallenge({ challenge }: { challenge: TwoFactorChallenge }) {
+function TwoFactorStep({ challenge }: { challenge: TwoFactorChallenge }) {
   const { verify2fa } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [code, setCode] = useState('');
+  const [digits, setDigits] = useState(['', '', '', '', '', '']);
+
+  const setDigit = (i: number, v: string) => {
+    if (!/^\d?$/.test(v)) return;
+    const next = [...digits];
+    next[i] = v;
+    setDigits(next);
+    if (v && i < 5) {
+      const el = document.getElementById(`otp-${i + 1}`);
+      if (el) el.focus();
+    }
+  };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
+    const code = digits.join('');
     if (code.length !== 6) {
       setError('El código debe tener 6 dígitos');
       return;
@@ -150,44 +169,75 @@ function TwoFactorChallenge({ challenge }: { challenge: TwoFactorChallenge }) {
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { error?: { message?: string } } } };
       setError(apiError?.response?.data?.error?.message ?? 'Código inválido');
+      setDigits(['', '', '', '', '', '']);
+      document.getElementById('otp-0')?.focus();
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <span className="material-symbols-outlined text-on-primary text-2xl">verified</span>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+      <div style={glowRight} />
+      <div style={glowLeft} />
+      <div style={{ width: 400, maxWidth: '100%', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>analytics</span>
           </div>
-          <h1 className="text-headline-md font-semibold text-on-surface">Verificación en dos pasos</h1>
-          <p className="text-body-md text-on-surface-variant mt-1">Ingrese el código de su aplicación autenticadora</p>
-        </div>
-        <form onSubmit={handleVerify} className="space-y-4">
           <div>
-            <label htmlFor="code" className="text-label-md font-label-md text-on-surface mb-1 block">Código</label>
-            <input
-              id="code"
-              type="text"
-              inputMode="numeric"
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-center text-2xl tracking-widest text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="000000"
-            />
-            {error && <p className="text-error text-label-sm mt-1">{error}</p>}
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-surface)' }}>Activia-Trace</div>
+            <div style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', opacity: 0.6 }}>Academic Management</div>
           </div>
+        </div>
+
+        <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
           <button
-            type="submit"
-            disabled={isSubmitting || code.length !== 6}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+            type="button"
+            onClick={() => window.history.back()}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', color: 'var(--on-surface-variant)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 16 }}
           >
-            {isSubmitting ? <Spinner size="sm" /> : 'Verificar'}
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_back</span> Volver
           </button>
-        </form>
+
+          <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Verificación 2FA</h1>
+          <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>Ingresá el código de 6 dígitos de tu app de autenticación.</p>
+
+          <form onSubmit={handleVerify}>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between', marginBottom: 16 }}>
+              {digits.map((d, i) => (
+                <input
+                  key={i}
+                  id={`otp-${i}`}
+                  value={d}
+                  onChange={(e) => setDigit(i, e.target.value)}
+                  maxLength={1}
+                  inputMode="numeric"
+                  style={{
+                    width: 48, height: 56, textAlign: 'center', fontSize: 22, fontWeight: 700,
+                    background: 'var(--surface-container-low)', color: 'var(--on-surface)',
+                    border: `1px solid ${d ? 'var(--primary)' : 'var(--outline-variant)'}`,
+                    borderRadius: 'var(--radius-md)', outline: 'none', fontFamily: 'var(--font-mono)',
+                  }}
+                />
+              ))}
+            </div>
+
+            {error && (
+              <div style={{ background: 'var(--error-container)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)', borderRadius: 'var(--radius-md)', padding: '8px 12px', marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: 'var(--on-error-container)' }}>{error}</span>
+              </div>
+            )}
+
+            <Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting || digits.join('').length !== 6}>
+              {isSubmitting ? 'Verificando…' : 'Verificar e ingresar'}
+            </Button>
+          </form>
+        </div>
+
+        <p style={{ textAlign: 'center', margin: '20px 0 0', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--outline)' }}>
+          © {new Date().getFullYear()} Activia-Trace · Nexo Academic Systems
+        </p>
       </div>
     </div>
   );

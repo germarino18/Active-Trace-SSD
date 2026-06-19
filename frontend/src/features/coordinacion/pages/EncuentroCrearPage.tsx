@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCrearSlotRecurrente, useCrearEncuentroUnico } from '../hooks/useEncuentros';
+import { Button } from '@/shared/components/ds';
 
 const recurrenteSchema = z.object({
   materia_id: z.string().min(1, 'Seleccioná una materia'),
@@ -93,8 +94,8 @@ export function EncuentroCrearPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Crear Encuentro</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Crear Encuentro</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Creá un encuentro único o un slot recurrente.
         </p>
       </div>
@@ -218,14 +219,13 @@ export function EncuentroCrearPage() {
             )}
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {isLoading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />}
             Generar Slot Recurrente
-          </button>
+          </Button>
         </form>
       ) : (
         <form onSubmit={unicoForm.handleSubmit(onSubmitUnico)} className="space-y-4">
@@ -296,14 +296,13 @@ export function EncuentroCrearPage() {
             )}
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {isLoading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />}
             Crear Encuentro
-          </button>
+          </Button>
         </form>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { LoadingState } from '@/features/academico/components/LoadingState';
 import { EmptyState } from '@/features/academico/components/EmptyState';
+import { Button } from '@/shared/components/ds';
 import {
   useMaterias,
   useCrearMateria,
@@ -110,14 +111,7 @@ export function MateriasPage() {
         <p className="text-body-sm text-on-surface-variant">
           {data?.total ?? 0} materia(s) registrada(s)
         </p>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
-        >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          Nueva materia
-        </button>
+        <Button type="button" variant="primary" icon="add" onClick={openCreate}>Nueva materia</Button>
       </div>
 
       {isLoading ? (
@@ -227,14 +221,9 @@ export function MateriasPage() {
                   className="w-full text-body-sm text-on-surface file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-label-sm file:font-medium file:text-primary hover:file:bg-primary/20"
                 />
               </div>
-              <button
-                type="button"
-                onClick={handleSubirPrograma}
-                disabled={subirPrograma.isPending || !fileRef.current?.files?.[0]}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
-                {subirPrograma.isPending ? 'Subiendo...' : 'Subir'}
-              </button>
+              <Button type="button" variant="primary" size="sm" icon="upload" onClick={handleSubirPrograma} disabled={subirPrograma.isPending || !fileRef.current?.files?.[0]}>
+                {subirPrograma.isPending ? 'Subiendo…' : 'Subir'}
+              </Button>
             </div>
             {subirPrograma.isSuccess && (
               <p className="text-label-sm text-success">Programa subido correctamente</p>
@@ -314,14 +303,9 @@ export function MateriasPage() {
                   className="rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface focus:border-primary focus:outline-none"
                 />
               </div>
-              <button
-                type="button"
-                onClick={handleCrearEvaluacion}
-                disabled={crearEvaluacion.isPending || !evForm.fecha}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
-                {crearEvaluacion.isPending ? 'Creando...' : 'Agregar'}
-              </button>
+              <Button type="button" variant="primary" size="sm" icon="add" onClick={handleCrearEvaluacion} disabled={crearEvaluacion.isPending || !evForm.fecha}>
+                {crearEvaluacion.isPending ? 'Creando…' : 'Agregar'}
+              </Button>
             </div>
           </div>
         </div>
@@ -382,21 +366,10 @@ export function MateriasPage() {
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending || !form.nombre}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
+              <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+              <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.nombre}>
                 {editTarget ? 'Guardar cambios' : 'Crear materia'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -18,8 +18,8 @@ export function ConvocatoriasListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Convocatorias a Coloquios</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Convocatorias a Coloquios</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
             Gestioná las convocatorias a coloquios y exámenes orales.
           </p>
         </div>

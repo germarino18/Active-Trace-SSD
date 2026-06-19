@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LoadingState } from '@/features/academico/components/LoadingState';
 import { EmptyState } from '@/features/academico/components/EmptyState';
+import { Button } from '@/shared/components/ds';
 import { ConfirmDialog } from '@/features/coordinacion/components/ConfirmDialog';
 import {
   useCohortes,
@@ -72,14 +73,7 @@ export function CohortesPage() {
         <p className="text-body-sm text-on-surface-variant">
           {data?.total ?? 0} cohorte(s) registrado(s)
         </p>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
-        >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          Nuevo cohorte
-        </button>
+        <Button type="button" variant="primary" icon="add" onClick={openCreate}>Nuevo cohorte</Button>
       </div>
 
       {isLoading ? (
@@ -204,21 +198,10 @@ export function CohortesPage() {
               </div>
             </div>
             <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending || !form.nombre || !form.vigencia_desde}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-              >
+              <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+              <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.nombre || !form.vigencia_desde}>
                 {editTarget ? 'Guardar cambios' : 'Crear cohorte'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

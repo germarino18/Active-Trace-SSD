@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useModificarVigencia } from '../hooks/useEquipos';
 import { HelpButton } from '../components/HelpButton';
 import { EmptyState } from '@/features/academico/components/EmptyState';
+import { Button } from '@/shared/components/ds';
 
 export function ModificarVigenciaPage() {
   const { hasAnyPermission } = useAuth();
@@ -41,8 +42,8 @@ export function ModificarVigenciaPage() {
     <div className="mx-auto max-w-lg space-y-6">
       <div className="flex items-center gap-2">
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">Modificar Vigencia</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Modificar Vigencia</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
             Extendé la fecha de vigencia de todas las asignaciones de un equipo
           </p>
         </div>
@@ -100,20 +101,20 @@ export function ModificarVigenciaPage() {
         </div>
 
         <div className="flex items-center justify-end gap-3">
-          <button
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/coordinacion/equipos')}
-            className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
+            variant="primary"
             disabled={vigenciaMutation.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {vigenciaMutation.isPending ? 'Guardando...' : 'Actualizar vigencia'}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

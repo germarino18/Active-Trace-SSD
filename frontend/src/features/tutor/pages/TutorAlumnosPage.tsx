@@ -1,67 +1,85 @@
 import { useNavigate } from 'react-router-dom';
 import { useTutorAlumnos } from '../hooks/useTutorAlumnos';
-import { LoadingState } from '@/features/academico/components/LoadingState';
-import { EmptyState } from '@/features/academico/components/EmptyState';
-import { ErrorState } from '../components/ErrorState';
+import { Spinner } from '@/shared/components/Spinner';
+import { EmptyState, Button, Badge } from '@/shared/components/ds';
 
 export function TutorAlumnosPage() {
   const navigate = useNavigate();
   const { data, isLoading, isError, refetch } = useTutorAlumnos();
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Mis Alumnos</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
-          Listado de alumnos asignados a tus materias.
-        </p>
-      </div>
+  if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
 
-      {isLoading ? (
-        <LoadingState rows={6} cols={5} />
-      ) : isError ? (
-        <ErrorState onRetry={() => refetch()} />
-      ) : !data || data.length === 0 ? (
-        <EmptyState message="No hay alumnos asignados" icon="group_off" />
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-outline-variant">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-outline-variant bg-surface-container-low">
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Nombre</th>
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Apellido</th>
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Email</th>
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Materia</th>
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Comisión</th>
-                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((alumno) => (
-                <tr
-                  key={alumno.id}
-                  className="border-b border-outline-variant transition-colors hover:bg-surface-container-low"
+  if (isError) {
+    return (
+      <EmptyState
+        icon="error"
+        title="Error al cargar alumnos"
+        action={<Button variant="secondary" icon="refresh" onClick={() => refetch()}>Reintentar</Button>}
+      />
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <PageHeader />
+        <EmptyState icon="group_off" title="No hay alumnos asignados" message="No tenés alumnos asignados a tus materias en este período." />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <PageHeader />
+
+      <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ background: 'var(--surface-container)', borderBottom: '1px solid var(--outline-variant)' }}>
+              {['Nombre', 'Apellido', 'Email', 'Materia', 'Comisión', 'Estado', ''].map((h) => (
+                <th key={h} style={{ padding: '12px 16px', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--on-surface-variant)' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((alumno, i) => {
+              const ext = alumno as typeof alumno & { en_riesgo?: boolean; materia_nombre?: string };
+              return (
+                <tr key={alumno.id}
+                  style={{ borderTop: i > 0 ? '1px solid var(--outline-variant)' : undefined, background: 'var(--surface-container-lowest)', transition: 'background .12s ease' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-container-low)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface-container-lowest)')}
                 >
-                  <td className="px-4 py-3 text-body-sm text-on-surface">{alumno.nombre}</td>
-                  <td className="px-4 py-3 text-body-sm text-on-surface">{alumno.apellido}</td>
-                  <td className="px-4 py-3 text-body-sm text-on-surface-variant">{alumno.email}</td>
-                  <td className="px-4 py-3 text-body-sm text-on-surface-variant">{alumno.materia_nombre}</td>
-                  <td className="px-4 py-3 text-body-sm text-on-surface-variant">{alumno.comision}</td>
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/materias/${alumno.id}`)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-label-xs font-medium text-primary transition-colors hover:bg-primary/20"
-                    >
+                  <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--on-surface)', fontWeight: 500 }}>{alumno.nombre}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--on-surface)' }}>{alumno.apellido}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--on-surface-variant)' }}>{alumno.email}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--on-surface-variant)' }}>{ext.materia_nombre}</td>
+                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>{alumno.comision}</td>
+                  <td style={{ padding: '12px 16px' }}>
+                    {ext.en_riesgo
+                      ? <Badge tone="danger" dot>En riesgo</Badge>
+                      : <Badge tone="success">Al día</Badge>}
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <Button size="sm" variant="ghost" icon="arrow_forward" onClick={() => navigate(`/materias/${alumno.id}`)}>
                       Ver detalle
-                    </button>
+                    </Button>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div>
+      <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Mis Alumnos</h2>
+      <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Listado de alumnos asignados a tus materias.</p>
     </div>
   );
 }

@@ -1,0 +1,27 @@
+/* Fonts — Geist (UI + display) and Geist Mono (code, timestamps, IDs).
+   Both ship on Google Fonts; loaded here so every consumer + specimen card
+   picks them up automatically. No substitution — Geist is the real brand face. */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap");
+
+/* Icon font: Material Symbols Outlined (variable, FILL 0..1).
+   Activia-Trace uses the OUTLINED style exclusively; FILL 1 only for
+   emphasis on a handful of glyphs (folders, mail, active markers). */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap");
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}

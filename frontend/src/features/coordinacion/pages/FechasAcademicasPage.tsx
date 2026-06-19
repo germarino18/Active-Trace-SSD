@@ -13,6 +13,7 @@ import { DataTable, type ColumnDef } from '../components/DataTable';
 import { HelpButton } from '../components/HelpButton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { FechaAcademica, TipoFechaAcademica } from '../types';
+import { Button } from '@/shared/components/ds';
 
 const fechaSchema = z.object({
   materia_id: z.string().min(1, 'La materia es requerida'),
@@ -154,8 +155,8 @@ export function FechasAcademicasPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Fechas Académicas</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Fechas Académicas</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná las fechas de parciales, TP y coloquios.
             </p>
           </div>
@@ -187,15 +188,15 @@ export function FechasAcademicasPage() {
             </button>
           </div>
           {fechas && fechas.length > 0 && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              icon="code"
               onClick={handleGenerarHtml}
               disabled={generarHtml.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-[18px]">code</span>
               Generar contenido aula virtual
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -248,17 +249,14 @@ export function FechasAcademicasPage() {
                   {errors.fecha && <p className="mt-0.5 text-label-xs text-error">{errors.fecha.message}</p>}
                 </div>
                 <div className="sm:col-span-2 lg:col-span-3 flex gap-3">
-                  <button
+                  <Button
                     type="submit"
+                    variant="primary"
+                    icon="add"
                     disabled={crearFecha.isPending}
-                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
                   >
-                    {crearFecha.isPending && (
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-                    )}
-                    <span className="material-symbols-outlined text-[18px]">add</span>
                     Agregar fecha
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
@@ -292,16 +290,15 @@ export function FechasAcademicasPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-label-md font-medium text-on-surface">Contenido para aula virtual</h3>
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
+                icon={copied ? 'check' : 'content_copy'}
                 onClick={handleCopyHtml}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
               >
-                <span className="material-symbols-outlined text-[16px]">
-                  {copied ? 'check' : 'content_copy'}
-                </span>
                 {copied ? 'Copiado' : 'Copiar HTML'}
-              </button>
+              </Button>
             </div>
             <div className="flex-1 overflow-auto rounded-lg border border-outline-variant bg-surface-container-low p-4">
               <pre className="text-body-sm text-on-surface whitespace-pre-wrap font-mono">
@@ -361,12 +358,12 @@ function EditFechaModal({ fecha, onSave, onClose, isPending }: EditFechaModalPro
             <input type="date" {...register('fecha')} className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm outline-none focus:border-primary" />
           </div>
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={onClose} className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm text-on-surface hover:bg-surface-container-low">
+            <Button type="button" variant="secondary" onClick={onClose}>
               Cancelar
-            </button>
-            <button type="submit" disabled={isPending} className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary hover:bg-primary/90 disabled:opacity-50">
+            </Button>
+            <Button type="submit" variant="primary" disabled={isPending}>
               Guardar
-            </button>
+            </Button>
           </div>
         </form>
       </div>

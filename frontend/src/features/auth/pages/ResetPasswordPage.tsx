@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { Spinner } from '@/shared/components/Spinner';
+import { Button, Input } from '@/shared/components/ds';
 import { useAuth } from '../hooks/useAuth';
 
 const resetSchema = z
   .object({
     password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
-    confirmPassword: z.string().min(1, 'Debe confirmar la contraseña'),
+    confirmPassword: z.string().min(1, 'Debés confirmar la contraseña'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',
@@ -28,11 +28,7 @@ export function ResetPasswordPage() {
 
   const token = searchParams.get('token');
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ResetForm>({
+  const { register, handleSubmit, formState: { errors } } = useForm<ResetForm>({
     resolver: zodResolver(resetSchema),
   });
 
@@ -57,12 +53,12 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center">
-          <span className="material-symbols-outlined text-error text-4xl mb-2">error</span>
-          <h1 className="text-headline-md font-semibold text-on-surface">Enlace inválido</h1>
-          <p className="text-body-md text-on-surface-variant mt-2">El enlace de recuperación es inválido o ha expirado.</p>
-          <Link to="/forgot-password" className="text-primary hover:underline mt-4 inline-block">Solicitar nuevo enlace</Link>
+      <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--error)', display: 'block', marginBottom: 12 }}>error</span>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--on-surface)', margin: '0 0 8px' }}>Enlace inválido</h1>
+          <p style={{ fontSize: 14, color: 'var(--on-surface-variant)', margin: '0 0 20px' }}>El enlace de recuperación es inválido o ha expirado.</p>
+          <Link to="/forgot-password" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Solicitar nuevo enlace</Link>
         </div>
       </div>
     );
@@ -70,64 +66,69 @@ export function ResetPasswordPage() {
 
   if (successMessage) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background p-4">
-        <div className="w-full max-w-sm text-center">
-          <span className="material-symbols-outlined text-tertiary text-4xl mb-2">check_circle</span>
-          <h1 className="text-headline-md font-semibold text-on-surface">Contraseña actualizada</h1>
-          <p className="text-body-md text-on-surface-variant mt-2">{successMessage}</p>
-          <p className="text-body-md text-on-surface-variant mt-1">Redirigiendo al inicio de sesión...</p>
+      <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--tertiary)', display: 'block', marginBottom: 12, fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--on-surface)', margin: '0 0 8px' }}>Contraseña actualizada</h1>
+          <p style={{ fontSize: 14, color: 'var(--on-surface-variant)', margin: '0 0 4px' }}>{successMessage}</p>
+          <p style={{ fontSize: 13, color: 'var(--outline)' }}>Redirigiendo al inicio de sesión…</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 text-center">
-          <span className="material-symbols-outlined text-primary text-4xl mb-2">password</span>
-          <h1 className="text-headline-md font-semibold text-on-surface">Nueva contraseña</h1>
-          <p className="text-body-md text-on-surface-variant mt-1">Ingrese su nueva contraseña</p>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, borderRadius: '50%', pointerEvents: 'none', background: 'color-mix(in srgb, var(--primary) 8%, transparent)', filter: 'blur(140px)' }} />
+      <div style={{ width: 400, maxWidth: '100%', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ width: 44, height: 44, background: 'var(--primary)', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--on-primary)' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 26, fontVariationSettings: "'FILL' 1" }}>analytics</span>
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--on-surface)' }}>Activia-Trace</div>
+            <div style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', opacity: 0.6 }}>Academic Management</div>
+          </div>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label htmlFor="password" className="text-label-md font-label-md text-on-surface mb-1 block">Nueva contraseña</label>
-            <input
-              id="password"
+
+        <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
+          <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Nueva contraseña</h1>
+          <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>Elegí una contraseña segura para tu cuenta.</p>
+
+          <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <Input
+              label="Nueva contraseña"
+              icon="lock"
               type="password"
+              placeholder="••••••••"
+              helper="Mínimo 8 caracteres"
+              error={errors.password?.message}
               {...register('password')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
-              placeholder="••••••••"
             />
-            {errors.password && <p className="text-error text-label-sm mt-1">{errors.password.message}</p>}
-          </div>
-          <div>
-            <label htmlFor="confirmPassword" className="text-label-md font-label-md text-on-surface mb-1 block">Confirmar contraseña</label>
-            <input
-              id="confirmPassword"
+            <Input
+              label="Confirmar contraseña"
+              icon="lock_clock"
               type="password"
-              {...register('confirmPassword')}
-              className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary focus:outline-none"
               placeholder="••••••••"
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
             />
-            {errors.confirmPassword && <p className="text-error text-label-sm mt-1">{errors.confirmPassword.message}</p>}
-          </div>
-          {error && (
-            <div className="rounded-lg border border-error/30 bg-error-container px-3 py-2">
-              <p className="text-error text-label-sm">{error}</p>
+
+            {error && (
+              <div style={{ background: 'var(--error-container)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)', borderRadius: 'var(--radius-md)', padding: '8px 12px' }}>
+                <span style={{ fontSize: 13, color: 'var(--on-error-container)' }}>{error}</span>
+              </div>
+            )}
+
+            <Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting}>
+              {isSubmitting ? 'Guardando…' : 'Restablecer contraseña'}
+            </Button>
+
+            <div style={{ textAlign: 'center' }}>
+              <Link to="/login" style={{ fontSize: 13, color: 'var(--primary)', textDecoration: 'none', fontWeight: 500 }}>Volver al inicio de sesión</Link>
             </div>
-          )}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSubmitting ? <Spinner size="sm" /> : 'Restablecer contraseña'}
-          </button>
-          <div className="text-center">
-            <Link to="/login" className="text-label-sm text-primary hover:underline">Volver al inicio de sesión</Link>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

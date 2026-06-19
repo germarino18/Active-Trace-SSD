@@ -55,7 +55,7 @@ describe('AlumnoDashboardPage', () => {
     expect(screen.getByText('Tenés 2 materias — 1 al día')).toBeInTheDocument();
     expect(screen.getAllByText('Matemática').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Lengua')).toBeInTheDocument();
-    expect(screen.getByText('Al día')).toBeInTheDocument();
+    expect(screen.getAllByText('Al día').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Atrasado')).toBeInTheDocument();
     expect(screen.getByText('3 avisos no leídos')).toBeInTheDocument();
 

@@ -40,7 +40,7 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/tenant/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /continuar/i })).toBeInTheDocument();
   });
 
   it('submits login form with valid data and navigates on success', async () => {
@@ -53,7 +53,7 @@ describe('LoginPage', () => {
 
     mockLogin.mockResolvedValue({ access_token: 'token', expires_in: 900 });
 
-    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+    await user.click(screen.getByRole('button', { name: /continuar/i }));
 
     await vi.waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123', 'test-tenant');
@@ -72,7 +72,7 @@ describe('LoginPage', () => {
       response: { data: { error: { message: 'Credenciales inválidas' } } },
     });
 
-    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+    await user.click(screen.getByRole('button', { name: /continuar/i }));
 
     expect(await screen.findByText(/credenciales inválidas/i)).toBeInTheDocument();
   });
@@ -90,8 +90,8 @@ describe('LoginPage', () => {
       challenge_token: 'challenge-abc',
     });
 
-    await user.click(screen.getByRole('button', { name: /iniciar sesión/i }));
+    await user.click(screen.getByRole('button', { name: /continuar/i }));
 
-    expect(await screen.findByText(/verificación en dos pasos/i)).toBeInTheDocument();
+    expect(await screen.findByText(/verificación 2fa/i)).toBeInTheDocument();
   });
 });

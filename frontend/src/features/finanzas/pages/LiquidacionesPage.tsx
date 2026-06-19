@@ -6,6 +6,7 @@ import { CerrarLiquidacionModal } from '../components/CerrarLiquidacionModal';
 import { HistorialSection } from '../components/HistorialSection';
 import { HelpButton } from '@/features/coordinacion/components/HelpButton';
 import type { SegmentoLiquidacion } from '../types/liquidaciones';
+import { Button } from '@/shared/components/ds';
 
 const segmentos: { key: SegmentoLiquidacion; label: string }[] = [
   { key: 'general', label: 'General' },
@@ -50,31 +51,31 @@ export function LiquidacionesPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Liquidaciones</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Liquidaciones</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná las liquidaciones del período {currentPeriod}
             </p>
           </div>
           <HelpButton tooltip="Administrá las liquidaciones docentes del período activo. Usá las pestañas para cambiar entre vista General, NEXO y Factura." />
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            icon="download"
             onClick={handleExportar}
-            className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
             Exportar
-          </button>
+          </Button>
           {liquidacion && !liquidacion.cerrada && (
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              icon="lock"
               onClick={() => setShowCerrarModal(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-warning px-4 py-2 text-label-sm font-medium text-black transition-colors hover:bg-warning/90"
             >
-              <span className="material-symbols-outlined text-[18px]">lock</span>
               Cerrar liquidación
-            </button>
+            </Button>
           )}
         </div>
       </div>

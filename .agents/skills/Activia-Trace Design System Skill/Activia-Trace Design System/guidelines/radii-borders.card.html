@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Radii & Borders" subtitle="4 / 8 / 12 / full — separation by hairline border, not shadow" -->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--background); color: var(--on-surface); font-family: var(--font-sans); padding: 24px; }
+  .row { display:flex; gap:20px; align-items:center; }
+  .item { display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .box { width:84px; height:64px; background:var(--surface-container); border:1px solid var(--outline-variant); }
+  .lbl { font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="item"><div class="box" style="border-radius:4px"></div><div class="lbl">sm · 4px</div></div>
+  <div class="item"><div class="box" style="border-radius:8px"></div><div class="lbl">md · 8px</div></div>
+  <div class="item"><div class="box" style="border-radius:12px"></div><div class="lbl">lg · 12px</div></div>
+  <div class="item"><div class="box" style="border-radius:9999px; width:64px"></div><div class="lbl">full</div></div>
+  <div class="item"><div class="box" style="border-radius:8px; border-color:var(--primary); box-shadow:0 0 0 2px color-mix(in srgb, var(--primary) 30%, transparent)"></div><div class="lbl">focus ring</div></div>
+</div>
+</body>
+</html>

@@ -7,6 +7,7 @@ import { useAviso, useActualizarAviso } from '../hooks/useAvisos';
 import { ScopeSelector } from '../components/ScopeSelector';
 import { Spinner } from '@/shared/components/Spinner';
 import type { AvisoScope } from '../types';
+import { Button } from '@/shared/components/ds';
 
 const avisoSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido'),
@@ -89,8 +90,8 @@ export function AvisoEditarPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Editar Aviso</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Editar Aviso</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Actualizá los datos del aviso.
         </p>
       </div>
@@ -179,23 +180,20 @@ export function AvisoEditarPage() {
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={actualizarAviso.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {actualizarAviso.isPending && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
             Guardar Cambios
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/avisos')}
-            className="rounded-lg border border-outline-variant px-6 py-2.5 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
 
         {actualizarAviso.isError && (

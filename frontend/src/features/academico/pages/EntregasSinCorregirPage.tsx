@@ -4,6 +4,7 @@ import { FileUploadArea } from '../components/FileUploadArea';
 import { TablaEntregasPendientes } from '../components/TablaEntregasPendientes';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useDetectarEntregas, useExportarEntregas } from '../hooks/useEntregas';
+import { Button } from '@/shared/components/ds';
 
 export function EntregasSinCorregirPage() {
   const { id: materiaId } = useParams<{ id: string }>();
@@ -50,20 +51,22 @@ export function EntregasSinCorregirPage() {
             isLoading={detectMutation.isPending}
           />
           {file && !fileError && (
-            <div className="flex items-center gap-3">
-              <span className="text-label-md text-on-surface">{file.name}</span>
-              <button
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 14, color: 'var(--on-surface)' }}>{file.name}</span>
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
+                icon="search"
                 onClick={handleUpload}
                 disabled={detectMutation.isPending}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
-                {detectMutation.isPending ? 'Analizando...' : 'Detectar entregas'}
-              </button>
+                {detectMutation.isPending ? 'Analizando…' : 'Detectar entregas'}
+              </Button>
             </div>
           )}
           {detectMutation.isError && (
-            <p className="text-label-sm text-error">
+            <p style={{ fontSize: 13, color: 'var(--error)' }}>
               {detectMutation.error?.message || 'Error al detectar entregas'}
             </p>
           )}
@@ -74,26 +77,22 @@ export function EntregasSinCorregirPage() {
             data={detectMutation.data?.entregas}
             isLoading={detectMutation.isPending}
           />
-          <div className="flex items-center gap-3">
-            <button
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Button
               type="button"
+              variant="primary"
+              icon="download"
               onClick={handleExport}
               disabled={exportMutation.isPending}
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              <span className="material-symbols-outlined text-[18px]">download</span>
-              {exportMutation.isPending ? 'Exportando...' : 'Exportar'}
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
-            >
+              {exportMutation.isPending ? 'Exportando…' : 'Exportar'}
+            </Button>
+            <Button type="button" variant="secondary" onClick={handleReset}>
               Nuevo análisis
-            </button>
+            </Button>
           </div>
           {exportMutation.isError && (
-            <p className="text-label-sm text-error">
+            <p style={{ fontSize: 13, color: 'var(--error)' }}>
               {exportMutation.error?.message || 'Error al exportar'}
             </p>
           )}

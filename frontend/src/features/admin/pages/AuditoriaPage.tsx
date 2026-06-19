@@ -3,6 +3,7 @@ import { useAuditoriaLog } from '../hooks/useAuditoriaLog';
 import { AuditoriaFilters } from '../components/AuditoriaFilters';
 import { AuditoriaTable } from '../components/AuditoriaTable';
 import { HelpButton } from '@/features/coordinacion/components/HelpButton';
+import { Button } from '@/shared/components/ds';
 import type { AuditoriaFilters as AuditoriaFiltersType } from '../types/auditoria';
 
 const DEFAULT_LIMIT = 200;
@@ -72,25 +73,9 @@ export function AuditoriaPage() {
         <div className="text-body-sm text-on-surface-variant">
           Mostrando {offset + 1}–{Math.min(offset + DEFAULT_LIMIT, total)} de {total}
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={!hasPrev}
-            onClick={handlePrevPage}
-            className="flex items-center gap-1 rounded-lg border border-outline-variant px-3 py-1.5 text-label-sm text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-            Anterior
-          </button>
-          <button
-            type="button"
-            disabled={!hasNext}
-            onClick={handleNextPage}
-            className="flex items-center gap-1 rounded-lg border border-outline-variant px-3 py-1.5 text-label-sm text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Siguiente
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Button variant="secondary" size="sm" icon="chevron_left" disabled={!hasPrev} onClick={handlePrevPage}>Anterior</Button>
+          <Button variant="secondary" size="sm" trailingIcon="chevron_right" disabled={!hasNext} onClick={handleNextPage}>Siguiente</Button>
         </div>
       </div>
     </div>

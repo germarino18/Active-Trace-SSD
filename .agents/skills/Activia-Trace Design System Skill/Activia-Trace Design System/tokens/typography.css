@@ -1,0 +1,42 @@
+/* Typography — Geist everywhere. Tight tracking on display/headlines,
+   normal on body. Mono (Geist Mono) for timestamps, IDs, log lines, code. */
+
+:root {
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* alias */
+  --font-display: var(--font-sans);
+
+  /* ---- Type scale (size / line-height / tracking / weight) ----
+     Mirrors the product's Tailwind config exactly. */
+
+  /* Display / headline */
+  --text-headline-xl: 48px;   --leading-headline-xl: 56px;  --tracking-headline-xl: -0.02em;  --weight-headline-xl: 700;
+  --text-headline-lg: 32px;   --leading-headline-lg: 40px;  --tracking-headline-lg: -0.01em;  --weight-headline-lg: 600;
+  --text-headline-md: 24px;   --leading-headline-md: 32px;  --tracking-headline-md: 0;        --weight-headline-md: 600;
+
+  /* Body */
+  --text-body-lg: 18px;       --leading-body-lg: 28px;      --weight-body-lg: 400;
+  --text-body-md: 16px;       --leading-body-md: 24px;      --weight-body-md: 400;
+
+  /* Labels — UI text, buttons, nav, table cells */
+  --text-label-md: 14px;      --leading-label-md: 20px;     --tracking-label-md: 0.01em;  --weight-label-md: 500;
+  --text-label-sm: 12px;      --leading-label-sm: 16px;     --tracking-label-sm: 0.05em;  --weight-label-sm: 600;
+
+  /* Common weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+}
+
+/* Optional ready-made text classes (semantic specimens). */
+.text-headline-xl { font: var(--weight-headline-xl) var(--text-headline-xl)/var(--leading-headline-xl) var(--font-sans); letter-spacing: var(--tracking-headline-xl); }
+.text-headline-lg { font: var(--weight-headline-lg) var(--text-headline-lg)/var(--leading-headline-lg) var(--font-sans); letter-spacing: var(--tracking-headline-lg); }
+.text-headline-md { font: var(--weight-headline-md) var(--text-headline-md)/var(--leading-headline-md) var(--font-sans); }
+.text-body-lg { font: var(--weight-body-lg) var(--text-body-lg)/var(--leading-body-lg) var(--font-sans); }
+.text-body-md { font: var(--weight-body-md) var(--text-body-md)/var(--leading-body-md) var(--font-sans); }
+.text-label-md { font: var(--weight-label-md) var(--text-label-md)/var(--leading-label-md) var(--font-sans); letter-spacing: var(--tracking-label-md); }
+.text-label-sm { font: var(--weight-label-sm) var(--text-label-sm)/var(--leading-label-sm) var(--font-sans); letter-spacing: var(--tracking-label-sm); text-transform: uppercase; }
+.text-mono { font-family: var(--font-mono); }

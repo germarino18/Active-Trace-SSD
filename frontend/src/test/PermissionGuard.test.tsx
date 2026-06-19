@@ -48,6 +48,6 @@ describe('PermissionGuard', () => {
         </PermissionGuard>
       </MemoryRouter>,
     );
-    expect(screen.getByText(/no tiene permisos/i)).toBeInTheDocument();
+    expect(screen.getByText(/sin permisos/i)).toBeInTheDocument();
   });
 });

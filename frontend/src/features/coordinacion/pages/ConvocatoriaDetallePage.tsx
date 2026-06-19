@@ -8,6 +8,7 @@ import {
 } from '../hooks/useColoquios';
 import { MetricasColoquioCard } from '../components/MetricasColoquio';
 import { Spinner } from '@/shared/components/Spinner';
+import { Button } from '@/shared/components/ds';
 
 type Tab = 'estudiantes' | 'reservas' | 'metricas' | 'resultados';
 
@@ -67,10 +68,10 @@ export function ConvocatoriaDetallePage() {
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
             {convocatoria.materia_nombre}
           </h2>
-          <p className="text-body-md text-on-surface-variant mt-1">
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
             Instancia {convocatoria.instancia} &middot;{' '}
             {convocatoria.dias?.length ?? 0} día{(convocatoria.dias?.length ?? 0) !== 1 ? 's' : ''}
           </p>
@@ -137,18 +138,18 @@ export function ConvocatoriaDetallePage() {
 
           {selectedFile && !importar.isPending && (
             <div className="flex gap-2">
-              <button
+              <Button
+                variant="primary"
                 onClick={handleImport}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
               >
                 Importar
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="secondary"
                 onClick={() => { setSelectedFile(null); setImportResult(null); }}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container"
               >
                 Cancelar
-              </button>
+              </Button>
             </div>
           )}
 

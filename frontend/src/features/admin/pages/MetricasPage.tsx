@@ -20,27 +20,20 @@ const DEFAULT_FILTERS: MetricFiltersState = {
   usuario_id: '',
 };
 
-function KpiCard({
-  icon,
-  label,
-  value,
-  isLoading,
-}: {
-  icon: string;
-  label: string;
-  value: string | number;
-  isLoading?: boolean;
-}) {
+function KpiCard({ icon, label, value, isLoading }: { icon: string; label: string; value: string | number; isLoading?: boolean }) {
   return (
-    <div className="rounded-xl border border-outline-variant bg-surface p-4 transition-colors hover:bg-surface-container-low">
-      <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-[28px] text-primary">{icon}</span>
+    <div style={{ borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)', padding: 16, transition: 'background .15s ease' }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-container-low)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface-container)')}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--primary)' }}>{icon}</span>
         <div>
-          <p className="text-label-sm text-on-surface-variant">{label}</p>
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--on-surface-variant)', fontWeight: 500 }}>{label}</p>
           {isLoading ? (
-            <div className="mt-1 h-7 w-16 animate-pulse rounded bg-surface-container-low" />
+            <div className="animate-pulse" style={{ marginTop: 4, height: 28, width: 64, borderRadius: 6, background: 'var(--surface-container-high)' }} />
           ) : (
-            <p className="font-headline-lg text-headline-lg text-on-surface">{value}</p>
+            <p style={{ margin: '2px 0 0', fontSize: 28, fontWeight: 700, color: 'var(--on-surface)', lineHeight: 1 }}>{value}</p>
           )}
         </div>
       </div>

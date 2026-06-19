@@ -3,6 +3,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCrearConvocatoria } from '../hooks/useColoquios';
+import { Button } from '@/shared/components/ds';
 
 const diaSchema = z.object({
   fecha: z.string().min(1, 'La fecha es requerida'),
@@ -57,8 +58,8 @@ export function ConvocatoriaCrearPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Nueva Convocatoria</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Nueva Convocatoria</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Creá una convocatoria a coloquio con sus días y cupos.
         </p>
       </div>
@@ -181,23 +182,20 @@ export function ConvocatoriaCrearPage() {
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={crearConvocatoria.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {crearConvocatoria.isPending && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
             Crear Convocatoria
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/coloquios')}
-            className="rounded-lg border border-outline-variant bg-surface-container-lowest px-6 py-2.5 text-label-sm text-on-surface transition-colors hover:bg-surface-container"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
 
         {crearConvocatoria.isError && (

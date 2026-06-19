@@ -4,6 +4,7 @@ import { useEncuentro, useActualizarInstancia, useGenerarHtml } from '../hooks/u
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { Spinner } from '@/shared/components/Spinner';
 import type { InstanciaEstado } from '../types';
+import { Button } from '@/shared/components/ds';
 
 const estadoOptions: InstanciaEstado[] = ['Pendiente', 'Realizado', 'Cancelado'];
 
@@ -101,8 +102,8 @@ export function EncuentroDetallePage() {
           <span className="material-symbols-outlined">arrow_back</span>
         </Link>
         <div>
-          <h2 className="font-headline-lg text-headline-lg text-on-surface">{encuentro.titulo}</h2>
-          <p className="text-body-md text-on-surface-variant mt-1">{encuentro.materia_nombre}</p>
+          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>{encuentro.titulo}</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>{encuentro.materia_nombre}</p>
         </div>
       </div>
 
@@ -185,14 +186,13 @@ export function EncuentroDetallePage() {
 
         {canEdit && (
           <div className="flex gap-3">
-            <button
+            <Button
+              variant="primary"
               onClick={handleSave}
               disabled={!dirty || actualizar.isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              {actualizar.isPending && <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />}
               Guardar Cambios
-            </button>
+            </Button>
             {actualizar.isSuccess && (
               <span className="inline-flex items-center text-label-sm text-success">Cambios guardados</span>
             )}
@@ -205,32 +205,27 @@ export function EncuentroDetallePage() {
 
       <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-6">
         <h3 className="font-headline-sm text-headline-sm text-on-surface mb-4">Aula Virtual</h3>
-        <button
+        <Button
+          variant="secondary"
+          icon="code"
           onClick={handleGenerarHtml}
           disabled={generarHtml.isPending}
-          className="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container px-4 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container-high disabled:opacity-50"
         >
-          {generarHtml.isPending ? (
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-outline border-t-primary" />
-          ) : (
-            <span className="material-symbols-outlined text-[18px]">code</span>
-          )}
           Generar contenido para el aula virtual
-        </button>
+        </Button>
 
         {htmlGenerado && (
           <div className="mt-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-label-sm text-on-surface-variant">HTML generado:</p>
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={copied ? 'check' : 'content_copy'}
                 onClick={handleCopyHtml}
-                className="inline-flex items-center gap-1 rounded-lg bg-surface-container px-3 py-1.5 text-label-xs text-on-surface-variant transition-colors hover:bg-surface-container-high"
               >
-                <span className="material-symbols-outlined text-[14px]">
-                  {copied ? 'check' : 'content_copy'}
-                </span>
                 {copied ? 'Copiado' : 'Copiar'}
-              </button>
+              </Button>
             </div>
             <pre className="max-h-96 overflow-auto rounded-lg border border-outline-variant bg-surface p-4 text-label-xs text-on-surface-variant">
               {htmlGenerado}

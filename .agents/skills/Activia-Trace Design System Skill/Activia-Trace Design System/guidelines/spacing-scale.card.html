@@ -1,0 +1,26 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Spacing Scale" subtitle="4px base grid — xs 8 · sm 16 · md 24 · lg 40 · xl 64" -->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--background); color: var(--on-surface); font-family: var(--font-sans); padding: 24px; }
+  .row { display:flex; align-items:flex-end; gap:20px; }
+  .item { display:flex; flex-direction:column; gap:8px; align-items:center; }
+  .bar { background:var(--primary); border-radius:2px; width:28px; }
+  .lbl { font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); }
+  .px { font-size:11px; color:var(--outline); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="item"><div class="bar" style="height:4px"></div><div class="lbl">base</div><div class="px">4</div></div>
+  <div class="item"><div class="bar" style="height:8px"></div><div class="lbl">xs</div><div class="px">8</div></div>
+  <div class="item"><div class="bar" style="height:16px"></div><div class="lbl">sm</div><div class="px">16</div></div>
+  <div class="item"><div class="bar" style="height:24px"></div><div class="lbl">md</div><div class="px">24</div></div>
+  <div class="item"><div class="bar" style="height:40px"></div><div class="lbl">lg</div><div class="px">40</div></div>
+  <div class="item"><div class="bar" style="height:64px"></div><div class="lbl">xl</div><div class="px">64</div></div>
+</div>
+</body>
+</html>

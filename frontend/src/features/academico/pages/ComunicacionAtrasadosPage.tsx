@@ -5,6 +5,7 @@ import { PreviewComunicacionModal } from '../components/PreviewComunicacionModal
 import { TablaStatusComunicacion } from '../components/TablaStatusComunicacion';
 import { useAtrasados } from '../hooks/useAtrasados';
 import { usePreviewComunicacion, useEnviarComunicacion, useStatusComunicacion } from '../hooks/useComunicacion';
+import { Button } from '@/shared/components/ds';
 
 export function ComunicacionAtrasadosPage() {
   const { id: materiaId } = useParams<{ id: string }>();
@@ -80,24 +81,25 @@ export function ComunicacionAtrasadosPage() {
             isLoading={loadingAtrasados}
           />
 
-          <div className="flex items-center gap-3">
-            <button
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Button
               type="button"
+              variant="primary"
+              icon="preview"
               onClick={handlePreview}
               disabled={!hasSelection || previewMutation.isPending}
-              className="rounded-lg bg-primary px-4 py-2 text-label-md font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              {previewMutation.isPending ? 'Generando vista previa...' : 'Vista previa'}
-            </button>
-            <p className="text-label-sm text-on-surface-variant">
+              {previewMutation.isPending ? 'Generando vista previa…' : 'Vista previa'}
+            </Button>
+            <span style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
               {hasSelection
-                ? `${selectedIds.size} alumno(s) seleccionados`
+                ? `${selectedIds.size} alumno${selectedIds.size !== 1 ? 's' : ''} seleccionado${selectedIds.size !== 1 ? 's' : ''}`
                 : 'Seleccioná al menos un alumno'}
-            </p>
+            </span>
           </div>
 
           {previewMutation.isError && (
-            <p className="text-label-sm text-error">
+            <p style={{ fontSize: 13, color: 'var(--error)' }}>
               {previewMutation.error?.message || 'Error al generar la vista previa'}
             </p>
           )}
@@ -115,24 +117,22 @@ export function ComunicacionAtrasadosPage() {
           )}
 
           {enviarMutation.isSuccess && (
-            <p className="text-label-sm text-success">
-              Comunicación enviada a la cola de despacho
-            </p>
+            <p style={{ fontSize: 13, color: 'var(--tertiary)' }}>Comunicación enviada a la cola de despacho</p>
           )}
 
           {enviarMutation.isError && (
-            <p className="text-label-sm text-error">
+            <p style={{ fontSize: 13, color: 'var(--error)' }}>
               {enviarMutation.error?.message || 'Error al enviar la comunicación'}
             </p>
           )}
         </>
       ) : (
-        <div className="space-y-4">
-          <div className="rounded-xl border border-outline-variant bg-success/5 p-md">
-            <p className="text-body-md font-medium text-success">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: 'color-mix(in srgb, var(--tertiary) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--tertiary) 30%, transparent)', borderRadius: 'var(--radius-lg)', padding: 20 }}>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--tertiary)' }}>
               Comunicación enviada a la cola de despacho
             </p>
-            <p className="text-label-sm text-on-surface-variant mt-1">
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>
               ID: {comunicacionId}
             </p>
           </div>

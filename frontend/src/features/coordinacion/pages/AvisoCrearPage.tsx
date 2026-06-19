@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { useCrearAviso } from '../hooks/useAvisos';
 import { ScopeSelector } from '../components/ScopeSelector';
 import type { AvisoScope } from '../types';
+import { Button } from '@/shared/components/ds';
 
 const avisoSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido'),
@@ -58,8 +59,8 @@ export function AvisoCrearPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Crear Aviso</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">
+        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Crear Aviso</h2>
+        <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Creá un nuevo aviso o comunicación para el sistema.
         </p>
       </div>
@@ -150,23 +151,20 @@ export function AvisoCrearPage() {
         </div>
 
         <div className="flex gap-3">
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={crearAviso.isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {crearAviso.isPending && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
             Crear Aviso
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
             onClick={() => navigate('/avisos')}
-            className="rounded-lg border border-outline-variant px-6 py-2.5 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
           >
             Cancelar
-          </button>
+          </Button>
         </div>
 
         {crearAviso.isError && (

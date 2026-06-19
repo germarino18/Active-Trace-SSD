@@ -1,0 +1,40 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Status & Text" subtitle="Error red, text contrast pair, on-colors" -->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--background); font-family: var(--font-sans); padding: 20px; display:flex; gap:24px; }
+  .col { flex:1; }
+  .row { display: flex; gap: 8px; }
+  .sw { flex: 1; border-radius: var(--radius-md); border: 1px solid var(--outline-variant); overflow: hidden; }
+  .chip { height: 56px; }
+  .meta { padding: 7px 8px; background: var(--surface-container); }
+  .name { font-size: 11px; font-weight: 600; color: var(--on-surface); }
+  .hex { font-family: var(--font-mono); font-size: 10px; color: var(--on-surface-variant); }
+  .eyebrow { font-size:10px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--outline); margin:0 0 8px; }
+  .txt { padding:10px 12px; border-radius:var(--radius-md); border:1px solid var(--outline-variant); background:var(--surface-container); }
+  .txt p { margin:0 0 4px; }
+</style>
+</head>
+<body>
+<div class="col">
+  <p class="eyebrow">Status — Error</p>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:#ef4444"></div><div class="meta"><div class="name">error</div><div class="hex">#ef4444</div></div></div>
+    <div class="sw"><div class="chip" style="background:#3b1111"></div><div class="meta"><div class="name">error-container</div><div class="hex">#3b1111</div></div></div>
+    <div class="sw"><div class="chip" style="background:#fca5a5"></div><div class="meta"><div class="name">on-error-container</div><div class="hex">#fca5a5</div></div></div>
+  </div>
+</div>
+<div class="col">
+  <p class="eyebrow">Text — always high contrast</p>
+  <div class="txt">
+    <p style="color:#fafafa; font-size:16px; font-weight:600;">on-surface · #fafafa</p>
+    <p style="color:#a1a1aa; font-size:14px;">on-surface-variant · #a1a1aa</p>
+    <p style="color:#52525b; font-size:13px;">outline (muted) · #52525b</p>
+    <p style="color:#a78bfa; font-size:14px; font-weight:600;">primary (links) · #a78bfa</p>
+  </div>
+</div>
+</body>
+</html>

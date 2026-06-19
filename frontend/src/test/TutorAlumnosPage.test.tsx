@@ -54,14 +54,13 @@ describe('TutorAlumnosPage', () => {
   it('shows loading state', () => {
     mockIsLoading = true;
     renderPage();
-    const loadingRows = document.querySelectorAll('.animate-pulse');
-    expect(loadingRows.length).toBeGreaterThan(0);
+    expect(screen.getByRole('status', { name: 'Cargando' })).toBeInTheDocument();
   });
 
   it('shows error state', () => {
     mockIsError = true;
     renderPage();
-    expect(screen.getByText('Error al cargar datos')).toBeInTheDocument();
+    expect(screen.getByText('Error al cargar alumnos')).toBeInTheDocument();
     expect(screen.getByText('Reintentar')).toBeInTheDocument();
   });
 

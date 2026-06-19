@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Spinner } from '@/shared/components/Spinner';
-import { EmptyState } from '../components/EmptyState';
-import { ErrorState } from '../components/ErrorState';
+import { EmptyState, Badge, Button } from '@/shared/components/ds';
 import { ReservaTurnoModal } from '../components/ReservaTurnoModal';
 import * as alumnoService from '../services/alumno.service';
 import type { ConvocatoriaColoquio } from '../types/alumno.types';
@@ -16,65 +15,68 @@ export function MisColoquiosPage() {
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
-  if (error) return <ErrorState message="Error al cargar convocatorias" onRetry={() => refetch()} />;
-  if (!data || data.length === 0) return <EmptyState message="No hay convocatorias de coloquio abiertas" icon="quiz" />;
+
+  if (error) {
+    return (
+      <EmptyState
+        icon="error"
+        title="Error al cargar convocatorias"
+        action={<Button variant="secondary" icon="refresh" onClick={() => refetch()}>Reintentar</Button>}
+      />
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <PageHeader />
+        <EmptyState icon="quiz" title="No hay convocatorias de coloquio abiertas" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Coloquios</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">Reservá tu turno para los coloquios disponibles</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <PageHeader />
 
-      <div className="grid grid-cols-1 gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {data.map((convocatoria) => {
           const totalCupos = convocatoria.fechas.reduce((acc, f) => acc + f.cupos_restantes, 0);
-          const fechaMasProxima = [...convocatoria.fechas].sort(
-            (a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime(),
-          )[0];
 
           return (
             <div
               key={convocatoria.id}
-              className="bg-surface-container-lowest rounded-xl border border-outline-variant p-4"
+              style={{ background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)', padding: 20 }}
             >
-              <div className="flex items-start justify-between mb-3">
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12, gap: 16, flexWrap: 'wrap' }}>
                 <div>
-                  <h3 className="text-label-md font-medium text-on-surface">{convocatoria.materia_nombre}</h3>
-                  <p className="text-label-sm text-on-surface-variant mt-0.5">
-                    {convocatoria.fechas.length} fecha{convocatoria.fechas.length !== 1 ? 's' : ''} disponible{convocatoria.fechas.length !== 1 ? 's' : ''}
-                    {totalCupos > 0 ? ` · ${totalCupos} cupo${totalCupos !== 1 ? 's' : ''}` : ' · Sin cupos'}
-                  </p>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--on-surface)' }}>{convocatoria.materia_nombre}</div>
+                  <div style={{ fontSize: 13, color: 'var(--on-surface-variant)', marginTop: 2 }}>
+                    {convocatoria.fechas.length} fecha{convocatoria.fechas.length !== 1 ? 's' : ''} disponible{convocatoria.fechas.length !== 1 ? 's' : ''} · {totalCupos > 0 ? `${totalCupos} cupo${totalCupos !== 1 ? 's' : ''}` : 'Sin cupos'}
+                  </div>
                 </div>
-                <span className="text-label-xs text-on-surface-variant">
+                <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>
                   Límite: {new Date(convocatoria.fecha_limite).toLocaleDateString('es-AR')}
-                </span>
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-2 mb-3">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                 {convocatoria.fechas.map((f) => (
-                  <span
-                    key={f.fecha_id}
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-label-xs font-medium ${
-                      f.cupos_restantes > 0
-                        ? 'bg-tertiary/10 text-tertiary'
-                        : 'bg-error/10 text-error'
-                    }`}
-                  >
-                    {new Date(f.fecha).toLocaleDateString('es-AR')}
-                    <span className="opacity-70">({f.cupos_restantes})</span>
-                  </span>
+                  <Badge key={f.fecha_id} tone={f.cupos_restantes > 0 ? 'success' : 'danger'}>
+                    {new Date(f.fecha).toLocaleDateString('es-AR')} · {f.cupos_restantes} cupo{f.cupos_restantes !== 1 ? 's' : ''}
+                  </Badge>
                 ))}
               </div>
 
-              <button
-                type="button"
-                onClick={() => setSelectedConvocatoria(convocatoria)}
+              <Button
+                variant="primary"
+                size="sm"
+                icon="event_seat"
                 disabled={totalCupos === 0}
-                className="rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+                onClick={() => setSelectedConvocatoria(convocatoria)}
               >
                 Reservar turno
-              </button>
+              </Button>
             </div>
           );
         })}
@@ -86,6 +88,15 @@ export function MisColoquiosPage() {
           onClose={() => setSelectedConvocatoria(null)}
         />
       )}
+    </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div>
+      <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Coloquios</h2>
+      <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Reservá tu turno para los coloquios disponibles</p>
     </div>
   );
 }

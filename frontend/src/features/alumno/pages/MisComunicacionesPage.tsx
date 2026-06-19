@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Spinner } from '@/shared/components/Spinner';
-import { EmptyState } from '../components/EmptyState';
-import { ErrorState } from '../components/ErrorState';
+import { EmptyState, Badge, Button } from '@/shared/components/ds';
 import * as alumnoService from '../services/alumno.service';
 
-const estadoBadge: Record<string, string> = {
-  Enviado: 'bg-primary/10 text-primary',
-  Entregado: 'bg-tertiary/10 text-tertiary',
-  Leido: 'bg-surface-container-high text-on-surface-variant',
-  Error: 'bg-error/10 text-error',
+const estadoTone: Record<string, 'primary' | 'success' | 'neutral' | 'danger'> = {
+  Enviado: 'primary',
+  Entregado: 'success',
+  Leido: 'neutral',
+  Error: 'danger',
 };
 
 export function MisComunicacionesPage() {
@@ -19,56 +18,79 @@ export function MisComunicacionesPage() {
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
-  if (error) return <ErrorState message="Error al cargar comunicaciones" onRetry={() => refetch()} />;
-  if (!data || data.length === 0) return <EmptyState message="No tenés comunicaciones recibidas" icon="forward_to_inbox" />;
+
+  if (error) {
+    return (
+      <EmptyState
+        icon="error"
+        title="Error al cargar comunicaciones"
+        action={<Button variant="secondary" icon="refresh" onClick={() => refetch()}>Reintentar</Button>}
+      />
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <PageHeader />
+        <EmptyState icon="forward_to_inbox" title="No tenés comunicaciones recibidas" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Comunicaciones</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">Historial de comunicaciones recibidas</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <PageHeader />
 
-      <div className="overflow-x-auto rounded-xl border border-outline-variant">
-        <table className="w-full text-left">
+      <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
-            <tr className="bg-surface-container">
-              <th className="px-4 py-3 text-label-xs font-medium text-on-surface-variant uppercase">Remitente</th>
-              <th className="px-4 py-3 text-label-xs font-medium text-on-surface-variant uppercase">Materia</th>
-              <th className="px-4 py-3 text-label-xs font-medium text-on-surface-variant uppercase">Asunto</th>
-              <th className="px-4 py-3 text-label-xs font-medium text-on-surface-variant uppercase">Fecha</th>
-              <th className="px-4 py-3 text-label-xs font-medium text-on-surface-variant uppercase">Estado</th>
+            <tr style={{ background: 'var(--surface-container)' }}>
+              {['Remitente', 'Materia', 'Asunto', 'Fecha', 'Estado'].map((h) => (
+                <th key={h} style={{ padding: '12px 16px', fontSize: 11, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--on-surface-variant)' }}>{h}</th>
+              ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-outline-variant">
-            {data.map((com) => (
+          <tbody>
+            {data.map((com, i) => (
               <tr
                 key={com.id}
-                className="bg-surface-container-lowest transition-colors hover:bg-surface-container-low"
+                style={{ borderTop: i > 0 ? '1px solid var(--outline-variant)' : undefined, background: 'var(--surface-container-lowest)', transition: 'background .12s ease' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-container-low)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--surface-container-lowest)')}
               >
-                <td className="px-4 py-3">
+                <td style={{ padding: '12px 16px' }}>
                   <Link
                     to={`/alumno/comunicaciones/${com.id}`}
-                    className="text-label-sm text-primary hover:underline font-medium"
+                    style={{ fontSize: 14, color: 'var(--primary)', textDecoration: 'none', fontWeight: 600 }}
+                    onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
+                    onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
                   >
                     {com.remitente}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-label-sm text-on-surface-variant">{com.materia_nombre}</td>
-                <td className="px-4 py-3 text-label-sm text-on-surface">{com.asunto}</td>
-                <td className="px-4 py-3 text-label-sm text-on-surface-variant">
+                <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--on-surface-variant)' }}>{com.materia_nombre}</td>
+                <td style={{ padding: '12px 16px', fontSize: 14, color: 'var(--on-surface)' }}>{com.asunto}</td>
+                <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>
                   {new Date(com.fecha_envio).toLocaleDateString('es-AR')}
                 </td>
-                <td className="px-4 py-3">
-                  <span className={`inline-flex rounded-full px-2.5 py-0.5 text-label-xs font-medium ${estadoBadge[com.estado] ?? ''}`}>
-                    {com.estado}
-                  </span>
+                <td style={{ padding: '12px 16px' }}>
+                  <Badge tone={estadoTone[com.estado] ?? 'neutral'}>{com.estado}</Badge>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div>
+      <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Comunicaciones</h2>
+      <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Historial de comunicaciones recibidas</p>
     </div>
   );
 }

@@ -1,15 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { EmptyState, Button } from '@/shared/components/ds';
 
 export function ForbiddenPage() {
+  const navigate = useNavigate();
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="text-center max-w-md">
-        <h1 className="font-headline-xl text-headline-xl font-bold text-on-surface">403</h1>
-        <p className="text-body-lg text-on-surface-variant mt-2">No tiene permisos para acceder a esta sección</p>
-        <Link to="/dashboard" className="text-primary hover:underline mt-4 inline-block">
-          Volver al inicio
-        </Link>
-      </div>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <EmptyState
+        code="403"
+        title="Sin permisos"
+        message="No tenés acceso a esta sección. Si creés que es un error, contactá a tu administrador."
+        action={<Button variant="secondary" icon="home" onClick={() => navigate('/dashboard')}>Volver al inicio</Button>}
+      />
     </div>
   );
 }

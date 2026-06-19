@@ -7,6 +7,7 @@ import { FacturaFormModal } from '../components/FacturaFormModal';
 import { FacturaDeleteConfirmModal } from '../components/FacturaDeleteConfirmModal';
 import { HelpButton } from '@/features/coordinacion/components/HelpButton';
 import type { Factura } from '../types/facturas';
+import { Button } from '@/shared/components/ds';
 
 const initialFilters: FacturaFilterValues = {
   docente: '',
@@ -105,22 +106,22 @@ export function FacturasPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Facturas</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Facturas</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná las facturas de honorarios docentes
             </p>
           </div>
           <HelpButton tooltip="Administrá las facturas de honorarios. Usá los filtros para buscar por docente, estado, rango de fechas o texto libre. Podés crear, editar, cambiar estado y eliminar facturas." />
         </div>
         {canCreate && (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            icon="add"
             onClick={handleOpenCreate}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
             Nueva factura
-          </button>
+          </Button>
         )}
       </div>
 
@@ -147,23 +148,25 @@ export function FacturasPage() {
 
           {total > pageSize && (
             <div className="flex items-center justify-center gap-2">
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
               >
                 Anterior
-              </button>
+              </Button>
               <span className="text-label-sm text-on-surface-variant">
                 Página {page + 1} de {totalPages}
               </span>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setPage((p) => p + 1)}
                 disabled={(page + 1) * pageSize >= total}
-                className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-sm text-on-surface transition-colors hover:bg-surface-container disabled:opacity-50"
               >
                 Siguiente
-              </button>
+              </Button>
             </div>
           )}
         </>

@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Spinner } from '@/shared/components/Spinner';
-import { EmptyState } from '../components/EmptyState';
-import { ErrorState } from '../components/ErrorState';
+import { EmptyState, Tabs, Badge, Button } from '@/shared/components/ds';
 import * as alumnoService from '../services/alumno.service';
 import type { AvisoAlumno } from '../types/alumno.types';
 
 type FiltroLeido = 'todos' | 'no_leidos' | 'leidos';
 
-const prioridadBadge: Record<number, string> = {
-  1: 'bg-error/10 text-error',
-  2: 'bg-surface-container-high text-on-surface-variant',
-  3: 'bg-surface-container-high text-on-surface-variant',
+const prioridadTone: Record<number, 'danger' | 'warning' | 'neutral'> = {
+  1: 'danger',
+  2: 'warning',
+  3: 'neutral',
 };
 
 const prioridadLabel: Record<number, string> = {
@@ -19,6 +18,12 @@ const prioridadLabel: Record<number, string> = {
   2: 'Media',
   3: 'Baja',
 };
+
+const TABS = [
+  { id: 'todos', label: 'Todos' },
+  { id: 'no_leidos', label: 'No leídos' },
+  { id: 'leidos', label: 'Leídos' },
+];
 
 export function MisAvisosPage() {
   const queryClient = useQueryClient();
@@ -31,14 +36,29 @@ export function MisAvisosPage() {
 
   const confirmarMutation = useMutation({
     mutationFn: (avisoId: string) => alumnoService.confirmarAviso(avisoId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['alumno', 'avisos'] });
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['alumno', 'avisos'] }); },
   });
 
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
-  if (error) return <ErrorState message="Error al cargar avisos" onRetry={() => refetch()} />;
-  if (!data || data.length === 0) return <EmptyState message="No hay avisos activos" icon="campaign" />;
+
+  if (error) {
+    return (
+      <EmptyState
+        icon="error"
+        title="Error al cargar avisos"
+        action={<Button variant="secondary" icon="refresh" onClick={() => refetch()}>Reintentar</Button>}
+      />
+    );
+  }
+
+  if (!data || data.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <PageHeader />
+        <EmptyState icon="campaign" title="No hay avisos activos" />
+      </div>
+    );
+  }
 
   const filtrados = data.filter((a: AvisoAlumno) => {
     if (filtro === 'no_leidos') return !a.leido;
@@ -46,84 +66,74 @@ export function MisAvisosPage() {
     return true;
   });
 
-  const tabs: { key: FiltroLeido; label: string }[] = [
-    { key: 'todos', label: 'Todos' },
-    { key: 'no_leidos', label: 'No leídos' },
-    { key: 'leidos', label: 'Leídos' },
-  ];
+  const unread = data.filter((a) => !a.leido).length;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="font-headline-lg text-headline-lg text-on-surface">Avisos</h2>
-        <p className="text-body-md text-on-surface-variant mt-1">Tablón de avisos y comunicaciones oficiales</p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <PageHeader />
 
-      <div className="border-b border-outline-variant">
-        <nav className="flex gap-4 -mb-px">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => setFiltro(tab.key)}
-              className={`px-4 py-3 text-label-md font-medium border-b-2 transition-colors ${
-                filtro === tab.key
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-on-surface-variant hover:text-on-surface hover:border-outline-variant'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      <Tabs
+        tabs={TABS.map((t) => ({ ...t, badge: t.id === 'no_leidos' && unread > 0 ? unread : undefined }))}
+        value={filtro}
+        onChange={(id) => setFiltro(id as FiltroLeido)}
+      />
 
-      <div className="space-y-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {filtrados.length === 0 ? (
-          <EmptyState message="No hay avisos que coincidan con el filtro" icon="filter_alt" />
+          <EmptyState icon="filter_alt" title="Sin resultados" message="No hay avisos que coincidan con el filtro." />
         ) : (
           filtrados.map((aviso: AvisoAlumno) => (
             <div
               key={aviso.id}
-              className={`bg-surface-container-lowest rounded-xl border p-4 transition-colors ${
-                !aviso.leido ? 'border-primary/30' : 'border-outline-variant'
-              }`}
+              style={{
+                background: 'var(--surface-container-lowest)',
+                borderRadius: 'var(--radius-lg)',
+                border: `1px solid ${!aviso.leido ? 'color-mix(in srgb, var(--primary) 30%, transparent)' : 'var(--outline-variant)'}`,
+                padding: 16,
+              }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     {!aviso.leido && (
-                      <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                      <span style={{ width: 8, height: 8, borderRadius: 'var(--radius-full)', background: 'var(--primary)', flexShrink: 0 }} />
                     )}
-                    <h3 className="text-label-md font-medium text-on-surface">{aviso.titulo}</h3>
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-label-xs font-medium ${prioridadBadge[aviso.prioridad] ?? ''}`}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>{aviso.titulo}</span>
+                    <Badge tone={prioridadTone[aviso.prioridad] ?? 'neutral'}>
                       {prioridadLabel[aviso.prioridad] ?? aviso.prioridad}
-                    </span>
+                    </Badge>
                   </div>
-                  <p className="text-body-md text-on-surface-variant whitespace-pre-line">{aviso.contenido}</p>
-                  <p className="text-label-xs text-outline mt-2">
-                    {new Date(aviso.fecha_publicacion).toLocaleDateString('es-AR', {
-                      day: 'numeric', month: 'long', year: 'numeric',
-                    })}
+                  <p style={{ margin: '0 0 8px', fontSize: 14, color: 'var(--on-surface-variant)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{aviso.contenido}</p>
+                  <div style={{ fontSize: 12, color: 'var(--outline)', fontFamily: 'var(--font-mono)' }}>
+                    {new Date(aviso.fecha_publicacion).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
                     {aviso.vigencia_hasta && ` · Válido hasta ${new Date(aviso.vigencia_hasta).toLocaleDateString('es-AR')}`}
-                  </p>
+                  </div>
                 </div>
 
                 {aviso.require_ack && !aviso.leido && (
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
+                    variant="secondary"
                     onClick={() => confirmarMutation.mutate(aviso.id)}
                     disabled={confirmarMutation.isPending}
-                    className="shrink-0 rounded-lg bg-primary px-3 py-2 text-label-xs font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
                   >
-                    {confirmarMutation.isPending ? 'Confirmando...' : 'Confirmar lectura'}
-                  </button>
+                    {confirmarMutation.isPending ? 'Confirmando…' : 'Confirmar lectura'}
+                  </Button>
                 )}
               </div>
             </div>
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+function PageHeader() {
+  return (
+    <div>
+      <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Avisos</h2>
+      <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>Tablón de avisos y comunicaciones oficiales</p>
     </div>
   );
 }

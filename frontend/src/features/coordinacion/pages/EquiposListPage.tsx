@@ -9,6 +9,7 @@ import { HelpButton } from '../components/HelpButton';
 import { EmptyState } from '@/features/academico/components/EmptyState';
 import type { Asignacion } from '../types';
 import * as equiposService from '../services/equipos.service';
+import { Button } from '@/shared/components/ds';
 
 const roleLabels: Record<string, string> = {
   PROFESOR: 'Profesor',
@@ -174,8 +175,8 @@ export function EquiposListPage() {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           <div>
-            <h2 className="font-headline-lg text-headline-lg text-on-surface">Equipos Docentes</h2>
-            <p className="text-body-md text-on-surface-variant mt-1">
+            <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Equipos Docentes</h2>
+            <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
               Gestioná las asignaciones del cuerpo docente
             </p>
           </div>
@@ -183,46 +184,46 @@ export function EquiposListPage() {
         </div>
         {canManage && (
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
+              variant="primary"
+              icon="add"
               onClick={() => navigate('/coordinacion/equipos/nuevo')}
-              className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90"
             >
-              <span className="material-symbols-outlined text-[18px]">add</span>
               Nueva asignación
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              icon="group_add"
               onClick={() => navigate('/coordinacion/equipos/asignacion-masiva')}
-              className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
-              <span className="material-symbols-outlined text-[18px]">group_add</span>
               Asignación masiva
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              icon="content_copy"
               onClick={() => navigate('/coordinacion/equipos/clonar')}
-              className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
-              <span className="material-symbols-outlined text-[18px]">content_copy</span>
               Clonar equipo
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              icon="calendar_month"
               onClick={() => navigate('/coordinacion/equipos/vigencia')}
-              className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
-              <span className="material-symbols-outlined text-[18px]">calendar_month</span>
               Modificar vigencia
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
+              icon="download"
               onClick={handleExport}
-              className="flex items-center gap-1.5 rounded-lg border border-outline-variant px-3 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
             >
-              <span className="material-symbols-outlined text-[18px]">download</span>
               Exportar
-            </button>
+            </Button>
           </div>
         )}
       </div>

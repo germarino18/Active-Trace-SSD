@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Primary & Accent" subtitle="Soft violet primary, emerald tertiary — function, never decoration" -->
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--background); font-family: var(--font-sans); padding: 20px; }
+  .row { display: flex; gap: 12px; }
+  .sw { flex: 1; border-radius: var(--radius-md); border: 1px solid var(--outline-variant); overflow: hidden; }
+  .chip { height: 72px; display: flex; align-items: flex-end; padding: 8px; }
+  .meta { padding: 8px 10px; background: var(--surface-container); }
+  .name { font-size: 12px; font-weight: 600; color: var(--on-surface); }
+  .hex { font-family: var(--font-mono); font-size: 11px; color: var(--on-surface-variant); }
+</style>
+</head>
+<body>
+<div class="row">
+  <div class="sw"><div class="chip" style="background:#a78bfa"></div><div class="meta"><div class="name">primary</div><div class="hex">#a78bfa</div></div></div>
+  <div class="sw"><div class="chip" style="background:#7c3aed"></div><div class="meta"><div class="name">primary-container</div><div class="hex">#7c3aed</div></div></div>
+  <div class="sw"><div class="chip" style="background:#ede9fe"></div><div class="meta"><div class="name">primary-fixed</div><div class="hex">#ede9fe</div></div></div>
+  <div class="sw"><div class="chip" style="background:#34d399"></div><div class="meta"><div class="name">tertiary</div><div class="hex">#34d399</div></div></div>
+  <div class="sw"><div class="chip" style="background:#065f46"></div><div class="meta"><div class="name">tertiary-container</div><div class="hex">#065f46</div></div></div>
+</div>
+</body>
+</html>
