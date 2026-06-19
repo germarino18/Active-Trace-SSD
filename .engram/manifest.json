@@ -144,6 +144,14 @@
       "sessions": 0,
       "memories": 2,
       "prompts": 3
+    },
+    {
+      "id": "d1ce3650",
+      "created_by": "agus",
+      "created_at": "2026-06-19T18:01:18Z",
+      "sessions": 0,
+      "memories": 1,
+      "prompts": 0
     }
   ]
 }
