@@ -620,7 +620,7 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
   - `knowledge-base/03_actores_y_roles.md` §2 (roles), §3.3 (matriz de capacidades), §NEXO
 
 ### [C-31] `frontend-perfil-completo`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**:
   - `ProfilePage.tsx`: agregar campos faltantes de F11.1: identificación fiscal, datos bancarios (banco, CBU/alias), regional, modalidad de cobro (factura/liquidación), matrícula/registro profesional.
   - CUIL como campo visible solo lectura (sin edición).
@@ -658,7 +658,7 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
 | Changes CRITICO (governance) | 6 (C-02, C-03, C-04, C-05, C-07, C-18) |
 | Primer fork | GATE 4 (tras C-04, seguridad lista) |
 | Changes completados | C-01…C-26, C-28 (27 de 32) |
-| Changes pendientes | C-27, C-29, C-31, C-32 |
+| Changes pendientes | C-27, C-29, C-32 |
 
 **Primer change recomendado**: `C-01` (foundation-setup).
 
