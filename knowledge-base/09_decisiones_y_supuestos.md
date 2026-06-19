@@ -90,6 +90,20 @@
 
 ---
 
+### D13 — El sidebar filtra por permisos atómicos, no por códigos de rol
+**Decisión**: la visibilidad de cada ítem del sidebar se determina por **permisos atómicos** (`modulo:accion`) obtenidos de `GET /api/auth/me`, no por el código de rol presente en el JWT. Cada ítem declara `requiredPermissions: string[]`; el sidebar evalúa `hasAnyPermission(requiredPermissions)` y oculta el ítem si el array de permisos efectivos del usuario no cubre ninguno.
+
+**Por qué importa**: desacopla la lógica de visibilidad del sidebar de los códigos de rol. Un COORDINADOR y un ADMIN pueden ver el mismo ítem si ambos tienen el permiso `calificaciones:importar`, sin necesitar condicionales por rol en el frontend. Como consecuencia directa: si las tablas `rol`, `permiso` y `rol_permiso` no están sembradas para el tenant del usuario, el sidebar aparece vacío aunque el JWT contenga roles válidos.
+
+---
+
+### D14 — El seed de `rol / permiso / rol_permiso` es responsabilidad del script de inicialización, no de las migraciones
+**Decisión**: las migraciones de Alembic siembran `rol`, `permiso` y `rol_permiso` únicamente para los tenants que existen **en el momento en que se corre la migración** (`003_create_rol_permiso_tables`). Los tenants creados con posterioridad (como el tenant "demo" del script de desarrollo) deben recibir ese seed durante su propia inicialización. El script `seed_dev.py` es responsable de correr ese seed inmediatamente después de crear el tenant.
+
+**Por qué importa**: si se crea un tenant sin sembrar sus permisos, `PermissionResolver` retorna un conjunto vacío y el sidebar del frontend queda en blanco. Al unificar el seed en `seed_dev.py` (tenant + usuarios + asignaciones + rol/permiso/rol_permiso) se garantiza que un entorno de desarrollo queda completamente operativo con un solo comando.
+
+---
+
 ## Supuestos a validar (S-XX)
 
 ### S1 — Autenticación por credenciales propias del sistema

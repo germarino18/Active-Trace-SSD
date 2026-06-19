@@ -1,4 +1,4 @@
-"""Seed desarrollo: usuarios + asignaciones."""
+"""Seed desarrollo: usuarios + asignaciones + roles/permisos."""
 import asyncio
 import os
 import uuid
@@ -7,6 +7,91 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.services.auth.password_service import PasswordService
+
+# Debe mantenerse en sync con alembic/versions/003_create_rol_permiso_tables.py
+_ROLES = [
+    ("ALUMNO", "Alumno", "Estudiante cursando una carrera"),
+    ("TUTOR", "Tutor", "Tutor de alumnos"),
+    ("PROFESOR", "Profesor", "Docente a cargo de comisiones"),
+    ("COORDINADOR", "Coordinador", "Coordinador académico"),
+    ("NEXO", "Nexo", "Enlace institucional"),
+    ("ADMIN", "Admin", "Administrador del tenant"),
+    ("FINANZAS", "Finanzas", "Gestión financiera y liquidaciones"),
+]
+
+_PERMISOS = [
+    ("estado-academico:ver", "estado-academico"),
+    ("evaluacion:reservar", "evaluacion"),
+    ("avisos:confirmar", "avisos"),
+    ("calificaciones:importar", "calificaciones"),
+    ("atrasados:ver", "atrasados"),
+    ("entregas:sin-corregir", "entregas"),
+    ("comunicacion:enviar", "comunicacion"),
+    ("comunicacion:aprobar", "comunicacion"),
+    ("encuentros:gestionar", "encuentros"),
+    ("guardias:registrar", "guardias"),
+    ("tareas:gestionar", "tareas"),
+    ("avisos:publicar", "avisos"),
+    ("equipos:gestionar", "equipos"),
+    ("estructura:gestionar", "estructura"),
+    ("usuarios:gestionar", "usuarios"),
+    ("auditoria:ver", "auditoria"),
+    ("grilla:operar", "grilla"),
+    ("liquidaciones:cerrar", "liquidaciones"),
+    ("facturas:gestionar", "facturas"),
+    ("configurar:tenant", "configurar"),
+]
+
+_MATRIX = [
+    ("ALUMNO", "estado-academico:ver", False),
+    ("ALUMNO", "evaluacion:reservar", False),
+    ("ALUMNO", "avisos:confirmar", False),
+    ("TUTOR", "avisos:confirmar", False),
+    ("TUTOR", "atrasados:ver", False),
+    ("TUTOR", "entregas:sin-corregir", False),
+    ("TUTOR", "encuentros:gestionar", False),
+    ("TUTOR", "guardias:registrar", True),
+    ("PROFESOR", "avisos:confirmar", False),
+    ("PROFESOR", "calificaciones:importar", True),
+    ("PROFESOR", "atrasados:ver", True),
+    ("PROFESOR", "entregas:sin-corregir", True),
+    ("PROFESOR", "comunicacion:enviar", True),
+    ("PROFESOR", "encuentros:gestionar", True),
+    ("PROFESOR", "guardias:registrar", True),
+    ("PROFESOR", "tareas:gestionar", True),
+    ("COORDINADOR", "avisos:confirmar", False),
+    ("COORDINADOR", "calificaciones:importar", False),
+    ("COORDINADOR", "atrasados:ver", False),
+    ("COORDINADOR", "entregas:sin-corregir", False),
+    ("COORDINADOR", "comunicacion:enviar", False),
+    ("COORDINADOR", "comunicacion:aprobar", False),
+    ("COORDINADOR", "encuentros:gestionar", False),
+    ("COORDINADOR", "guardias:registrar", False),
+    ("COORDINADOR", "tareas:gestionar", False),
+    ("COORDINADOR", "avisos:publicar", False),
+    ("COORDINADOR", "equipos:gestionar", False),
+    ("COORDINADOR", "auditoria:ver", True),
+    ("ADMIN", "avisos:confirmar", False),
+    ("ADMIN", "calificaciones:importar", False),
+    ("ADMIN", "atrasados:ver", False),
+    ("ADMIN", "entregas:sin-corregir", False),
+    ("ADMIN", "comunicacion:enviar", False),
+    ("ADMIN", "comunicacion:aprobar", False),
+    ("ADMIN", "encuentros:gestionar", False),
+    ("ADMIN", "guardias:registrar", False),
+    ("ADMIN", "tareas:gestionar", False),
+    ("ADMIN", "avisos:publicar", False),
+    ("ADMIN", "equipos:gestionar", False),
+    ("ADMIN", "estructura:gestionar", False),
+    ("ADMIN", "usuarios:gestionar", False),
+    ("ADMIN", "auditoria:ver", False),
+    ("ADMIN", "configurar:tenant", False),
+    ("FINANZAS", "avisos:confirmar", False),
+    ("FINANZAS", "auditoria:ver", False),
+    ("FINANZAS", "grilla:operar", False),
+    ("FINANZAS", "liquidaciones:cerrar", False),
+    ("FINANZAS", "facturas:gestionar", False),
+]
 
 
 async def main() -> None:
@@ -17,7 +102,7 @@ async def main() -> None:
     async with session_factory() as session:
         # Check if already seeded
         r = await session.execute(text("SELECT COUNT(*) FROM tenant"))
-        if r.scalar() and r.scalar() > 0:
+        if (r.scalar() or 0) > 0:
             print("Ya hay datos — omitiendo seed.")
             await engine.dispose()
             return
@@ -122,6 +207,39 @@ async def main() -> None:
                         "rol": role,
                     },
                 )
+
+        # 2. Seed rol / permiso / rol_permiso for the new tenant
+        tid_str = str(tenant_id)
+        for codigo, nombre, descripcion in _ROLES:
+            await session.execute(
+                text(
+                    "INSERT INTO rol (id, tenant_id, codigo, nombre, descripcion, created_at, updated_at) "
+                    "VALUES (gen_random_uuid(), :tid, :codigo, :nombre, :desc, NOW(), NOW()) "
+                    "ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"
+                ),
+                {"tid": tid_str, "codigo": codigo, "nombre": nombre, "desc": descripcion},
+            )
+        for codigo, modulo in _PERMISOS:
+            await session.execute(
+                text(
+                    "INSERT INTO permiso (id, tenant_id, codigo, nombre, descripcion, modulo, created_at, updated_at) "
+                    "VALUES (gen_random_uuid(), :tid, :codigo, :codigo, NULL, :modulo, NOW(), NOW()) "
+                    "ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"
+                ),
+                {"tid": tid_str, "codigo": codigo, "modulo": modulo},
+            )
+        for role_codigo, permiso_codigo, es_propio in _MATRIX:
+            await session.execute(
+                text(
+                    "INSERT INTO rol_permiso (id, tenant_id, rol_id, permiso_id, es_propio, created_at, updated_at) "
+                    "SELECT gen_random_uuid(), :tid, r.id, p.id, :es_propio, NOW(), NOW() "
+                    "FROM rol r, permiso p "
+                    "WHERE r.tenant_id = :tid AND r.codigo = :rc AND r.deleted_at IS NULL "
+                    "  AND p.tenant_id = :tid AND p.codigo = :pc AND p.deleted_at IS NULL "
+                    "ON CONFLICT (tenant_id, rol_id, permiso_id) DO NOTHING"
+                ),
+                {"tid": tid_str, "rc": role_codigo, "pc": permiso_codigo, "es_propio": es_propio},
+            )
 
         await session.commit()
         print("\n✅ Seed completado exitosamente!\n")
