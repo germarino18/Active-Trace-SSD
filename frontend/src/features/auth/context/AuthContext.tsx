@@ -1,7 +1,8 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { AuthTokens, SessionState, TwoFactorChallenge, User } from '@/shared/types';
-import { setAccessToken, setTenantId, setOnLogout } from '@/shared/services/api';
+import { setAccessToken, setRefreshToken, getRefreshToken, setTenantId, setOnLogout, setOnTokenRotation } from '@/shared/services/api';
+import { setTenantCookie, getTenantCookie, clearTenantCookie, setRefreshTokenCookie, getRefreshTokenCookie, clearRefreshTokenCookie } from '@/shared/utils/tenantCookie';
 import * as authService from '../services/auth.service';
 
 interface AuthContextValue {
@@ -31,8 +32,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const clearSession = useCallback(() => {
     setAccessToken(null);
+    setRefreshToken(null);
     setTenantId(null);
     tenantRef.current = '';
+    clearTenantCookie();
+    clearRefreshTokenCookie();
     setSession({ status: 'unauthenticated' });
   }, []);
 
@@ -46,20 +50,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [clearSession]);
 
   useEffect(() => {
-    setOnLogout(() => {
-      clearSession();
+    setOnLogout(() => { clearSession(); });
+    setOnTokenRotation((newRefreshToken) => {
+      setRefreshTokenCookie(newRefreshToken);
     });
   }, [clearSession]);
 
   useEffect(() => {
     const attemptRefresh = async () => {
-      if (!tenantRef.current) {
+      const savedTenant = getTenantCookie();
+      const savedRefreshToken = getRefreshTokenCookie();
+      if (!savedTenant || !savedRefreshToken) {
         setSession({ status: 'unauthenticated' });
         return;
       }
+      tenantRef.current = savedTenant;
+      setTenantId(savedTenant);
+      setRefreshToken(savedRefreshToken);
       try {
         const tokens = await authService.refreshToken();
         updateTokens(tokens);
+        setRefreshToken(tokens.refresh_token);
+        setRefreshTokenCookie(tokens.refresh_token);
         const user = await authService.getCurrentUser();
         setSession({ status: 'authenticated', user, tokens });
       } catch {
@@ -73,21 +85,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = useCallback(async (email: string, password: string, tenant: string): Promise<AuthTokens | TwoFactorChallenge> => {
     setTenantId(tenant);
     tenantRef.current = tenant;
+    setTenantCookie(tenant);
     const result = await authService.login({ email, password });
 
     if ('requires_2fa' in result && result.requires_2fa === true) {
       return result;
     }
 
-    updateTokens(result as AuthTokens);
+    const tokens = result as AuthTokens;
+    updateTokens(tokens);
+    setRefreshToken(tokens.refresh_token);
+    setRefreshTokenCookie(tokens.refresh_token);
     const user = await authService.getCurrentUser();
-    setSession({ status: 'authenticated', user, tokens: result as AuthTokens });
+    setSession({ status: 'authenticated', user, tokens });
     return result;
   }, [updateTokens]);
 
   const verify2faCallback = useCallback(async (challengeToken: string, code: string, tempToken?: string) => {
     const tokens = await authService.verify2fa({ challenge_token: challengeToken, code, temp_token: tempToken });
     updateTokens(tokens);
+    setRefreshToken(tokens.refresh_token);
+    setRefreshTokenCookie(tokens.refresh_token);
     const user = await authService.getCurrentUser();
     setSession({ status: 'authenticated', user, tokens });
   }, [updateTokens]);

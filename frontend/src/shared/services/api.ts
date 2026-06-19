@@ -6,26 +6,26 @@ interface PendingRequest {
 }
 
 let accessToken: string | null = null;
+let refreshToken: string | null = null;
 let tenantId: string | null = null;
 let isRefreshing = false;
 let pendingRequests: PendingRequest[] = [];
 let onLogout: (() => void) | null = null;
+let onTokenRotation: ((newRefreshToken: string) => void) | null = null;
 
-export function setAccessToken(token: string | null) {
-  accessToken = token;
-}
-
-export function setTenantId(id: string | null) {
-  tenantId = id;
-}
-
-export function setOnLogout(handler: () => void) {
-  onLogout = handler;
+export function setAccessToken(token: string | null) { accessToken = token; }
+export function setRefreshToken(token: string | null) { refreshToken = token; }
+export function getRefreshToken(): string | null { return refreshToken; }
+export function setTenantId(id: string | null) { tenantId = id; }
+export function setOnLogout(handler: () => void) { onLogout = handler; }
+export function setOnTokenRotation(handler: (newRefreshToken: string) => void) {
+  onTokenRotation = handler;
 }
 
 const api = axios.create({
   baseURL: '',
   timeout: 30000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -68,14 +68,18 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const response = await axios.post<{ access_token: string }>(
+      const response = await axios.post<{ access_token: string; refresh_token?: string }>(
         '/api/auth/refresh',
-        {},
+        { refresh_token: refreshToken },
         { headers: { 'X-Tenant-ID': tenantId ?? '' } },
       );
 
       const newToken = response.data.access_token;
       setAccessToken(newToken);
+      if (response.data.refresh_token) {
+        setRefreshToken(response.data.refresh_token);
+        onTokenRotation?.(response.data.refresh_token);
+      }
 
       pendingRequests.forEach((p) => p.resolve(newToken));
       pendingRequests = [];

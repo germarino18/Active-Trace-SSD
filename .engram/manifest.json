@@ -152,6 +152,14 @@
       "sessions": 0,
       "memories": 1,
       "prompts": 0
+    },
+    {
+      "id": "dd24bafb",
+      "created_by": "agus",
+      "created_at": "2026-06-19T19:28:53Z",
+      "sessions": 0,
+      "memories": 1,
+      "prompts": 0
     }
   ]
 }

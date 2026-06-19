@@ -19,6 +19,8 @@ import { VistaAtrasadosPage } from '@/features/academico/pages/VistaAtrasadosPag
 import { ComunicacionAtrasadosPage } from '@/features/academico/pages/ComunicacionAtrasadosPage';
 import { EntregasSinCorregirPage } from '@/features/academico/pages/EntregasSinCorregirPage';
 import { MonitorSeguimientoPage } from '@/features/academico/pages/MonitorSeguimientoPage';
+import { AtrasadosGeneralPage } from '@/features/academico/pages/AtrasadosGeneralPage';
+import { ComunicacionGeneralPage } from '@/features/academico/pages/ComunicacionGeneralPage';
 
 // Coordinacion pages
 const EquiposListPage = lazy(() => import('@/features/coordinacion/pages/EquiposListPage').then(m => ({ default: m.EquiposListPage })));
@@ -59,10 +61,19 @@ const UsuariosPage = lazy(() => import('@/features/admin/pages/UsuariosPage').th
 const AuditoriaPage = lazy(() => import('@/features/admin/pages/AuditoriaPage').then(m => ({ default: m.AuditoriaPage })));
 const MetricasPage = lazy(() => import('@/features/admin/pages/MetricasPage').then(m => ({ default: m.MetricasPage })));
 
+// Nexo pages
+const NexoAtrasadosStubPage = lazy(() => import('@/features/nexo/pages/NexoAtrasadosStubPage').then(m => ({ default: m.NexoAtrasadosStubPage })));
+const NexoEncuentrosStubPage = lazy(() => import('@/features/nexo/pages/NexoEncuentrosStubPage').then(m => ({ default: m.NexoEncuentrosStubPage })));
+const NexoTareasStubPage = lazy(() => import('@/features/nexo/pages/NexoTareasStubPage').then(m => ({ default: m.NexoTareasStubPage })));
+
 // Tutor pages
 const TutorAlumnosPage = lazy(() => import('@/features/tutor/pages/TutorAlumnosPage').then(m => ({ default: m.TutorAlumnosPage })));
 const GuardiasListPage = lazy(() => import('@/features/tutor/pages/GuardiasListPage').then(m => ({ default: m.GuardiasListPage })));
 const TutorEntregasSinCorregirPage = lazy(() => import('@/features/tutor/pages/TutorEntregasSinCorregirPage').then(m => ({ default: m.TutorEntregasSinCorregirPage })));
+
+// Inbox (docentes)
+const InboxPage = lazy(() => import('@/features/inbox/pages/InboxPage').then(m => ({ default: m.InboxPage })));
+const HiloPage = lazy(() => import('@/features/inbox/pages/HiloPage').then(m => ({ default: m.HiloPage })));
 
 // Alumno pages
 const AlumnoDashboardPage = lazy(() => import('@/features/alumno/pages/AlumnoDashboardPage').then(m => ({ default: m.AlumnoDashboardPage })));
@@ -124,6 +135,31 @@ const router = createBrowserRouter([
               { path: 'comunicar', element: <ComunicacionAtrasadosPage /> },
               { path: 'entregas-pendientes', element: <EntregasSinCorregirPage /> },
               { path: 'monitor', element: <MonitorSeguimientoPage /> },
+            ],
+          },
+          // Atrasados general (cross-materia)
+          { path: '/atrasados', element: <AtrasadosGeneralPage /> },
+          // Comunicación general (hub por materia)
+          { path: '/comunicacion', element: <ComunicacionGeneralPage /> },
+          // NEXO stubs
+          {
+            element: <AuthGuard requiredPermissions={['nexo:atrasados:ver']} />,
+            children: [{ path: '/nexo/atrasados', element: <NexoAtrasadosStubPage /> }],
+          },
+          {
+            element: <AuthGuard requiredPermissions={['nexo:encuentros:ver']} />,
+            children: [{ path: '/nexo/encuentros', element: <NexoEncuentrosStubPage /> }],
+          },
+          {
+            element: <AuthGuard requiredPermissions={['nexo:tareas:ver']} />,
+            children: [{ path: '/nexo/tareas', element: <NexoTareasStubPage /> }],
+          },
+          // Inbox docentes
+          {
+            element: <AuthGuard requiredPermissions={['inbox:acceder']} />,
+            children: [
+              { path: '/inbox', element: <InboxPage /> },
+              { path: '/inbox/:id', element: <HiloPage /> },
             ],
           },
           // Equipos Docentes

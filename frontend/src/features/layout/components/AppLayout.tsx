@@ -7,6 +7,7 @@ import { Breadcrumbs } from './Breadcrumbs';
 import type { SidebarSection } from '@/shared/types';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useLotesPendientesCount } from '@/features/coordinacion/hooks/useAprobacionComunicaciones';
+import { useInbox } from '@/features/inbox/hooks/useInbox';
 
 interface SidebarContextValue {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export function useSidebar() {
   return useContext(SidebarContext);
 }
 
-function buildSections(comunicacionesPendientes: number): SidebarSection[] {
+function buildSections(comunicacionesPendientes: number, inboxUnread: number): SidebarSection[] {
   return [
     // Items visibles para todos los usuarios autenticados
     {
@@ -59,6 +60,7 @@ function buildSections(comunicacionesPendientes: number): SidebarSection[] {
         { label: 'Comunicación', path: '/comunicacion', icon: 'send', requiredPermissions: ['comunicacion:ver'] },
         { label: 'Encuentros', path: '/encuentros', icon: 'event', requiredPermissions: ['encuentros:gestionar'] },
         { label: 'Coloquios', path: '/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:gestionar'] },
+        { label: 'Mensajes', path: '/inbox', icon: 'mail', requiredPermissions: ['inbox:acceder'], badge: inboxUnread || undefined },
       ],
     },
     // NEXO — solo lectura por carrera
@@ -115,7 +117,8 @@ export function AppLayout() {
   const { session } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const pendingCount = useLotesPendientesCount();
-  const sections = useMemo(() => buildSections(pendingCount), [pendingCount]);
+  const { unreadCount: inboxUnread } = useInbox();
+  const sections = useMemo(() => buildSections(pendingCount, inboxUnread), [pendingCount, inboxUnread]);
 
   const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
   const close = useCallback(() => setIsOpen(false), []);

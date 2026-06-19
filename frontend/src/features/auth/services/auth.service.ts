@@ -7,15 +7,22 @@ export async function login(data: LoginRequest): Promise<AuthTokens | TwoFactorC
 }
 
 export async function verify2fa(data: TwoFactorRequest): Promise<AuthTokens> {
-  return api.post<AuthTokens>('/api/auth/verify-2fa', data);
+  // Backend route is /api/auth/login (phase 2), field is totp_code not code
+  return api.post<AuthTokens>('/api/auth/login', {
+    challenge_token: data.challenge_token,
+    totp_code: data.code,
+  });
 }
 
 export async function refreshToken(): Promise<AuthTokens> {
-  return api.post<AuthTokens>('/api/auth/refresh', {});
+  return api.post<AuthTokens>('/api/auth/refresh', { refresh_token: api.getRefreshToken() });
 }
 
 export async function logout(): Promise<void> {
-  await api.post<void>('/api/auth/logout', {});
+  const rt = api.getRefreshToken();
+  if (rt) {
+    await api.post<void>('/api/auth/logout', { refresh_token: rt });
+  }
 }
 
 export async function forgotPassword(data: ForgotPasswordRequest): Promise<{ message: string }> {

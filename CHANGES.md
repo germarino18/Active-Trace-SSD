@@ -51,6 +51,7 @@ C-01 foundation-setup (infra, Docker, FastAPI skel, DB inicial, OTel)
 			C-30 frontend-sidebar-y-nav — sidebar role-aware + fix navegación
 			C-31 frontend-perfil-completo — ProfilePage con todos los campos F11.1
 			C-32 frontend-aprobacion-comunicaciones — panel aprobación masiva F3.3
+			[x] C-33 fix-session-y-rutas — persistencia de sesión en cookie + fix 5 rutas 404
 ```
 
 ### Paralelismo por fase
@@ -633,7 +634,7 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
   - `knowledge-base/04_modelo_de_datos.md` §E4 Usuario
 
 ### [C-32] `frontend-aprobacion-comunicaciones`
-- **Estado**: `[ ]` pendiente
+- **Estado**: `[x]` completo
 - **Scope**:
   - `features/coordinacion/pages/AprobacionComunicacionesPage.tsx`: lista de lotes de comunicaciones masivas en estado Pendiente de aprobación (F3.3).
   - Acciones por lote: "Ver preview" (reutiliza `PreviewComunicacionModal`), "Aprobar", "Rechazar".

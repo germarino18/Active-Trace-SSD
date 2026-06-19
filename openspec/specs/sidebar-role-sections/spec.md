@@ -77,12 +77,36 @@ The system SHALL use permission strings that describe capabilities (`modulo:acci
 - **THEN** a prefix MAY be used to distinguish the scope: `nexo:atrasados:ver`
 
 ### Requirement: Atrasados and Comunicación use correct routes
-The system SHALL navigate to `/atrasados` and `/comunicacion` respectively, not to `/materias`.
+The system SHALL navigate to `/atrasados` and `/comunicacion` respectively. Both routes SHALL be registered in the router and render functional pages — not 404.
 
 #### Scenario: Atrasados route
-- **WHEN** a user with `atrasados:ver` clicks the "Atrasados" item
-- **THEN** the router navigates to `/atrasados`
+- **WHEN** a user with `atrasados:ver` clicks the "Atrasados" item in the sidebar
+- **THEN** the router SHALL navigate to `/atrasados` and render `AtrasadosGeneralPage`
 
 #### Scenario: Comunicación route
-- **WHEN** a user with `comunicacion:ver` clicks the "Comunicación" item
-- **THEN** the router navigates to `/comunicacion`
+- **WHEN** a user with `comunicacion:ver` clicks the "Comunicación" item in the sidebar
+- **THEN** the router SHALL navigate to `/comunicacion` and render `ComunicacionGeneralPage`
+
+### Requirement: NEXO routes are registered and render stub pages
+The system SHALL register `/nexo/atrasados`, `/nexo/encuentros`, `/nexo/tareas` as valid routes in the router. Each SHALL render a stub page (not 404) when accessed by a user with the corresponding NEXO permission.
+
+#### Scenario: NEXO sidebar items do not produce 404
+- **WHEN** a user with any `nexo:*:ver` permission clicks a NEXO sidebar item
+- **THEN** the router SHALL navigate to the corresponding `/nexo/*` route and render a stub page without a 404 error
+
+### Requirement: Secciones docentes incluyen ítem "Mensajes" con badge de no-leídos
+
+Las secciones del sidebar correspondientes a TUTOR, PROFESOR, COORDINADOR y ADMIN SHALL incluir un ítem "Mensajes" que navega a `/inbox`, protegido con el permiso `inbox:acceder`. El ítem SHALL mostrar un badge numérico con el conteo de hilos `no_leido: true` cuando `unreadCount > 0`, obtenido de `useInbox().unreadCount`.
+
+#### Scenario: Usuario con mensajes sin leer ve badge en sidebar
+- **WHEN** el usuario tiene `inbox:acceder` y `useInbox().unreadCount > 0`
+- **THEN** el ítem "Mensajes" en el sidebar muestra un badge con el número de hilos sin leer
+
+#### Scenario: Usuario sin mensajes sin leer no ve badge
+- **WHEN** el usuario tiene `inbox:acceder` y `useInbox().unreadCount === 0`
+- **THEN** el ítem "Mensajes" en el sidebar no muestra badge
+
+#### Scenario: Usuario sin permiso inbox:acceder no ve el ítem
+- **WHEN** el usuario no tiene `inbox:acceder`
+- **THEN** el ítem "Mensajes" no aparece en ninguna sección del sidebar
+
