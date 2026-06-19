@@ -1,4 +1,4 @@
-## ADDED Requirements
+## MODIFIED Requirements
 
 ### Requirement: Gestión de equipos docentes
 `EquiposListPage` y `EquipoDetallePage` SHALL listar y detallar los equipos docentes. `ClonarEquipoPage` SHALL permitir clonar un equipo a un nuevo período. `AsignacionIndividualPage` y `AsignacionMasivaPage` SHALL gestionar la asignación de profesores/tutores a materias.
@@ -41,51 +41,7 @@
 - **WHEN** el coordinador completa el formulario
 - **THEN** la convocatoria aparece en la lista con estado activo
 
----
-
-### Requirement: Gestión de tareas del equipo
-`TareasListPage`, `TareaCrearPage` y `TareaDetallePage` SHALL gestionar tareas asignables a miembros del equipo. `MisTareasPage` muestra las tareas propias del coordinador.
-
-#### Scenario: Crear tarea con asignado
-- **WHEN** el coordinador crea una tarea y selecciona un asignado
-- **THEN** la tarea aparece en el listado y en MisTareasPage del asignado
-
-#### Scenario: Tarea vencida
-- **WHEN** la fecha límite de una tarea pasó sin completarse
-- **THEN** se muestra con badge "Vencida" en color error
-
----
-
-### Requirement: Programas y avisos
-`ProgramasListPage`, `ProgramaCrearPage`, `AvisosListPage`, `AvisoCrearPage` y `AvisoEditarPage` SHALL seguir el patrón CRUD estándar del DS. Los avisos pueden ser de tipo informativo o urgente (con badge de color diferente).
-
-#### Scenario: Aviso urgente
-- **WHEN** el coordinador crea un aviso con tipo "Urgente"
-- **THEN** el aviso aparece con badge rojo en la lista y en la vista del alumno
-
----
-
-### Requirement: Fechas académicas y vigencia
-`FechasAcademicasPage` SHALL mostrar el calendario de fechas importantes del período. `ModificarVigenciaPage` SHALL permitir extender o cerrar el período de vigencia de una comisión.
-
-#### Scenario: Ver fechas del período
-- **WHEN** el coordinador accede a fechas académicas
-- **THEN** se muestra la lista de fechas ordenada cronológicamente
-
----
-
-### Requirement: Monitores de coordinación
-`MonitorCoordinacionPage` y `MonitorGeneralPage` SHALL mostrar dashboards de seguimiento. El monitor de coordinación es scoped al equipo del coordinador; el general es para todo el tenant.
-
-#### Scenario: Monitor de coordinación
-- **WHEN** el coordinador accede
-- **THEN** ve métricas de su equipo: alumnos, tutores, encuentros, tareas pendientes
-
-#### Scenario: Monitor general (solo ADMIN/NEXO)
-- **WHEN** un usuario con rol ADMIN o NEXO accede
-- **THEN** ve métricas de todos los equipos del tenant
-
----
+## ADDED Requirements
 
 ### Requirement: Panel de aprobación de comunicaciones en sidebar
 El sidebar de COORDINADOR y ADMIN SHALL incluir una entrada "Aprobar Comunicaciones" con ícono de bandeja y badge numérico que indica la cantidad de lotes pendientes de aprobación, navegando a `/comunicaciones/aprobar`.

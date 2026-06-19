@@ -100,7 +100,12 @@ function SidebarMenuItem({ item, onClick }: MenuItemProps) {
       }
     >
       <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-      <span>{item.label}</span>
+      <span className="flex-1">{item.label}</span>
+      {!!item.badge && item.badge > 0 && (
+        <span className="ml-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-error px-1 text-label-xs font-bold text-on-error">
+          {item.badge > 99 ? '99+' : item.badge}
+        </span>
+      )}
     </NavLink>
   );
 }

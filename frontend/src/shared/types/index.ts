@@ -49,6 +49,7 @@ export interface MenuItem {
   icon: string;
   requiredPermissions?: string[];
   children?: MenuItem[];
+  badge?: number;
 }
 
 export interface SidebarSection {

@@ -222,6 +222,34 @@ export interface ProgramasResponse {
   total: number;
 }
 
+// ─── Aprobación de Comunicaciones ────────────────────────────
+
+export type EstadoMensajeLote = 'Pendiente' | 'Enviando' | 'OK' | 'Fallido' | 'Cancelado';
+
+export interface DestinatarioLote {
+  alumno_id: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  estado: EstadoMensajeLote;
+}
+
+export interface LoteComunicacion {
+  lote_id: string;
+  docente_id: string;
+  docente_nombre: string;
+  asunto: string;
+  cuerpo: string;
+  total_destinatarios: number;
+  created_at: string;
+  destinatarios?: DestinatarioLote[];
+}
+
+export interface LotesPendientesResponse {
+  items: LoteComunicacion[];
+  total: number;
+}
+
 // ─── Monitores ──────────────────────────────────────────────
 
 export interface AccionPorDia {

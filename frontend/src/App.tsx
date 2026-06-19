@@ -46,6 +46,7 @@ const ProgramaCrearPage = lazy(() => import('@/features/coordinacion/pages/Progr
 const FechasAcademicasPage = lazy(() => import('@/features/coordinacion/pages/FechasAcademicasPage').then(m => ({ default: m.FechasAcademicasPage })));
 const MonitorGeneralPage = lazy(() => import('@/features/coordinacion/pages/MonitorGeneralPage').then(m => ({ default: m.MonitorGeneralPage })));
 const MonitorCoordinacionPage = lazy(() => import('@/features/coordinacion/pages/MonitorCoordinacionPage').then(m => ({ default: m.MonitorCoordinacionPage })));
+const AprobacionComunicacionesPage = lazy(() => import('@/features/coordinacion/pages/AprobacionComunicacionesPage').then(m => ({ default: m.AprobacionComunicacionesPage })));
 
 // Finanzas pages
 const LiquidacionesPage = lazy(() => import('@/features/finanzas/pages/LiquidacionesPage').then(m => ({ default: m.LiquidacionesPage })));
@@ -154,6 +155,13 @@ const router = createBrowserRouter([
           { path: '/programas', element: <ProgramasListPage /> },
           { path: '/programas/nuevo', element: <ProgramaCrearPage /> },
           { path: '/fechas', element: <FechasAcademicasPage /> },
+          // Aprobación de comunicaciones
+          {
+            element: <AuthGuard requiredPermissions={['comunicacion:aprobar']} />,
+            children: [
+              { path: '/comunicaciones/aprobar', element: <AprobacionComunicacionesPage /> },
+            ],
+          },
           // Monitores
           { path: '/monitores/general', element: <MonitorGeneralPage /> },
           { path: '/monitores/coordinacion', element: <MonitorCoordinacionPage /> },
