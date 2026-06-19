@@ -45,7 +45,12 @@ C-01 foundation-setup (infra, Docker, FastAPI skel, DB inicial, OTel)
             │       └── C-24 frontend-finanzas-y-admin (liquidaciones, facturas, estructura, auditoría)
 			[x] C-25 frontend-alumno
 			[x] C-26 fix-frontend-tutor — arreglar sidebar y crear vistas para TUTOR
+			[x] C-28 ui-obsidian-overhaul — redesign DS Obsidian
 			C-27 frontend-analytics — dashboards analíticos (Fase 2)
+			C-29 frontend-inbox-docentes — mensajería interna docentes (F3.4, F11.2)
+			C-30 frontend-sidebar-y-nav — sidebar role-aware + fix navegación
+			C-31 frontend-perfil-completo — ProfilePage con todos los campos F11.1
+			C-32 frontend-aprobacion-comunicaciones — panel aprobación masiva F3.3
 ```
 
 ### Paralelismo por fase
@@ -558,24 +563,102 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
 
 
 
-C-27 frontend-analytics — Dashboards Analíticos (Fase 2) 📊
-Scope:
-- Dashboard de tendencias (atrasados por cohorte vs tiempo, distribución de notas)
-- Reportes exportables PDF/Excel
-- Predicción de abandono básica (riesgo bajo/medio/alto)
-Dependencias: C-21, C-19
-Governance: BAJO
+### [C-27] `frontend-analytics`
+- **Estado**: `[ ]` pendiente
+- **Scope**:
+  - DashboardPage con datos reales por rol: reemplazar todos los `"—"` por métricas vivas (consume `C-11`, `C-19`).
+  - Dashboard de tendencias: atrasados por cohorte vs tiempo, distribución de notas por materia.
+  - Reportes exportables PDF/Excel para COORDINADOR/ADMIN.
+  - Predicción de abandono básica: clasificación visual riesgo bajo/medio/alto por alumno.
+- **Dependencias**: `C-21`, `C-19`
+- **Governance**: BAJO
+- **Leer antes**:
+  - `knowledge-base/06_funcionalidades.md` Épica 2 (F2.7–F2.9), Épica 9 (F9.1)
+
+---
+
+## FASE 5 extendida — Gaps de UX descubiertos en revisión (2026-06-19)
+
+> Changes identificados tras revisión cruzada del frontend existente contra la KB de funcionalidades y roles. Todos son frontend puro; sus backends ya están implementados en `C-12`, `C-20`.
+
+### [C-28] `ui-obsidian-overhaul`
+- **Estado**: `[x]` completado (2026-06-19, commit fc4cce7)
+- **Scope**:
+  - Redesign completo del frontend con Design System "Obsidian — Precision in Darkness".
+  - Bundle de componentes React (`_ds_bundle.js`): Button, Card, StatCard, Badge, Tabs, NavItem, EmptyState.
+  - Tokens CSS OKLCH + tipografía Geist; `styles.css` centralizado.
+  - UI kits: login/2FA, dashboard, Mis Materias 5-tab, Mi Perfil, 403/404.
+  - Migración de todas las vistas existentes al nuevo DS.
+- **Dependencias**: `C-21`
+- **Governance**: BAJO
+
+### [C-29] `frontend-inbox-docentes`
+- **Estado**: `[ ]` pendiente
+- **Scope**:
+  - Bandeja de mensajes `/inbox` y vista de hilo `/inbox/:id` para TUTOR/PROFESOR/COORDINADOR/ADMIN (F3.4, F11.2).
+  - Feature `features/inbox/` con pages `InboxPage` y `HiloPage`, reutilizando el patrón de `features/alumno/pages/AlumnoInboxPage.tsx`.
+  - Hooks TanStack Query: `useInbox`, `useHilo`, `useResponder`.
+  - Ítem en sidebar para roles docentes: "Mensajes" → `/inbox`.
+  - Consume `C-20` — `/api/inbox/*`.
+- **Dependencias**: `C-21`, `C-20`
+- **Governance**: BAJO
+- **Leer antes**:
+  - `knowledge-base/06_funcionalidades.md` F3.4, F11.2
+  - `knowledge-base/07_flujos_principales.md` FL-10 (mensajería interna)
+
+### [C-30] `frontend-sidebar-y-nav`
+- **Estado**: `[ ]` pendiente
+- **Scope**:
+  - Refactor `AppLayout.tsx` `defaultMenuItems`: pasar de lista plana con filtro por permisos a secciones agrupadas por rol.
+  - Eliminar ítems duplicados: dos "Dashboard" (general + alumno), dos "Avisos", dos "Coloquios".
+  - Corregir rutas incorrectas: "Atrasados" y "Comunicación" apuntaban a `/materias`.
+  - Agregar sección NEXO: ítems de solo lectura filtrados por carrera (atrasados, encuentros, tareas).
+  - Garantizar que ALUMNO no ve ítems del sidebar de docentes y viceversa.
+- **Dependencias**: `C-21`
+- **Governance**: BAJO
+- **Leer antes**:
+  - `knowledge-base/03_actores_y_roles.md` §2 (roles), §3.3 (matriz de capacidades), §NEXO
+
+### [C-31] `frontend-perfil-completo`
+- **Estado**: `[ ]` pendiente
+- **Scope**:
+  - `ProfilePage.tsx`: agregar campos faltantes de F11.1: identificación fiscal, datos bancarios (banco, CBU/alias), regional, modalidad de cobro (factura/liquidación), matrícula/registro profesional.
+  - CUIL como campo visible solo lectura (sin edición).
+  - Validación Zod extendida para los nuevos campos.
+  - Consume `C-20` — `PATCH /api/perfil`.
+- **Dependencias**: `C-21`, `C-20`
+- **Governance**: BAJO
+- **Leer antes**:
+  - `knowledge-base/06_funcionalidades.md` F11.1
+  - `knowledge-base/04_modelo_de_datos.md` §E4 Usuario
+
+### [C-32] `frontend-aprobacion-comunicaciones`
+- **Estado**: `[ ]` pendiente
+- **Scope**:
+  - `features/coordinacion/pages/AprobacionComunicacionesPage.tsx`: lista de lotes de comunicaciones masivas en estado Pendiente de aprobación (F3.3).
+  - Acciones por lote: "Ver preview" (reutiliza `PreviewComunicacionModal`), "Aprobar", "Rechazar".
+  - Ítem en sidebar para COORDINADOR/ADMIN: "Aprobar Comunicaciones" → `/comunicaciones/aprobar`.
+  - Consume `C-12` — `/api/comunicaciones/*` con guard `comunicacion:aprobar`.
+- **Dependencias**: `C-21`, `C-12`
+- **Governance**: MEDIO
+- **Leer antes**:
+  - `knowledge-base/06_funcionalidades.md` F3.3
+  - `knowledge-base/07_flujos_principales.md` FL-04 (aprobación de comunicaciones)
+
+---
 
 ## Resumen
 
 | Métrica | Valor |
 |---------|-------|
-| Total de changes | 24 |
-| Fases | 6 (FASE 0 a FASE 5) |
+| Total de changes | 32 (C-01…C-32) |
+| Fases | 6 (FASE 0–5) + FASE 5 extendida (C-28–C-32) |
 | Camino crítico | 10 changes (`C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 → C-12`) |
 | Gates de paralelismo | 11 (GATE 0 a GATE 10) |
 | Changes CRITICO (governance) | 6 (C-02, C-03, C-04, C-05, C-07, C-18) |
 | Primer fork | GATE 4 (tras C-04, seguridad lista) |
+| Changes completados | C-01…C-26, C-28 (27 de 32) |
+| Changes pendientes | C-27, C-29, C-30, C-31, C-32 |
 
 **Primer change recomendado**: `C-01` (foundation-setup).
 
