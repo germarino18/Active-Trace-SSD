@@ -140,3 +140,30 @@ class CohorteService:
             request=request,
         )
         return cohorte
+
+    async def toggle_estado(
+        self,
+        cohorte_id: uuid.UUID,
+        *,
+        current_user: CurrentUser,
+        request: Request,
+    ) -> Cohorte:
+        cohorte = await self._repo.find_by_id(cohorte_id)
+        if cohorte is None:
+            raise NotFoundException(resource="Cohorte", id=cohorte_id)
+
+        nuevo_estado = "Inactiva" if cohorte.estado == "Activa" else "Activa"
+        cohorte = await self._repo.update(cohorte_id, {"estado": nuevo_estado})
+
+        await self._audit.log(
+            current_user=current_user,
+            accion=AccionAuditoria.COHORTE_CAMBIAR_ESTADO,
+            detalle={
+                "id": str(cohorte.id),
+                "estado_anterior": cohorte.estado,
+                "estado_nuevo": nuevo_estado,
+            },
+            filas_afectadas=1,
+            request=request,
+        )
+        return cohorte

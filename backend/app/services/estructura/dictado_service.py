@@ -106,6 +106,8 @@ class DictadoService:
                 "materia_id": data.materia_id,
                 "carrera_id": data.carrera_id,
                 "cohorte_id": data.cohorte_id,
+                "vig_desde": data.vig_desde,
+                "vig_hasta": data.vig_hasta,
                 "estado": "Activo",
             }
         )
@@ -132,16 +134,23 @@ class DictadoService:
         current_user: CurrentUser,
         request: Request,
     ) -> Dictado:
-        update_data = data.model_dump(exclude_unset=True, exclude_none=True)
+        update_data = data.model_dump(exclude_unset=True)
         if "estado" in update_data:
             update_data["estado"] = update_data["estado"].value
+
+        audit_cambios = {}
+        for k, v in update_data.items():
+            if hasattr(v, "isoformat"):
+                audit_cambios[k] = v.isoformat()
+            else:
+                audit_cambios[k] = v
 
         dictado = await self._repo.update(dictado_id, update_data)
 
         await self._audit.log(
             current_user=current_user,
             accion=AccionAuditoria.DICTADO_ACTUALIZAR,
-            detalle={"id": str(dictado.id), "cambios": update_data},
+            detalle={"id": str(dictado.id), "cambios": audit_cambios},
             filas_afectadas=1,
             request=request,
         )
@@ -160,6 +169,33 @@ class DictadoService:
             current_user=current_user,
             accion=AccionAuditoria.DICTADO_ELIMINAR,
             detalle={"id": str(dictado.id)},
+            filas_afectadas=1,
+            request=request,
+        )
+        return dictado
+
+    async def toggle_estado(
+        self,
+        dictado_id: uuid.UUID,
+        *,
+        current_user: CurrentUser,
+        request: Request,
+    ) -> Dictado:
+        dictado = await self._repo.find_by_id(dictado_id)
+        if dictado is None:
+            raise NotFoundException(resource="Dictado", id=dictado_id)
+
+        nuevo_estado = "Inactivo" if dictado.estado == "Activo" else "Activo"
+        dictado = await self._repo.update(dictado_id, {"estado": nuevo_estado})
+
+        await self._audit.log(
+            current_user=current_user,
+            accion=AccionAuditoria.DICTADO_CAMBIAR_ESTADO,
+            detalle={
+                "id": str(dictado.id),
+                "estado_anterior": dictado.estado,
+                "estado_nuevo": nuevo_estado,
+            },
             filas_afectadas=1,
             request=request,
         )

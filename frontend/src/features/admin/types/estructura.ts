@@ -2,7 +2,12 @@ export interface Carrera {
   id: string;
   codigo: string;
   nombre: string;
-  activa: boolean;
+  estado: string;
+}
+
+export interface CarreraFilters {
+  activa?: boolean;
+  q?: string;
 }
 
 export interface Cohorte {
@@ -11,18 +16,28 @@ export interface Cohorte {
   anio_inicio: number;
   vigencia_desde: string;
   vigencia_hasta?: string;
-  activa: boolean;
+  estado: string;
+}
+
+export interface CohorteFilters {
+  activa?: boolean;
+  q?: string;
 }
 
 export interface Materia {
   id: string;
   nombre: string;
   codigo?: string;
-  activa: boolean;
+  estado: string;
   carrera_id?: string;
   carrera_nombre?: string;
   cohorte_id?: string;
   cohorte_nombre?: string;
+}
+
+export interface MateriaFilters {
+  activa?: boolean;
+  q?: string;
 }
 
 export interface Evaluacion {
@@ -91,6 +106,7 @@ export interface ActualizarMateriaData {
   codigo?: string;
   carrera_id?: string;
   cohorte_id?: string;
+  estado?: string;
 }
 
 export interface CrearEvaluacionData {

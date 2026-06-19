@@ -50,8 +50,10 @@ class CarreraResponse(BaseModel):
 
 class MateriaCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    codigo: str = Field(..., max_length=50)
+    codigo: str | None = Field(default=None, max_length=50)
     nombre: str = Field(..., max_length=255)
+    carrera_id: UUID | None = None
+    cohorte_id: UUID | None = None
 
 
 class MateriaUpdate(BaseModel):
@@ -59,15 +61,21 @@ class MateriaUpdate(BaseModel):
     codigo: str | None = Field(default=None, max_length=50)
     nombre: str | None = Field(default=None, max_length=255)
     estado: EstadoCarreraMateria | None = None
+    carrera_id: UUID | None = None
+    cohorte_id: UUID | None = None
 
 
 class MateriaResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     id: UUID
     tenant_id: UUID
-    codigo: str
+    codigo: str | None = None
     nombre: str
     estado: EstadoCarreraMateria
+    carrera_id: UUID | None = None
+    cohorte_id: UUID | None = None
+    carrera_nombre: str | None = None
+    cohorte_nombre: str | None = None
     deleted_at: bool = False
 
 
@@ -113,11 +121,15 @@ class DictadoCreate(BaseModel):
     materia_id: UUID
     carrera_id: UUID
     cohorte_id: UUID
+    vig_desde: date | None = None
+    vig_hasta: date | None = None
 
 
 class DictadoUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     estado: EstadoDictado | None = None
+    vig_desde: date | None = None
+    vig_hasta: date | None = None
 
 
 class DictadoResponse(BaseModel):
@@ -127,5 +139,7 @@ class DictadoResponse(BaseModel):
     materia_id: UUID
     carrera_id: UUID
     cohorte_id: UUID
+    vig_desde: date | None = None
+    vig_hasta: date | None = None
     estado: EstadoDictado
     deleted_at: bool = False

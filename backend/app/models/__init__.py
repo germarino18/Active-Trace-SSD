@@ -40,6 +40,8 @@ from app.models.factura import Factura, EstadoFactura
 from app.models.hilo_conversacion import HiloConversacion
 from app.models.hilo_participante import HiloParticipante
 from app.models.mensaje import Mensaje
+from app.models.usuario_rol import UsuarioRol
+from app.models.evaluacion_materia import EvaluacionMateria
 
 __all__ = [
     "AuditLog",
@@ -101,4 +103,6 @@ __all__ = [
     "HiloConversacion",
     "HiloParticipante",
     "Mensaje",
+    "UsuarioRol",
+    "EvaluacionMateria",
 ]

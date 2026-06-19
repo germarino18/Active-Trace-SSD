@@ -1,3 +1,13 @@
+export interface MetricasResponse {
+  total_alumnos: number;
+  alumnos_activos: number;
+  porcentaje_riesgo: number;
+  promedio_progreso: number;
+  total_docentes: number;
+  total_materias_activas: number;
+  total_carreras_activas: number;
+}
+
 export interface AccionesPorDia {
   fecha: string;
   total: number;
@@ -14,11 +24,4 @@ export interface InteraccionDocente {
   docente_nombre: string;
   tipo_accion: string;
   cantidad: number;
-}
-
-export interface MetricasDashboard {
-  total_docentes_activos: number;
-  total_comunicaciones: number;
-  comunicaciones_ok: number;
-  comunicaciones_fallidas: number;
 }

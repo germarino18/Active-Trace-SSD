@@ -50,11 +50,13 @@ _estructura_guard = [Depends(require_permission(Perm.ESTRUCTURA_GESTIONAR))]
 async def list_carreras(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
+    activa: bool | None = Query(None),
+    q: str | None = Query(None, max_length=200),
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     repo = CarreraRepository(session=db, tenant_id=current_user.tenant_id)
-    carreras = await repo.find_all(skip=skip, limit=limit)
+    carreras = await repo.find_all_filtered(skip=skip, limit=limit, activa=activa, q=q)
     return [_carrera_to_response(c) for c in carreras]
 
 
@@ -101,6 +103,22 @@ async def update_carrera(
     return _carrera_to_response(carrera)
 
 
+@router.patch("/carreras/{carrera_id}/estado", response_model=CarreraResponse, dependencies=_estructura_guard)
+async def toggle_carrera_estado(
+    carrera_id: UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = CarreraRepository(session=db, tenant_id=current_user.tenant_id)
+    if await repo.find_by_id(carrera_id) is None:
+        raise NotFoundException(resource="Carrera", id=carrera_id)
+    service = _carrera_service(db, current_user.tenant_id)
+    carrera = await service.toggle_estado(carrera_id, current_user=current_user, request=request)
+    await db.commit()
+    return _carrera_to_response(carrera)
+
+
 @router.delete("/carreras/{carrera_id}", response_model=CarreraResponse, dependencies=_estructura_guard)
 async def delete_carrera(
     carrera_id: UUID,
@@ -124,11 +142,13 @@ async def delete_carrera(
 async def list_materias(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
+    activa: bool | None = Query(None),
+    q: str | None = Query(None, max_length=200),
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     repo = MateriaRepository(session=db, tenant_id=current_user.tenant_id)
-    materias = await repo.find_all(skip=skip, limit=limit)
+    materias = await repo.find_all_filtered(skip=skip, limit=limit, activa=activa, q=q)
     return [_materia_to_response(m) for m in materias]
 
 
@@ -175,6 +195,22 @@ async def update_materia(
     return _materia_to_response(materia)
 
 
+@router.patch("/materias/{materia_id}/estado", response_model=MateriaResponse, dependencies=_estructura_guard)
+async def toggle_materia_estado(
+    materia_id: UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = MateriaRepository(session=db, tenant_id=current_user.tenant_id)
+    if await repo.find_by_id(materia_id) is None:
+        raise NotFoundException(resource="Materia", id=materia_id)
+    service = _materia_service(db, current_user.tenant_id)
+    materia = await service.toggle_estado(materia_id, current_user=current_user, request=request)
+    await db.commit()
+    return _materia_to_response(materia)
+
+
 @router.delete("/materias/{materia_id}", response_model=MateriaResponse, dependencies=_estructura_guard)
 async def delete_materia(
     materia_id: UUID,
@@ -198,11 +234,13 @@ async def delete_materia(
 async def list_cohortes(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
+    activa: bool | None = Query(None),
+    q: str | None = Query(None, max_length=200),
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     repo = CohorteRepository(session=db, tenant_id=current_user.tenant_id)
-    cohortes = await repo.find_all(skip=skip, limit=limit)
+    cohortes = await repo.find_all_filtered(skip=skip, limit=limit, activa=activa, q=q)
     return [_cohorte_to_response(c) for c in cohortes]
 
 
@@ -249,6 +287,22 @@ async def update_cohorte(
     return _cohorte_to_response(cohorte)
 
 
+@router.patch("/cohortes/{cohorte_id}/estado", response_model=CohorteResponse, dependencies=_estructura_guard)
+async def toggle_cohorte_estado(
+    cohorte_id: UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = CohorteRepository(session=db, tenant_id=current_user.tenant_id)
+    if await repo.find_by_id(cohorte_id) is None:
+        raise NotFoundException(resource="Cohorte", id=cohorte_id)
+    service = _cohorte_service(db, current_user.tenant_id)
+    cohorte = await service.toggle_estado(cohorte_id, current_user=current_user, request=request)
+    await db.commit()
+    return _cohorte_to_response(cohorte)
+
+
 @router.delete("/cohortes/{cohorte_id}", response_model=CohorteResponse, dependencies=_estructura_guard)
 async def delete_cohorte(
     cohorte_id: UUID,
@@ -272,11 +326,14 @@ async def delete_cohorte(
 async def list_dictados(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
+    activa: bool | None = Query(None),
+    q: str | None = Query(None, max_length=200),
+    vigente: bool | None = Query(None),
     current_user: CurrentUser = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     repo = DictadoRepository(session=db, tenant_id=current_user.tenant_id)
-    dictados = await repo.find_all(skip=skip, limit=limit)
+    dictados = await repo.find_all_filtered(skip=skip, limit=limit, activa=activa, q=q, vigente=vigente)
     return [_dictado_to_response(d) for d in dictados]
 
 
@@ -323,6 +380,22 @@ async def update_dictado(
     return _dictado_to_response(dictado)
 
 
+@router.patch("/dictados/{dictado_id}/estado", response_model=DictadoResponse, dependencies=_estructura_guard)
+async def toggle_dictado_estado(
+    dictado_id: UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = DictadoRepository(session=db, tenant_id=current_user.tenant_id)
+    if await repo.find_by_id(dictado_id) is None:
+        raise NotFoundException(resource="Dictado", id=dictado_id)
+    service = _dictado_service(db, current_user.tenant_id)
+    dictado = await service.toggle_estado(dictado_id, current_user=current_user, request=request)
+    await db.commit()
+    return _dictado_to_response(dictado)
+
+
 @router.delete("/dictados/{dictado_id}", response_model=DictadoResponse, dependencies=_estructura_guard)
 async def delete_dictado(
     dictado_id: UUID,
@@ -345,6 +418,7 @@ async def delete_dictado(
 def _carrera_service(db: AsyncSession, tenant_id: UUID) -> CarreraService:
     return CarreraService(
         carrera_repo=CarreraRepository(session=db, tenant_id=tenant_id),
+        cohorte_repo=CohorteRepository(session=db, tenant_id=tenant_id),
         audit_repo=AuditLogRepository(session=db, tenant_id=tenant_id),
     )
 
@@ -395,6 +469,10 @@ def _materia_to_response(materia: Materia) -> MateriaResponse:
         codigo=materia.codigo,
         nombre=materia.nombre,
         estado=materia.estado,
+        carrera_id=materia.carrera_id,
+        cohorte_id=materia.cohorte_id,
+        carrera_nombre=materia.carrera.nombre if materia.carrera else None,
+        cohorte_nombre=materia.cohorte.nombre if materia.cohorte else None,
         deleted_at=materia.deleted_at is not None,
     )
 
@@ -420,6 +498,8 @@ def _dictado_to_response(dictado: Dictado) -> DictadoResponse:
         materia_id=dictado.materia_id,
         carrera_id=dictado.carrera_id,
         cohorte_id=dictado.cohorte_id,
+        vig_desde=dictado.vig_desde,
+        vig_hasta=dictado.vig_hasta,
         estado=dictado.estado,
         deleted_at=dictado.deleted_at is not None,
     )

@@ -1,4 +1,6 @@
 import { useState, useCallback } from 'react';
+import { LoadingState } from '@/features/academico/components/LoadingState';
+import { EmptyState } from '@/features/academico/components/EmptyState';
 import { useMetricasDashboard, useAccionesPorDia, useEstadosComunicacion, useInteracciones } from '../hooks/useMetricas';
 import { MetricFilters } from '../components/MetricFilters';
 import { AccionesPorDiaChart } from '../components/AccionesPorDiaChart';
@@ -44,7 +46,7 @@ function KpiCard({ icon, label, value, isLoading }: { icon: string; label: strin
 export function MetricasPage() {
   const [filters, setFilters] = useState<MetricFiltersState>(DEFAULT_FILTERS);
 
-  const { data: dashboard, isLoading: isLoadingDashboard } = useMetricasDashboard();
+  const { data: dashboard, isLoading: isLoadingDashboard, isError: isErrorDashboard } = useMetricasDashboard();
   const { data: accionesPorDia, isLoading: isLoadingAcciones } = useAccionesPorDia({
     fecha_desde: filters.fecha_desde || undefined,
     fecha_hasta: filters.fecha_hasta || undefined,
@@ -77,54 +79,78 @@ export function MetricasPage() {
         <HelpButton tooltip="Panel de métricas con KPIs, acciones por día, estado de comunicaciones e interacciones por docente y materia." />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          icon="school"
-          label="Docentes activos"
-          value={dashboard?.total_docentes_activos ?? 0}
-          isLoading={isLoadingDashboard}
-        />
-        <KpiCard
-          icon="mail"
-          label="Comunicaciones totales"
-          value={dashboard?.total_comunicaciones ?? 0}
-          isLoading={isLoadingDashboard}
-        />
-        <KpiCard
-          icon="check_circle"
-          label="Comunicaciones OK"
-          value={dashboard?.comunicaciones_ok ?? 0}
-          isLoading={isLoadingDashboard}
-        />
-        <KpiCard
-          icon="error"
-          label="Comunicaciones fallidas"
-          value={dashboard?.comunicaciones_fallidas ?? 0}
-          isLoading={isLoadingDashboard}
-        />
-      </div>
+      {isErrorDashboard ? (
+        <EmptyState message="Error al cargar las métricas" icon="error" />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <KpiCard
+              icon="school"
+              label="Total alumnos"
+              value={dashboard?.total_alumnos ?? 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="group"
+              label="Alumnos activos"
+              value={dashboard?.alumnos_activos ?? 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="warning"
+              label="Porcentaje en riesgo"
+              value={dashboard ? `${dashboard.porcentaje_riesgo}%` : 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="trending_up"
+              label="Progreso promedio"
+              value={dashboard ? `${dashboard.promedio_progreso}%` : 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="badge"
+              label="Total docentes"
+              value={dashboard?.total_docentes ?? 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="menu_book"
+              label="Materias activas"
+              value={dashboard?.total_materias_activas ?? 0}
+              isLoading={isLoadingDashboard}
+            />
+            <KpiCard
+              icon="account_balance"
+              label="Carreras activas"
+              value={dashboard?.total_carreras_activas ?? 0}
+              isLoading={isLoadingDashboard}
+            />
+          </div>
 
-      <MetricFilters
-        values={filters}
-        onChange={handleFilterChange}
-        onClear={handleClearFilters}
-      />
+          <MetricFilters
+            values={filters}
+            onChange={handleFilterChange}
+            onClear={handleClearFilters}
+          />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <AccionesPorDiaChart
-          data={accionesPorDia}
-          isLoading={isLoadingAcciones}
-        />
-        <EstadosComunicacionChart
-          data={estadosComunicacion}
-          isLoading={isLoadingEstados}
-        />
-      </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <AccionesPorDiaChart
+              data={accionesPorDia}
+              isLoading={isLoadingAcciones}
+            />
+            <EstadosComunicacionChart
+              data={estadosComunicacion}
+              isLoading={isLoadingEstados}
+            />
+          </div>
 
-      <InteraccionesDocenteTable
-        data={interacciones}
-        isLoading={isLoadingInteracciones}
-      />
+          <InteraccionesDocenteTable
+            data={interacciones}
+            isLoading={isLoadingInteracciones}
+          />
+        </>
+      )}
     </div>
   );
 }

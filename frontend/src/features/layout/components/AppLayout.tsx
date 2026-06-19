@@ -34,6 +34,17 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
         { label: 'Mi Perfil', path: '/profile', icon: 'person' },
       ],
     },
+    // Admin (siempre arriba por ser principales)
+    {
+      label: 'Admin',
+      items: [
+        { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:gestionar'] },
+        { label: 'Dictados', path: '/admin/dictados', icon: 'book', requiredPermissions: ['estructura:gestionar'] },
+        { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:gestionar'] },
+        { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
+        { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
+      ],
+    },
     // ALUMNO
     {
       label: 'ALUMNO',
@@ -98,16 +109,6 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
         { label: 'Liquidaciones', path: '/finanzas/liquidaciones', icon: 'payments', requiredPermissions: ['liquidaciones:ver'] },
         { label: 'Grilla Salarial', path: '/finanzas/grilla', icon: 'badge', requiredPermissions: ['liquidaciones:configurar-salarios'] },
         { label: 'Facturas', path: '/finanzas/facturas', icon: 'receipt_long', requiredPermissions: ['facturas:ver'] },
-      ],
-    },
-    // Admin
-    {
-      label: 'Admin',
-      items: [
-        { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:ver'] },
-        { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:ver'] },
-        { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
-        { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
       ],
     },
   ];

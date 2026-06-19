@@ -20,10 +20,10 @@ import type {
 
 // ─── Carreras ──────────────────────────────────────────────────
 
-export function useCarreras(activa?: boolean) {
+export function useCarreras(params?: { activa?: boolean; q?: string }) {
   return useQuery<CarrerasResponse>({
-    queryKey: ['carreras', activa],
-    queryFn: () => estructuraService.getCarreras(activa),
+    queryKey: ['carreras', params],
+    queryFn: () => estructuraService.getCarreras(params),
   });
 }
 
@@ -61,10 +61,10 @@ export function useToggleCarreraEstado() {
 
 // ─── Cohortes ──────────────────────────────────────────────────
 
-export function useCohortes(activa?: boolean) {
+export function useCohortes(params?: { activa?: boolean; q?: string }) {
   return useQuery<CohortesResponse>({
-    queryKey: ['cohortes', activa],
-    queryFn: () => estructuraService.getCohortes(activa),
+    queryKey: ['cohortes', params],
+    queryFn: () => estructuraService.getCohortes(params),
   });
 }
 
@@ -102,10 +102,10 @@ export function useToggleCohorteEstado() {
 
 // ─── Materias ──────────────────────────────────────────────────
 
-export function useMaterias(activa?: boolean) {
+export function useMaterias(params?: { activa?: boolean; q?: string }) {
   return useQuery<MateriasResponse>({
-    queryKey: ['materias', activa],
-    queryFn: () => estructuraService.getMaterias(activa),
+    queryKey: ['materias', params],
+    queryFn: () => estructuraService.getMaterias(params),
   });
 }
 

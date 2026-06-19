@@ -11,8 +11,12 @@ from app.core.permissions import Perm
 from app.models.usuario import Usuario
 from app.repositories.audit_log_repository import AuditLogRepository
 from app.repositories.usuario_repository import UsuarioRepository
+from app.repositories.rol_repository import RolRepository
+from app.repositories.usuario_rol_repository import UsuarioRolRepository
 from app.schemas.auth import CurrentUser
 from app.schemas.usuario import UsuarioCreate, UsuarioResponse, UsuarioUpdate
+from app.schemas.usuario_rol import UsuarioRolCreate, UsuarioRolResponse
+from app.services.audit.audit_logger import AuditLogger
 from app.services.usuario_service import UsuarioService
 
 router = APIRouter(prefix="/api/admin", tags=["usuarios"])
@@ -90,6 +94,125 @@ async def delete_usuario(
     usuario = await service.soft_delete(usuario_id, current_user=current_user, request=request)
     await db.commit()
     return _usuario_to_response(usuario)
+
+
+# ── Usuario-Rol assignments (TASK 4, C-34) ──────────────────────────────
+
+
+@router.get(
+    "/usuarios/{usuario_id}/roles",
+    response_model=list[UsuarioRolResponse],
+    dependencies=_usuarios_guard,
+)
+async def list_usuario_roles(
+    usuario_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = UsuarioRolRepository(session=db, tenant_id=current_user.tenant_id)
+    rol_repo = RolRepository(session=db, tenant_id=current_user.tenant_id)
+    assignments = await repo.find_by_usuario(usuario_id)
+    rol_map = {r.id: r for r in await rol_repo.find_all()}
+    result = []
+    for a in assignments:
+        rol = rol_map.get(a.rol_id)
+        result.append(
+            UsuarioRolResponse(
+                id=a.id,
+                usuario_id=a.usuario_id,
+                rol_id=a.rol_id,
+                rol_nombre=rol.nombre if rol else None,
+                desde=a.desde,
+                hasta=a.hasta,
+                created_at=a.created_at,
+            )
+        )
+    return result
+
+
+@router.post(
+    "/usuarios/{usuario_id}/roles",
+    response_model=UsuarioRolResponse,
+    status_code=201,
+    dependencies=_usuarios_guard,
+)
+async def assign_usuario_rol(
+    usuario_id: UUID,
+    data: UsuarioRolCreate,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    usuario_repo = UsuarioRepository(session=db, tenant_id=current_user.tenant_id)
+    if await usuario_repo.find_by_id(usuario_id) is None:
+        raise NotFoundException(resource="Usuario", id=usuario_id)
+
+    rol_repo = RolRepository(session=db, tenant_id=current_user.tenant_id)
+    rol = await rol_repo.find_by_id(data.rol_id)
+    if rol is None:
+        raise NotFoundException(resource="Rol", id=data.rol_id)
+
+    repo = UsuarioRolRepository(session=db, tenant_id=current_user.tenant_id)
+    create_data = data.model_dump()
+    create_data["usuario_id"] = usuario_id
+    create_data["tenant_id"] = current_user.tenant_id
+    create_data["created_by_id"] = current_user.user_id
+    create_data["updated_by_id"] = current_user.user_id
+    assignment = await repo.create(create_data)
+    await db.commit()
+
+    audit_logger = AuditLogger(
+        repository=AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
+    )
+    await audit_logger.log(
+        current_user=current_user,
+        accion="usuario_rol.assign",
+        detalle={"usuario_id": str(usuario_id), "rol_id": str(data.rol_id)},
+        filas_afectadas=1,
+        request=request,
+    )
+
+    return UsuarioRolResponse(
+        id=assignment.id,
+        usuario_id=assignment.usuario_id,
+        rol_id=assignment.rol_id,
+        rol_nombre=rol.nombre,
+        desde=assignment.desde,
+        hasta=assignment.hasta,
+        created_at=assignment.created_at,
+    )
+
+
+@router.delete(
+    "/usuarios/{usuario_id}/roles/{rol_id}",
+    dependencies=_usuarios_guard,
+)
+async def remove_usuario_rol(
+    usuario_id: UUID,
+    rol_id: UUID,
+    request: Request,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    repo = UsuarioRolRepository(session=db, tenant_id=current_user.tenant_id)
+    assignment = await repo.find_by_usuario_and_rol(usuario_id, rol_id)
+    if assignment is None:
+        raise NotFoundException(resource="UsuarioRol")
+    await repo.hard_delete(assignment.id)
+    await db.commit()
+
+    audit_logger = AuditLogger(
+        repository=AuditLogRepository(session=db, tenant_id=current_user.tenant_id)
+    )
+    await audit_logger.log(
+        current_user=current_user,
+        accion="usuario_rol.remove",
+        detalle={"usuario_id": str(usuario_id), "rol_id": str(rol_id)},
+        filas_afectadas=1,
+        request=request,
+    )
+
+    return {"detail": "Rol removed from user"}
 
 
 # ── Service factory ──────────────────────────────────────────────────────
