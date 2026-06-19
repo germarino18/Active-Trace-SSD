@@ -1,20 +1,25 @@
 import { NavLink } from 'react-router-dom';
-import type { MenuItem as MenuItemType } from '@/shared/types';
+import type { MenuItem as MenuItemType, SidebarSection } from '@/shared/types';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useSidebar } from './AppLayout';
 
 interface SidebarProps {
-  menuItems: MenuItemType[];
+  sections: SidebarSection[];
 }
 
-export function Sidebar({ menuItems }: SidebarProps) {
+export function Sidebar({ sections }: SidebarProps) {
   const { session, hasAnyPermission } = useAuth();
   const { isOpen, close } = useSidebar();
 
-  const visibleItems = menuItems.filter((item) => {
-    if (!item.requiredPermissions || item.requiredPermissions.length === 0) return true;
-    return hasAnyPermission(item.requiredPermissions);
-  });
+  const visibleSections = sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => {
+        if (!item.requiredPermissions || item.requiredPermissions.length === 0) return true;
+        return hasAnyPermission(item.requiredPermissions);
+      }),
+    }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <>
@@ -40,9 +45,20 @@ export function Sidebar({ menuItems }: SidebarProps) {
             </div>
           </div>
         </div>
-        <nav className="flex-1 space-y-1">
-          {visibleItems.map((item) => (
-            <MenuItem key={item.path} item={item} onClick={close} />
+        <nav className="flex-1 space-y-4 overflow-y-auto custom-scrollbar">
+          {visibleSections.map((section, idx) => (
+            <div key={section.label ?? `section-${idx}`}>
+              {section.label && (
+                <p className="mb-1 px-sm text-label-xs font-semibold uppercase tracking-wider text-outline">
+                  {section.label}
+                </p>
+              )}
+              <div className="space-y-1">
+                {section.items.map((item) => (
+                  <SidebarMenuItem key={item.path} item={item} onClick={close} />
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
         {session.status === 'authenticated' && (
@@ -70,7 +86,7 @@ interface MenuItemProps {
   onClick: () => void;
 }
 
-function MenuItem({ item, onClick }: MenuItemProps) {
+function SidebarMenuItem({ item, onClick }: MenuItemProps) {
   return (
     <NavLink
       to={item.path}

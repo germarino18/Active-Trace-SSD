@@ -50,3 +50,8 @@ export interface MenuItem {
   requiredPermissions?: string[];
   children?: MenuItem[];
 }
+
+export interface SidebarSection {
+  label?: string;
+  items: MenuItem[];
+}
