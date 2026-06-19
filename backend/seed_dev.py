@@ -108,6 +108,7 @@ async def main() -> None:
             return
 
         tenant_id = uuid.uuid4()
+        tid = tenant_id  # alias para legibilidad
 
         # ── 1. Tenant ────────────────────────────────────────────────────────
         await session.execute(
@@ -115,60 +116,18 @@ async def main() -> None:
                 "INSERT INTO tenant (id, tenant_id, name, slug, is_active, created_at, updated_at) "
                 "VALUES (:tid, :tid, :name, :slug, true, NOW(), NOW())"
             ),
-            {"tid": tenant_id, "name": "Universidad Demo", "slug": "demo"},
+            {"tid": tid, "name": "Universidad Demo", "slug": "demo"},
         )
 
         # ── 2. Usuarios ──────────────────────────────────────────────────────
         users_data = [
-            {
-                "email": "admin@demo.com",
-                "pw": "Admin123!",
-                "name": "Admin",
-                "apellidos": "Demo",
-                "roles": ["ADMIN", "COORDINADOR"],
-            },
-            {
-                "email": "coordinador@demo.com",
-                "pw": "Coord123!",
-                "name": "Coordinador",
-                "apellidos": "Demo",
-                "roles": ["COORDINADOR"],
-            },
-            {
-                "email": "profesor@demo.com",
-                "pw": "Demo123!",
-                "name": "Profesor",
-                "apellidos": "Demo",
-                "roles": ["PROFESOR"],
-            },
-            {
-                "email": "finanzas@demo.com",
-                "pw": "Fin123!",
-                "name": "Finanzas",
-                "apellidos": "Demo",
-                "roles": ["FINANZAS"],
-            },
-            {
-                "email": "nexo@demo.com",
-                "pw": "Nexo123!",
-                "name": "Nexo",
-                "apellidos": "Demo",
-                "roles": ["NEXO"],
-            },
-            {
-                "email": "tutor@demo.com",
-                "pw": "Tutor123!",
-                "name": "Tutor",
-                "apellidos": "Demo",
-                "roles": ["TUTOR"],
-            },
-            {
-                "email": "alumno@demo.com",
-                "pw": "Alumno123!",
-                "name": "María",
-                "apellidos": "García",
-                "roles": ["ALUMNO"],
-            },
+            {"email": "admin@demo.com",        "pw": "Admin123!",  "name": "Admin",        "apellidos": "Demo",   "roles": ["ADMIN", "COORDINADOR"], "facturador": False},
+            {"email": "coordinador@demo.com",  "pw": "Coord123!",  "name": "Coordinador",  "apellidos": "Demo",   "roles": ["COORDINADOR"],          "facturador": False},
+            {"email": "profesor@demo.com",     "pw": "Demo123!",   "name": "Carlos",       "apellidos": "López",  "roles": ["PROFESOR"],             "facturador": True},
+            {"email": "finanzas@demo.com",     "pw": "Fin123!",    "name": "Finanzas",     "apellidos": "Demo",   "roles": ["FINANZAS"],             "facturador": False},
+            {"email": "nexo@demo.com",         "pw": "Nexo123!",   "name": "Nexo",         "apellidos": "Demo",   "roles": ["NEXO"],                 "facturador": False},
+            {"email": "tutor@demo.com",        "pw": "Tutor123!",  "name": "Ana",          "apellidos": "Martínez", "roles": ["TUTOR"],              "facturador": False},
+            {"email": "alumno@demo.com",       "pw": "Alumno123!", "name": "María",        "apellidos": "García", "roles": ["ALUMNO"],               "facturador": False},
         ]
 
         usuario_ids: dict[str, uuid.UUID] = {}
@@ -184,258 +143,391 @@ async def main() -> None:
                     "VALUES (:uid, :tid, :email, :pw, :name, true, :roles, NOW(), NOW())"
                 ),
                 {
-                    "uid": user_id,
-                    "tid": tenant_id,
-                    "email": u["email"],
+                    "uid": user_id, "tid": tid, "email": u["email"],
                     "pw": PasswordService.hash_password(u["pw"]),
-                    "name": f"{u['name']} {u['apellidos']}",
-                    "roles": u["roles"],
+                    "name": f"{u['name']} {u['apellidos']}", "roles": u["roles"],
                 },
             )
-
             await session.execute(
                 text(
                     "INSERT INTO usuario (id, tenant_id, user_id, nombre, apellidos, legajo, facturador, estado, created_at, updated_at) "
-                    "VALUES (:usid, :tid, :uid, :nom, :ape, :leg, false, 'Activo', NOW(), NOW())"
+                    "VALUES (:usid, :tid, :uid, :nom, :ape, :leg, :fac, 'Activo', NOW(), NOW())"
                 ),
                 {
-                    "usid": usuario_id,
-                    "tid": tenant_id,
-                    "uid": user_id,
-                    "nom": u["name"],
-                    "ape": u["apellidos"],
-                    "leg": u["email"].split("@")[0],
+                    "usid": usuario_id, "tid": tid, "uid": user_id,
+                    "nom": u["name"], "ape": u["apellidos"],
+                    "leg": u["email"].split("@")[0], "fac": u["facturador"],
                 },
             )
-
             for role in u["roles"]:
                 await session.execute(
                     text(
                         "INSERT INTO asignacion (id, tenant_id, usuario_id, rol, desde, hasta, created_at, updated_at) "
                         "VALUES (:aid, :tid, :usid, :rol, CURRENT_DATE, '2099-12-31', NOW(), NOW())"
                     ),
-                    {
-                        "aid": uuid.uuid4(),
-                        "tid": tenant_id,
-                        "usid": usuario_id,
-                        "rol": role,
-                    },
+                    {"aid": uuid.uuid4(), "tid": tid, "usid": usuario_id, "rol": role},
                 )
 
+        coordinador_uid = usuario_ids["coordinador@demo.com"]
+        profesor_uid    = usuario_ids["profesor@demo.com"]
+        tutor_uid       = usuario_ids["tutor@demo.com"]
+        alumno_uid      = usuario_ids["alumno@demo.com"]
+
         # ── 3. Estructura académica ───────────────────────────────────────────
-        carrera_id = uuid.uuid4()
-        cohorte_id = uuid.uuid4()
-        materia1_id = uuid.uuid4()  # Programación I
-        materia2_id = uuid.uuid4()  # Bases de Datos
-        dictado1_id = uuid.uuid4()  # PROG1 / ING-SIS / 2024
-        dictado2_id = uuid.uuid4()  # BDATOS / ING-SIS / 2024
+        carrera_id   = uuid.uuid4()
+        cohorte_id   = uuid.uuid4()
+        materia1_id  = uuid.uuid4()   # PROG1
+        materia2_id  = uuid.uuid4()   # BDATOS
+        dictado1_id  = uuid.uuid4()   # PROG1 / ING-SIS / 2024
+        dictado2_id  = uuid.uuid4()   # BDATOS / ING-SIS / 2024
 
         await session.execute(
-            text(
-                "INSERT INTO carrera (id, tenant_id, codigo, nombre, estado, created_at, updated_at) "
-                "VALUES (:id, :tid, :codigo, :nombre, 'Activa', NOW(), NOW())"
-            ),
-            {"id": carrera_id, "tid": tenant_id, "codigo": "ING-SIS", "nombre": "Ingeniería en Sistemas"},
+            text("INSERT INTO carrera (id, tenant_id, codigo, nombre, estado, created_at, updated_at) VALUES (:id, :tid, :cod, :nom, 'Activa', NOW(), NOW())"),
+            {"id": carrera_id, "tid": tid, "cod": "ING-SIS", "nom": "Ingeniería en Sistemas"},
         )
-
         await session.execute(
-            text(
-                "INSERT INTO cohorte (id, tenant_id, carrera_id, nombre, anio, estado, created_at, updated_at) "
-                "VALUES (:id, :tid, :cid, :nombre, :anio, 'Activa', NOW(), NOW())"
-            ),
-            {"id": cohorte_id, "tid": tenant_id, "cid": carrera_id, "nombre": "2024", "anio": 2024},
+            text("INSERT INTO cohorte (id, tenant_id, carrera_id, nombre, anio, estado, created_at, updated_at) VALUES (:id, :tid, :cid, :nom, :anio, 'Activa', NOW(), NOW())"),
+            {"id": cohorte_id, "tid": tid, "cid": carrera_id, "nom": "2024", "anio": 2024},
         )
-
-        for mid, codigo, nombre in [
-            (materia1_id, "PROG1", "Programación I"),
-            (materia2_id, "BDATOS", "Bases de Datos"),
-        ]:
+        for mid, cod, nom in [(materia1_id, "PROG1", "Programación I"), (materia2_id, "BDATOS", "Bases de Datos")]:
             await session.execute(
-                text(
-                    "INSERT INTO materia (id, tenant_id, codigo, nombre, estado, created_at, updated_at) "
-                    "VALUES (:id, :tid, :codigo, :nombre, 'Activa', NOW(), NOW())"
-                ),
-                {"id": mid, "tid": tenant_id, "codigo": codigo, "nombre": nombre},
+                text("INSERT INTO materia (id, tenant_id, codigo, nombre, estado, created_at, updated_at) VALUES (:id, :tid, :cod, :nom, 'Activa', NOW(), NOW())"),
+                {"id": mid, "tid": tid, "cod": cod, "nom": nom},
             )
-
         for did, mid in [(dictado1_id, materia1_id), (dictado2_id, materia2_id)]:
             await session.execute(
-                text(
-                    "INSERT INTO dictado (id, tenant_id, materia_id, carrera_id, cohorte_id, estado, created_at, updated_at) "
-                    "VALUES (:id, :tid, :mid, :crid, :coid, 'Activo', NOW(), NOW())"
-                ),
-                {"id": did, "tid": tenant_id, "mid": mid, "crid": carrera_id, "coid": cohorte_id},
+                text("INSERT INTO dictado (id, tenant_id, materia_id, carrera_id, cohorte_id, estado, created_at, updated_at) VALUES (:id, :tid, :mid, :crid, :coid, 'Activo', NOW(), NOW())"),
+                {"id": did, "tid": tid, "mid": mid, "crid": carrera_id, "coid": cohorte_id},
             )
 
-        # Asignaciones con contexto: profesor y tutor a sus dictados
-        coordinador_uid = usuario_ids["coordinador@demo.com"]
-        profesor_uid = usuario_ids["profesor@demo.com"]
-        tutor_uid = usuario_ids["tutor@demo.com"]
-        alumno_uid = usuario_ids["alumno@demo.com"]
-
+        # Asignaciones contextuales
         profesor_asi1_id = uuid.uuid4()
         profesor_asi2_id = uuid.uuid4()
+        tutor_asi1_id    = uuid.uuid4()
+        tutor_asi2_id    = uuid.uuid4()
 
-        for asi_id, did in [(profesor_asi1_id, dictado1_id), (profesor_asi2_id, dictado2_id)]:
+        for asi_id, uid, rol, did in [
+            (profesor_asi1_id, profesor_uid, "PROFESOR", dictado1_id),
+            (profesor_asi2_id, profesor_uid, "PROFESOR", dictado2_id),
+            (tutor_asi1_id,    tutor_uid,    "TUTOR",    dictado1_id),
+            (tutor_asi2_id,    tutor_uid,    "TUTOR",    dictado2_id),
+        ]:
             await session.execute(
-                text(
-                    "INSERT INTO asignacion (id, tenant_id, usuario_id, rol, dictado_id, desde, hasta, created_at, updated_at) "
-                    "VALUES (:aid, :tid, :usid, 'PROFESOR', :did, CURRENT_DATE, '2099-12-31', NOW(), NOW())"
-                ),
-                {"aid": asi_id, "tid": tenant_id, "usid": profesor_uid, "did": did},
+                text("INSERT INTO asignacion (id, tenant_id, usuario_id, rol, dictado_id, desde, hasta, created_at, updated_at) VALUES (:aid, :tid, :uid, :rol, :did, CURRENT_DATE, '2099-12-31', NOW(), NOW())"),
+                {"aid": asi_id, "tid": tid, "uid": uid, "rol": rol, "did": did},
             )
-
-        for did in [dictado1_id, dictado2_id]:
-            await session.execute(
-                text(
-                    "INSERT INTO asignacion (id, tenant_id, usuario_id, rol, dictado_id, desde, hasta, created_at, updated_at) "
-                    "VALUES (:aid, :tid, :usid, 'TUTOR', :did, CURRENT_DATE, '2099-12-31', NOW(), NOW())"
-                ),
-                {"aid": uuid.uuid4(), "tid": tenant_id, "usid": tutor_uid, "did": did},
-            )
-
         await session.execute(
-            text(
-                "INSERT INTO asignacion (id, tenant_id, usuario_id, rol, carrera_id, desde, hasta, created_at, updated_at) "
-                "VALUES (:aid, :tid, :usid, 'COORDINADOR', :crid, CURRENT_DATE, '2099-12-31', NOW(), NOW())"
-            ),
-            {"aid": uuid.uuid4(), "tid": tenant_id, "usid": coordinador_uid, "crid": carrera_id},
+            text("INSERT INTO asignacion (id, tenant_id, usuario_id, rol, carrera_id, desde, hasta, created_at, updated_at) VALUES (:aid, :tid, :uid, 'COORDINADOR', :crid, CURRENT_DATE, '2099-12-31', NOW(), NOW())"),
+            {"aid": uuid.uuid4(), "tid": tid, "uid": coordinador_uid, "crid": carrera_id},
         )
 
         # ── 4. Padrón y calificaciones ────────────────────────────────────────
         for did, version_id, entrada_id, califs in [
-            (
-                dictado1_id,
-                uuid.uuid4(),
-                uuid.uuid4(),
-                [
-                    ("TP 1 — Fundamentos", 8.5, True),
-                    ("TP 2 — Estructuras de control", 7.0, True),
-                    ("Parcial 1", 6.5, True),
-                    ("TP 3 — Funciones", 9.0, True),
-                    ("Parcial 2", 5.5, True),
-                ],
-            ),
-            (
-                dictado2_id,
-                uuid.uuid4(),
-                uuid.uuid4(),
-                [
-                    ("TP 1 — Modelo relacional", 9.0, True),
-                    ("Parcial 1", 4.5, False),
-                    ("Recuperatorio Parcial 1", 7.0, True),
-                    ("TP 2 — SQL avanzado", 8.0, True),
-                    ("Parcial 2", 6.0, True),
-                ],
-            ),
+            (dictado1_id, uuid.uuid4(), uuid.uuid4(), [
+                ("TP 1 — Fundamentos",          8.5, True),
+                ("TP 2 — Estructuras de control", 7.0, True),
+                ("Parcial 1",                   6.5, True),
+                ("TP 3 — Funciones",            9.0, True),
+                ("Parcial 2",                   5.5, True),
+            ]),
+            (dictado2_id, uuid.uuid4(), uuid.uuid4(), [
+                ("TP 1 — Modelo relacional",    9.0, True),
+                ("Parcial 1",                   4.5, False),
+                ("Recuperatorio Parcial 1",     7.0, True),
+                ("TP 2 — SQL avanzado",         8.0, True),
+                ("Parcial 2",                   6.0, True),
+            ]),
         ]:
             await session.execute(
-                text(
-                    "INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) "
-                    "VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"
-                ),
-                {"id": version_id, "tid": tenant_id, "did": did, "uid": coordinador_uid},
+                text("INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"),
+                {"id": version_id, "tid": tid, "did": did, "uid": coordinador_uid},
             )
-
             await session.execute(
-                text(
-                    "INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, created_at, updated_at) "
-                    "VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', NOW(), NOW())"
-                ),
-                {"id": entrada_id, "tid": tenant_id, "vid": version_id, "uid": alumno_uid},
+                text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', NOW(), NOW())"),
+                {"id": entrada_id, "tid": tid, "vid": version_id, "uid": alumno_uid},
             )
-
             for actividad, nota, aprobado in califs:
                 await session.execute(
-                    text(
-                        "INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, actividad, nota_numerica, aprobado, origen, created_at, updated_at) "
-                        "VALUES (:id, :tid, :eid, :did, :act, :nota, :aprobado, 'Importado', NOW(), NOW())"
-                    ),
-                    {
-                        "id": uuid.uuid4(),
-                        "tid": tenant_id,
-                        "eid": entrada_id,
-                        "did": did,
-                        "act": actividad,
-                        "nota": nota,
-                        "aprobado": aprobado,
-                    },
+                    text("INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, actividad, nota_numerica, aprobado, origen, created_at, updated_at) VALUES (:id, :tid, :eid, :did, :act, :nota, :ap, 'Importado', NOW(), NOW())"),
+                    {"id": uuid.uuid4(), "tid": tid, "eid": entrada_id, "did": did, "act": actividad, "nota": nota, "ap": aprobado},
                 )
 
         # ── 5. Umbrales y fechas académicas ──────────────────────────────────
         for asi_id, did in [(profesor_asi1_id, dictado1_id), (profesor_asi2_id, dictado2_id)]:
             await session.execute(
-                text(
-                    "INSERT INTO umbral_materia (id, tenant_id, asignacion_id, dictado_id, umbral_pct, created_at, updated_at) "
-                    "VALUES (:id, :tid, :aid, :did, 60, NOW(), NOW())"
-                ),
-                {"id": uuid.uuid4(), "tid": tenant_id, "aid": asi_id, "did": did},
+                text("INSERT INTO umbral_materia (id, tenant_id, asignacion_id, dictado_id, umbral_pct, created_at, updated_at) VALUES (:id, :tid, :aid, :did, 60, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "aid": asi_id, "did": did},
+            )
+        for did, tipo, num, periodo, fecha, titulo in [
+            (dictado1_id, "TP",           1, "2026-1", "2026-03-25 10:00:00+00", "TP 1 — Fundamentos"),
+            (dictado1_id, "TP",           2, "2026-1", "2026-04-22 10:00:00+00", "TP 2 — Estructuras de control"),
+            (dictado1_id, "Parcial",      1, "2026-1", "2026-04-15 09:00:00+00", "Primer Parcial"),
+            (dictado1_id, "TP",           3, "2026-1", "2026-05-20 10:00:00+00", "TP 3 — Funciones"),
+            (dictado1_id, "Parcial",      2, "2026-1", "2026-06-03 09:00:00+00", "Segundo Parcial"),
+            (dictado1_id, "Coloquio",     1, "2026-1", "2026-06-24 09:00:00+00", "Coloquio Final"),
+            (dictado2_id, "TP",           1, "2026-1", "2026-03-30 10:00:00+00", "TP 1 — Modelo relacional"),
+            (dictado2_id, "Parcial",      1, "2026-1", "2026-04-20 09:00:00+00", "Primer Parcial"),
+            (dictado2_id, "Recuperatorio",1, "2026-1", "2026-05-06 09:00:00+00", "Recuperatorio Parcial 1"),
+            (dictado2_id, "TP",           2, "2026-1", "2026-05-27 10:00:00+00", "TP 2 — SQL avanzado"),
+            (dictado2_id, "Parcial",      2, "2026-1", "2026-06-10 09:00:00+00", "Segundo Parcial"),
+            (dictado2_id, "Coloquio",     1, "2026-1", "2026-06-27 09:00:00+00", "Coloquio Final"),
+        ]:
+            await session.execute(
+                text("INSERT INTO fecha_academica (id, tenant_id, dictado_id, tipo, numero, periodo, fecha, titulo, created_at, updated_at) VALUES (:id, :tid, :did, :tipo, :num, :per, :fecha, :titulo, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "did": did, "tipo": tipo, "num": num, "per": periodo, "fecha": fecha, "titulo": titulo},
             )
 
-        fechas = [
-            # (dictado_id, tipo, numero, periodo, fecha, titulo)
-            (dictado1_id, "TP",    1, "2026-1", "2026-03-25 10:00:00+00", "TP 1 — Fundamentos"),
-            (dictado1_id, "TP",    2, "2026-1", "2026-04-22 10:00:00+00", "TP 2 — Estructuras de control"),
-            (dictado1_id, "Parcial", 1, "2026-1", "2026-04-15 09:00:00+00", "Primer Parcial"),
-            (dictado1_id, "TP",    3, "2026-1", "2026-05-20 10:00:00+00", "TP 3 — Funciones"),
-            (dictado1_id, "Parcial", 2, "2026-1", "2026-06-03 09:00:00+00", "Segundo Parcial"),
-            (dictado1_id, "Coloquio", 1, "2026-1", "2026-06-24 09:00:00+00", "Coloquio Final"),
-            (dictado2_id, "TP",    1, "2026-1", "2026-03-30 10:00:00+00", "TP 1 — Modelo relacional"),
-            (dictado2_id, "Parcial", 1, "2026-1", "2026-04-20 09:00:00+00", "Primer Parcial"),
-            (dictado2_id, "Recuperatorio", 1, "2026-1", "2026-05-06 09:00:00+00", "Recuperatorio Parcial 1"),
-            (dictado2_id, "TP",    2, "2026-1", "2026-05-27 10:00:00+00", "TP 2 — SQL avanzado"),
-            (dictado2_id, "Parcial", 2, "2026-1", "2026-06-10 09:00:00+00", "Segundo Parcial"),
-            (dictado2_id, "Coloquio", 1, "2026-1", "2026-06-27 09:00:00+00", "Coloquio Final"),
-        ]
+        # ── 6. Programas de materia ───────────────────────────────────────────
+        for did, titulo, ref in [
+            (dictado1_id, "Programa Programación I — 2024",  "programas/ING-SIS/2024/PROG1.pdf"),
+            (dictado2_id, "Programa Bases de Datos — 2024",  "programas/ING-SIS/2024/BDATOS.pdf"),
+        ]:
+            await session.execute(
+                text("INSERT INTO programa_materia (id, tenant_id, dictado_id, titulo, referencia_archivo, created_at, updated_at) VALUES (:id, :tid, :did, :titulo, :ref, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "did": did, "titulo": titulo, "ref": ref},
+            )
 
-        for did, tipo, numero, periodo, fecha, titulo in fechas:
+        # ── 7. Slots de encuentro e instancias ────────────────────────────────
+        slot1_id = uuid.uuid4()
+        slot2_id = uuid.uuid4()
+        for slot_id, asi_id, did, titulo, hora, dia, fecha_inicio in [
+            (slot1_id, tutor_asi1_id, dictado1_id, "Tutoría Programación I",  "18:00:00", "Martes",   "2026-03-04"),
+            (slot2_id, tutor_asi2_id, dictado2_id, "Tutoría Bases de Datos",  "19:00:00", "Jueves",   "2026-03-06"),
+        ]:
             await session.execute(
                 text(
-                    "INSERT INTO fecha_academica (id, tenant_id, dictado_id, tipo, numero, periodo, fecha, titulo, created_at, updated_at) "
-                    "VALUES (:id, :tid, :did, :tipo, :num, :periodo, :fecha, :titulo, NOW(), NOW())"
+                    "INSERT INTO slot_encuentro (id, tenant_id, dictado_id, asignacion_id, titulo, hora, dia_semana, fecha_inicio, cant_semanas, vig_desde, created_at, updated_at) "
+                    "VALUES (:id, :tid, :did, :aid, :titulo, :hora, :dia, :fi, 16, :fi, NOW(), NOW())"
                 ),
-                {
-                    "id": uuid.uuid4(),
-                    "tid": tenant_id,
-                    "did": did,
-                    "tipo": tipo,
-                    "num": numero,
-                    "periodo": periodo,
-                    "fecha": fecha,
-                    "titulo": titulo,
-                },
+                {"id": slot_id, "tid": tid, "did": did, "aid": asi_id, "titulo": titulo, "hora": hora, "dia": dia, "fi": fecha_inicio},
+            )
+        for slot_id, asi_id, did, fechas in [
+            (slot1_id, tutor_asi1_id, dictado1_id, [
+                ("2026-03-11", "Realizado"), ("2026-03-18", "Realizado"), ("2026-04-01", "Realizado"), ("2026-06-17", "Programado"),
+            ]),
+            (slot2_id, tutor_asi2_id, dictado2_id, [
+                ("2026-03-13", "Realizado"), ("2026-03-20", "Realizado"), ("2026-06-19", "Programado"),
+            ]),
+        ]:
+            for fecha, estado in fechas:
+                hora = "18:00:00" if did == dictado1_id else "19:00:00"
+                await session.execute(
+                    text(
+                        "INSERT INTO instancia_encuentro (id, tenant_id, slot_id, dictado_id, asignacion_id, fecha, hora, titulo, estado, created_at, updated_at) "
+                        "VALUES (:id, :tid, :sid, :did, :aid, :fecha, :hora, :titulo, :estado, NOW(), NOW())"
+                    ),
+                    {
+                        "id": uuid.uuid4(), "tid": tid, "sid": slot_id, "did": did, "aid": asi_id,
+                        "fecha": fecha, "hora": hora,
+                        "titulo": "Tutoría Programación I" if did == dictado1_id else "Tutoría Bases de Datos",
+                        "estado": estado,
+                    },
+                )
+
+        # ── 8. Guardias de consulta ───────────────────────────────────────────
+        for asi_id, did, dia, horario in [
+            (tutor_asi1_id, dictado1_id, "Lunes",     "10:00 - 12:00"),
+            (tutor_asi1_id, dictado1_id, "Viernes",   "14:00 - 16:00"),
+            (tutor_asi2_id, dictado2_id, "Miércoles", "15:00 - 17:00"),
+        ]:
+            await session.execute(
+                text(
+                    "INSERT INTO guardia (id, tenant_id, asignacion_id, dictado_id, dia, horario, estado, creada_at, created_at, updated_at) "
+                    "VALUES (:id, :tid, :aid, :did, :dia, :horario, 'Pendiente', NOW(), NOW(), NOW())"
+                ),
+                {"id": uuid.uuid4(), "tid": tid, "aid": asi_id, "did": did, "dia": dia, "horario": horario},
             )
 
-        # ── 6. Roles / permisos / rol_permiso ────────────────────────────────
+        # ── 9. Evaluaciones / coloquios ───────────────────────────────────────
+        eval1_id = uuid.uuid4()
+        eval2_id = uuid.uuid4()
+        for eval_id, did, instancia in [
+            (eval1_id, dictado1_id, "Coloquio Final — Programación I"),
+            (eval2_id, dictado2_id, "Coloquio Final — Bases de Datos"),
+        ]:
+            await session.execute(
+                text(
+                    "INSERT INTO evaluacion (id, tenant_id, dictado_id, tipo, instancia, cupo_maximo, estado, created_at, updated_at) "
+                    "VALUES (:id, :tid, :did, 'Coloquio', :inst, 20, 'Activa', NOW(), NOW())"
+                ),
+                {"id": eval_id, "tid": tid, "did": did, "inst": instancia},
+            )
+            await session.execute(
+                text("INSERT INTO alumno_convocado (id, tenant_id, evaluacion_id, alumno_id, created_at, updated_at) VALUES (:id, :tid, :eid, :uid, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "eid": eval_id, "uid": alumno_uid},
+            )
+
+        # Alumno reserva el coloquio de Programación I
+        await session.execute(
+            text(
+                "INSERT INTO reserva_evaluacion (id, tenant_id, evaluacion_id, alumno_id, fecha_hora, estado, created_at, updated_at) "
+                "VALUES (:id, :tid, :eid, :uid, '2026-06-24 09:00:00+00', 'Activa', NOW(), NOW())"
+            ),
+            {"id": uuid.uuid4(), "tid": tid, "eid": eval1_id, "uid": alumno_uid},
+        )
+        # Coloquio de Bases de Datos ya tiene resultado
+        await session.execute(
+            text("INSERT INTO resultado_evaluacion (id, tenant_id, evaluacion_id, alumno_id, nota_final, created_at, updated_at) VALUES (:id, :tid, :eid, :uid, 'Aprobado - 7', NOW(), NOW())"),
+            {"id": uuid.uuid4(), "tid": tid, "eid": eval2_id, "uid": alumno_uid},
+        )
+
+        # ── 10. Avisos ────────────────────────────────────────────────────────
+        aviso1_id = uuid.uuid4()
+        aviso2_id = uuid.uuid4()
+        await session.execute(
+            text(
+                "INSERT INTO aviso (id, tenant_id, alcance, severidad, titulo, cuerpo, inicio_en, fin_en, requiere_ack, activo, created_at, updated_at) "
+                "VALUES (:id, :tid, 'GLOBAL', 'INFO', :titulo, :cuerpo, '2026-03-01 00:00:00+00', '2026-04-01 00:00:00+00', false, true, NOW(), NOW())"
+            ),
+            {
+                "id": aviso1_id, "tid": tid,
+                "titulo": "Inicio de cursada 2026 — Primer cuatrimestre",
+                "cuerpo": "Les comunicamos que la cursada del primer cuatrimestre 2026 comenzará el 3 de marzo. Revisá tu plan de estudios y el calendario académico.",
+            },
+        )
+        await session.execute(
+            text(
+                "INSERT INTO aviso (id, tenant_id, alcance, cohorte_id, severidad, titulo, cuerpo, inicio_en, fin_en, requiere_ack, activo, created_at, updated_at) "
+                "VALUES (:id, :tid, 'POR_COHORTE', :coid, 'ADVERTENCIA', :titulo, :cuerpo, '2026-05-01 00:00:00+00', '2026-06-30 00:00:00+00', true, true, NOW(), NOW())"
+            ),
+            {
+                "id": aviso2_id, "tid": tid, "coid": cohorte_id,
+                "titulo": "Requisitos para rendir coloquio — cohorte 2024",
+                "cuerpo": "Recordamos que para acceder al coloquio final es necesario tener aprobados todos los TPs y ambos parciales (o recuperatorio). Verificá tu situación académica.",
+            },
+        )
+        # Alumno confirma el aviso con ack
+        await session.execute(
+            text("INSERT INTO acknowledgment_aviso (id, tenant_id, aviso_id, usuario_id, created_at, updated_at) VALUES (:id, :tid, :aid, :uid, NOW(), NOW())"),
+            {"id": uuid.uuid4(), "tid": tid, "aid": aviso2_id, "uid": alumno_uid},
+        )
+
+        # ── 11. Tareas ────────────────────────────────────────────────────────
+        for descripcion, estado, asignado_a, materia_id in [
+            ("Cargar calificaciones del TP 3 — Programación I antes del 25/05", "PENDIENTE",    profesor_uid, materia1_id),
+            ("Actualizar programa de Bases de Datos para el próximo cuatrimestre", "EN_PROGRESO", profesor_uid, materia2_id),
+            ("Revisar y aprobar el listado de alumnos habilitados para coloquio", "RESUELTA",    coordinador_uid, None),
+        ]:
+            await session.execute(
+                text(
+                    "INSERT INTO tarea (id, tenant_id, materia_id, asignado_a, asignado_por, descripcion, estado, created_at, updated_at) "
+                    "VALUES (:id, :tid, :mid, :aa, :ap, :desc, :estado, NOW(), NOW())"
+                ),
+                {"id": uuid.uuid4(), "tid": tid, "mid": materia_id, "aa": asignado_a, "ap": coordinador_uid, "desc": descripcion, "estado": estado},
+            )
+
+        # ── 12. Mensajería interna ────────────────────────────────────────────
+        hilo_id = uuid.uuid4()
+        await session.execute(
+            text("INSERT INTO hilo_conversacion (id, tenant_id, asunto, created_at, updated_at) VALUES (:id, :tid, :asunto, NOW(), NOW())"),
+            {"id": hilo_id, "tid": tid, "asunto": "Novedades TP 3 — Programación I"},
+        )
+        for uid in [coordinador_uid, profesor_uid]:
+            await session.execute(
+                text("INSERT INTO hilo_participante (id, tenant_id, hilo_id, usuario_id, created_at, updated_at) VALUES (:id, :tid, :hid, :uid, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "hid": hilo_id, "uid": uid},
+            )
+        for remitente_id, contenido in [
+            (coordinador_uid, "Hola Carlos, ¿cómo van las notas del TP 3? Necesito el informe antes del viernes para cerrar el período."),
+            (profesor_uid,    "Hola, estoy terminando de cargarlas. Tengo 2 alumnos que entregaron tarde, ¿los incluyo igual o los marco como ausentes?"),
+        ]:
+            await session.execute(
+                text("INSERT INTO mensaje (id, tenant_id, hilo_id, remitente_id, contenido, created_at, updated_at) VALUES (:id, :tid, :hid, :rem, :cont, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "hid": hilo_id, "rem": remitente_id, "cont": contenido},
+            )
+
+        # ── 13. Grilla salarial ───────────────────────────────────────────────
+        # salario_base por rol (vigente desde 2025-01-01)
+        for rol, monto in [("PROFESOR", 650000), ("TUTOR", 420000), ("COORDINADOR", 820000)]:
+            await session.execute(
+                text("INSERT INTO salario_base (id, tenant_id, rol, monto, desde, created_at, updated_at) VALUES (:id, :tid, :rol, :monto, '2025-01-01', NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "rol": rol, "monto": monto},
+            )
+
+        # salario_plus — adicionales por grupo y rol
+        for grupo, rol, desc, monto in [
+            ("Antigüedad",  "PROFESOR",     "Plus por antigüedad (más de 5 años)",       75000),
+            ("Antigüedad",  "TUTOR",        "Plus por antigüedad (más de 5 años)",        48000),
+            ("Título",      "PROFESOR",     "Plus por título universitario de posgrado",  55000),
+            ("Título",      "COORDINADOR",  "Plus por título universitario de posgrado",  80000),
+            ("Zona",        "PROFESOR",     "Plus por zona geográfica",                   30000),
+            ("Zona",        "TUTOR",        "Plus por zona geográfica",                   25000),
+        ]:
+            await session.execute(
+                text("INSERT INTO salario_plus (id, tenant_id, grupo, rol, descripcion, monto, desde, created_at, updated_at) VALUES (:id, :tid, :grupo, :rol, :desc, :monto, '2025-01-01', NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "grupo": grupo, "rol": rol, "desc": desc, "monto": monto},
+            )
+
+        # clave_plus — categorías especiales por materia
+        cplus1_id = uuid.uuid4()
+        cplus2_id = uuid.uuid4()
+        for cp_id, codigo, desc in [
+            (cplus1_id, "CPROG",   "Programación (plus curricular especial)"),
+            (cplus2_id, "CBDATOS", "Bases de Datos (plus curricular especial)"),
+        ]:
+            await session.execute(
+                text("INSERT INTO clave_plus (id, tenant_id, codigo, descripcion, desde, created_at, updated_at) VALUES (:id, :tid, :cod, :desc, '2025-01-01', NOW(), NOW())"),
+                {"id": cp_id, "tid": tid, "cod": codigo, "desc": desc},
+            )
+
+        # materia_clave_plus — asignación de clave a materia
+        for mid, cp_id in [(materia1_id, cplus1_id), (materia2_id, cplus2_id)]:
+            await session.execute(
+                text("INSERT INTO materia_clave_plus (id, tenant_id, materia_id, clave_plus_id, desde, created_at, updated_at) VALUES (:id, :tid, :mid, :cpid, '2025-01-01', NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "mid": mid, "cpid": cp_id},
+            )
+
+        # ── 14. Liquidaciones y facturas ─────────────────────────────────────
+        # Profesor: base $650k + antigüedad $75k + título $55k = $780k
+        # Tutor:    base $420k + antigüedad $48k = $468k
+        liq1_id = uuid.uuid4()
+        liq2_id = uuid.uuid4()
+        for liq_id, uid, rol, base, plus, total in [
+            (liq1_id, profesor_uid, "PROFESOR", 650000, 130000, 780000),
+            (liq2_id, tutor_uid,    "TUTOR",    420000,  48000, 468000),
+        ]:
+            await session.execute(
+                text(
+                    "INSERT INTO liquidacion (id, tenant_id, cohorte_id, periodo, usuario_id, rol, comisiones, monto_base, monto_plus, total, estado, created_at, updated_at) "
+                    "VALUES (:id, :tid, :coid, '2026-06', :uid, :rol, 'A', :base, :plus, :total, 'Abierta', NOW(), NOW())"
+                ),
+                {"id": liq_id, "tid": tid, "coid": cohorte_id, "uid": uid, "rol": rol, "base": base, "plus": plus, "total": total},
+            )
+
+        # Factura del profesor (facturador=True)
+        await session.execute(
+            text(
+                "INSERT INTO factura (id, tenant_id, usuario_id, detalle, estado, created_at, updated_at) "
+                "VALUES (:id, :tid, :uid, :det, 'Pendiente', NOW(), NOW())"
+            ),
+            {
+                "id": uuid.uuid4(), "tid": tid, "uid": profesor_uid,
+                "det": "Honorarios junio 2026 — Programación I y Bases de Datos (ING-SIS cohorte 2024)",
+            },
+        )
+
+        # ── 15. Roles / permisos / rol_permiso ───────────────────────────────
         for codigo, nombre, descripcion in _ROLES:
             await session.execute(
-                text(
-                    "INSERT INTO rol (id, tenant_id, codigo, nombre, descripcion, created_at, updated_at) "
-                    "VALUES (gen_random_uuid(), :tid, :codigo, :nombre, :desc, NOW(), NOW()) "
-                    "ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"
-                ),
-                {"tid": tenant_id, "codigo": codigo, "nombre": nombre, "desc": descripcion},
+                text("INSERT INTO rol (id, tenant_id, codigo, nombre, descripcion, created_at, updated_at) VALUES (gen_random_uuid(), :tid, :cod, :nom, :desc, NOW(), NOW()) ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"),
+                {"tid": tid, "cod": codigo, "nom": nombre, "desc": descripcion},
             )
         for codigo, modulo in _PERMISOS:
             await session.execute(
-                text(
-                    "INSERT INTO permiso (id, tenant_id, codigo, nombre, descripcion, modulo, created_at, updated_at) "
-                    "VALUES (gen_random_uuid(), :tid, :codigo, :codigo, NULL, :modulo, NOW(), NOW()) "
-                    "ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"
-                ),
-                {"tid": tenant_id, "codigo": codigo, "modulo": modulo},
+                text("INSERT INTO permiso (id, tenant_id, codigo, nombre, descripcion, modulo, created_at, updated_at) VALUES (gen_random_uuid(), :tid, :cod, :cod, NULL, :mod, NOW(), NOW()) ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"),
+                {"tid": tid, "cod": codigo, "mod": modulo},
             )
-        for role_codigo, permiso_codigo, es_propio in _MATRIX:
+        for rc, pc, es_propio in _MATRIX:
             await session.execute(
                 text(
                     "INSERT INTO rol_permiso (id, tenant_id, rol_id, permiso_id, es_propio, created_at, updated_at) "
-                    "SELECT gen_random_uuid(), :tid, r.id, p.id, :es_propio, NOW(), NOW() "
+                    "SELECT gen_random_uuid(), :tid, r.id, p.id, :ep, NOW(), NOW() "
                     "FROM rol r, permiso p "
                     "WHERE r.tenant_id = :tid AND r.codigo = :rc AND r.deleted_at IS NULL "
                     "  AND p.tenant_id = :tid AND p.codigo = :pc AND p.deleted_at IS NULL "
                     "ON CONFLICT (tenant_id, rol_id, permiso_id) DO NOTHING"
                 ),
-                {"tid": tenant_id, "rc": role_codigo, "pc": permiso_codigo, "es_propio": es_propio},
+                {"tid": tid, "rc": rc, "pc": pc, "ep": es_propio},
             )
 
         await session.commit()
@@ -454,8 +546,9 @@ async def main() -> None:
         print("║  ALUMNO       ║ alumno@demo.com         ║ Alumno123!        ║")
         print("╠═══════════════╩═════════════════════════╩═══════════════════╣")
         print("║  Tenant slug: demo                                          ║")
-        print("║  Carrera: Ingeniería en Sistemas (ING-SIS)                  ║")
-        print("║  Cohorte: 2024  |  Materias: PROG1, BDATOS                  ║")
+        print("║  Carrera: Ingeniería en Sistemas (ING-SIS) — Cohorte 2024  ║")
+        print("║  Materias: PROG1 · BDATOS  |  Alumno: María García         ║")
+        print("║  Grilla: PROFESOR $780k · TUTOR $468k (base + plus)        ║")
         print("╚══════════════════════════════════════════════════════════════╝\n")
 
     await engine.dispose()
