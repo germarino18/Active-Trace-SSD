@@ -401,6 +401,10 @@ async def test_seed_all_permissions_exist(
         "facturas:gestionar",
         "configurar:tenant",
         "inbox:acceder",
+        # C-25 profesor dashboard
+        "actividades:gestionar",
+        "calificaciones:editar",
+        "padron:gestionar-alumno",
     }
     assert perm_codes == expected
 

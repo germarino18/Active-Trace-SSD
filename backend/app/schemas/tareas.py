@@ -18,6 +18,15 @@ class TareaCreate(BaseModel):
     contexto_id: UUID | None = None
 
 
+class TareaCreatePropia(BaseModel):
+    """Crear una tarea auto-asignada (el autor es también el destinatario)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    materia_id: UUID | None = None
+    descripcion: str = Field(..., min_length=1)
+
+
 class TareaUpdateEstado(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

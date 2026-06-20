@@ -21,6 +21,7 @@ from app.core.dependencies import get_db
 from app.core.permissions import Perm
 from app.schemas.auth import CurrentUser
 from app.schemas.calificaciones import (
+    CalificacionEditRequest,
     CalificacionResponse,
     ImportCalificacionesConfirm,
     ImportCalificacionesResponse,
@@ -28,6 +29,7 @@ from app.schemas.calificaciones import (
 )
 from app.services.calificaciones.calificacion_service import CalificacionService
 from app.services.calificaciones.umbral_service import UmbralService
+from app.services.profesor_service import ProfesorService
 
 router = APIRouter(prefix="/api/admin/calificaciones", tags=["calificaciones"])
 
@@ -97,7 +99,6 @@ async def importar_finalizacion(
 
 @router.get(
     "/dictados/{dictado_id}",
-    response_model=list[CalificacionResponse],
     dependencies=[Depends(require_permission(Perm.CALIFICACIONES_IMPORTAR))],
 )
 async def listar_calificaciones(
@@ -105,7 +106,12 @@ async def listar_calificaciones(
     current_user: CurrentUser = Depends(get_current_user),
     db_session: AsyncSession = Depends(get_db),
 ):
-    """Listar calificaciones de un dictado."""
+    """Listar calificaciones de un dictado.
+
+    Returns raw dicts with `actividad` (string) and `actividad_id` (UUID|null).
+    The `response_model` is intentionally omitted so `actividad_id` is included
+    (CalificacionResponse schema predates the actividad_id column).
+    """
     service = CalificacionService(db_session, current_user.tenant_id, current_user.user_id)
     return await service.listar_calificaciones(dictado_id)
 
@@ -136,3 +142,26 @@ async def obtener_umbral(
     """Obtener umbral vigente para un dictado."""
     service = UmbralService(db_session, current_user.tenant_id, current_user.user_id)
     return await service.obtener_umbral(dictado_id)
+
+
+@router.patch(
+    "/{calificacion_id}",
+    response_model=CalificacionResponse,
+    dependencies=[Depends(require_permission(Perm.CALIFICACIONES_EDITAR))],
+)
+async def editar_calificacion(
+    calificacion_id: UUID,
+    body: CalificacionEditRequest,
+    current_user: CurrentUser = Depends(get_current_user),
+    db_session: AsyncSession = Depends(get_db),
+    request=None,
+):
+    """Editar campos de una calificación individual (C-25 §5)."""
+    service = ProfesorService.create(db_session, current_user.tenant_id)
+    update_data = body.model_dump(exclude_none=True)
+    calificacion = await service.edit_calificacion(
+        calificacion_id, update_data, current_user, request
+    )
+    await db_session.commit()
+    await db_session.refresh(calificacion)
+    return CalificacionResponse.model_validate(calificacion)

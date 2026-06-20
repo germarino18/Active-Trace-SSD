@@ -125,4 +125,42 @@ export async function del<T>(url: string): Promise<T> {
   return response.data;
 }
 
+/**
+ * Downloads a file via authenticated GET (auth header attached by request interceptor).
+ * Reads the Content-Disposition header for the filename; falls back to the provided filename arg.
+ * This is required for endpoints that return CSV attachments behind JWT auth —
+ * a plain <a href> would download a 401 JSON instead of the real file.
+ */
+export async function download(url: string, filename: string): Promise<void> {
+  const response = await api.get<Blob>(url, { responseType: 'blob' });
+
+  // Try to extract filename from Content-Disposition: attachment; filename="foo.csv"
+  const disposition = response.headers['content-disposition'] as string | undefined;
+  let resolvedFilename = filename;
+  if (disposition) {
+    const match = disposition.match(/filename[^;=\n]*=["']?([^"';\n]+)["']?/i);
+    if (match?.[1]) resolvedFilename = match[1].trim();
+  }
+
+  const objectUrl = URL.createObjectURL(response.data);
+  const anchor = document.createElement('a');
+  anchor.href = objectUrl;
+  anchor.download = resolvedFilename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(objectUrl);
+}
+
+/**
+ * Uploads a FormData payload via multipart POST.
+ * Lets axios set the Content-Type (including the multipart boundary) automatically.
+ */
+export async function upload<T>(url: string, formData: FormData): Promise<T> {
+  const response = await api.post<T>(url, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+}
+
 export default api;

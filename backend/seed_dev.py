@@ -41,6 +41,10 @@ _PERMISOS = [
     ("liquidaciones:cerrar", "liquidaciones"),
     ("facturas:gestionar", "facturas"),
     ("configurar:tenant", "configurar"),
+    # C-25 profesor dashboard
+    ("actividades:gestionar", "actividades"),
+    ("calificaciones:editar", "calificaciones"),
+    ("padron:gestionar-alumno", "padron"),
 ]
 
 _MATRIX = [
@@ -53,6 +57,7 @@ _MATRIX = [
     ("TUTOR", "encuentros:gestionar", False),
     ("TUTOR", "guardias:registrar", True),
     ("PROFESOR", "avisos:confirmar", False),
+    ("PROFESOR", "avisos:publicar", True),  # C-26: propio (solo sus dictados)
     ("PROFESOR", "calificaciones:importar", True),
     ("PROFESOR", "atrasados:ver", True),
     ("PROFESOR", "entregas:sin-corregir", True),
@@ -92,6 +97,16 @@ _MATRIX = [
     ("FINANZAS", "grilla:operar", False),
     ("FINANZAS", "liquidaciones:cerrar", False),
     ("FINANZAS", "facturas:gestionar", False),
+    # C-25 profesor dashboard
+    ("PROFESOR", "actividades:gestionar", True),
+    ("PROFESOR", "calificaciones:editar", True),
+    ("PROFESOR", "padron:gestionar-alumno", True),
+    ("COORDINADOR", "actividades:gestionar", False),
+    ("COORDINADOR", "calificaciones:editar", False),
+    ("COORDINADOR", "padron:gestionar-alumno", False),
+    ("ADMIN", "actividades:gestionar", False),
+    ("ADMIN", "calificaciones:editar", False),
+    ("ADMIN", "padron:gestionar-alumno", False),
 ]
 
 
@@ -173,6 +188,50 @@ async def main() -> None:
         tutor_uid       = usuario_ids["tutor@demo.com"]
         alumno_uid      = usuario_ids["alumno@demo.com"]
 
+        # ── 2b. Alumnos extra (para picker alumnos-disponibles) ───────────────
+        extra_alumnos = [
+            {"email": "pedro.gomez@demo.com",    "name": "Pedro",    "apellidos": "Gómez"},
+            {"email": "laura.diaz@demo.com",     "name": "Laura",    "apellidos": "Díaz"},
+            {"email": "jorge.silva@demo.com",    "name": "Jorge",    "apellidos": "Silva"},
+            {"email": "ana.torres@demo.com",     "name": "Ana",      "apellidos": "Torres"},
+            {"email": "martin.ruiz@demo.com",    "name": "Martín",   "apellidos": "Ruiz"},
+        ]
+        for eu in extra_alumnos:
+            extra_user_id    = uuid.uuid4()
+            extra_usuario_id = uuid.uuid4()
+            await session.execute(
+                text(
+                    "INSERT INTO users (id, tenant_id, email, password_hash, display_name, is_active, roles, created_at, updated_at) "
+                    "VALUES (:uid, :tid, :email, :pw, :name, true, :roles, NOW(), NOW())"
+                ),
+                {
+                    "uid": extra_user_id, "tid": tid,
+                    "email": eu["email"],
+                    "pw": PasswordService.hash_password("Alumno123!"),
+                    "name": f"{eu['name']} {eu['apellidos']}",
+                    "roles": ["ALUMNO"],
+                },
+            )
+            await session.execute(
+                text(
+                    "INSERT INTO usuario (id, tenant_id, user_id, nombre, apellidos, legajo, facturador, estado, created_at, updated_at) "
+                    "VALUES (:usid, :tid, :uid, :nom, :ape, :leg, false, 'Activo', NOW(), NOW())"
+                ),
+                {
+                    "usid": extra_usuario_id, "tid": tid, "uid": extra_user_id,
+                    "nom": eu["name"], "ape": eu["apellidos"],
+                    "leg": eu["email"].split("@")[0],
+                },
+            )
+            # Global ALUMNO asignacion (vigente)
+            await session.execute(
+                text(
+                    "INSERT INTO asignacion (id, tenant_id, usuario_id, rol, desde, hasta, created_at, updated_at) "
+                    "VALUES (:aid, :tid, :usid, 'ALUMNO', CURRENT_DATE, '2099-12-31', NOW(), NOW())"
+                ),
+                {"aid": uuid.uuid4(), "tid": tid, "usid": extra_usuario_id},
+            )
+
         # ── 3. Estructura académica ───────────────────────────────────────────
         carrera_id   = uuid.uuid4()
         cohorte_id   = uuid.uuid4()
@@ -221,36 +280,103 @@ async def main() -> None:
             {"aid": uuid.uuid4(), "tid": tid, "uid": coordinador_uid, "crid": carrera_id},
         )
 
+        # ── 4. Actividades evaluables para dictado1 ──────────────────────────────
+        # TP 1 y TP 2 con fecha_limite en el pasado → missing = atrasado_null
+        actividad1_id = uuid.uuid4()
+        actividad2_id = uuid.uuid4()
+        for act_id, act_nombre in [(actividad1_id, "TP 1"), (actividad2_id, "TP 2")]:
+            await session.execute(
+                text(
+                    "INSERT INTO actividad (id, tenant_id, dictado_id, nombre, tipo, fecha_limite, created_at, updated_at) "
+                    "VALUES (:id, :tid, :did, :nombre, 'TP', '2025-06-01', NOW(), NOW())"
+                ),
+                {"id": act_id, "tid": tid, "did": dictado1_id, "nombre": act_nombre},
+            )
+
         # ── 4. Padrón y calificaciones ────────────────────────────────────────
-        for did, version_id, entrada_id, califs in [
-            (dictado1_id, uuid.uuid4(), uuid.uuid4(), [
-                ("TP 1 — Fundamentos",          8.5, True),
-                ("TP 2 — Estructuras de control", 7.0, True),
-                ("Parcial 1",                   6.5, True),
-                ("TP 3 — Funciones",            9.0, True),
-                ("Parcial 2",                   5.5, True),
-            ]),
-            (dictado2_id, uuid.uuid4(), uuid.uuid4(), [
-                ("TP 1 — Modelo relacional",    9.0, True),
-                ("Parcial 1",                   4.5, False),
-                ("Recuperatorio Parcial 1",     7.0, True),
-                ("TP 2 — SQL avanzado",         8.0, True),
-                ("Parcial 2",                   6.0, True),
-            ]),
+        # dictado1: María García (original) + Pedro Gómez + Laura Díaz enrolled
+        # Jorge Silva, Ana Torres, Martín Ruiz left unenrolled (for picker)
+        version1_id = uuid.uuid4()
+        await session.execute(
+            text("INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"),
+            {"id": version1_id, "tid": tid, "did": dictado1_id, "uid": coordinador_uid},
+        )
+
+        # Entrada de María García (alumno original)
+        entrada_maria_id = uuid.uuid4()
+        await session.execute(
+            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', 'alumno@demo.com', NOW(), NOW())"),
+            {"id": entrada_maria_id, "tid": tid, "vid": version1_id, "uid": alumno_uid},
+        )
+
+        # Resolver usuario_ids de Pedro Gómez y Laura Díaz
+        pedro_uid_row = await session.execute(
+            text("SELECT u.id FROM usuario u JOIN users us ON us.id = u.user_id WHERE us.email = 'pedro.gomez@demo.com' AND u.tenant_id = :tid"),
+            {"tid": tid},
+        )
+        pedro_uid = pedro_uid_row.scalar_one()
+
+        laura_uid_row = await session.execute(
+            text("SELECT u.id FROM usuario u JOIN users us ON us.id = u.user_id WHERE us.email = 'laura.diaz@demo.com' AND u.tenant_id = :tid"),
+            {"tid": tid},
+        )
+        laura_uid = laura_uid_row.scalar_one()
+
+        entrada_pedro_id = uuid.uuid4()
+        entrada_laura_id = uuid.uuid4()
+        for eid, uid, nom, ape in [
+            (entrada_pedro_id, pedro_uid, "Pedro", "Gómez"),
+            (entrada_laura_id, laura_uid, "Laura", "Díaz"),
         ]:
             await session.execute(
-                text("INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"),
-                {"id": version_id, "tid": tid, "did": did, "uid": coordinador_uid},
+                text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, :nom, :ape, 'A', NOW(), NOW())"),
+                {"id": eid, "tid": tid, "vid": version1_id, "uid": uid, "nom": nom, "ape": ape},
             )
+
+        # Calificaciones para dictado1:
+        # María García: APROBADO TP 1, DESAPROBADO TP 2 → atrasada (desaprobado)
+        # Pedro Gómez: APROBADO TP 1, sin calificacion TP 2 → atrasado (atrasado_null)
+        # Laura Díaz: sin calificaciones → atrasada (atrasado_null en TP 1 y TP 2)
+        for eid, act_id, act_nombre, nota, aprobado in [
+            (entrada_maria_id,  actividad1_id, "TP 1", 8.5,  True),
+            (entrada_maria_id,  actividad2_id, "TP 2", 3.0,  False),
+            (entrada_pedro_id,  actividad1_id, "TP 1", 9.0,  True),
+            # Pedro no tiene calificacion para TP 2 → atrasado_null
+        ]:
             await session.execute(
-                text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', NOW(), NOW())"),
-                {"id": entrada_id, "tid": tid, "vid": version_id, "uid": alumno_uid},
+                text(
+                    "INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, "
+                    "actividad, actividad_id, nota_numerica, aprobado, origen, created_at, updated_at) "
+                    "VALUES (:id, :tid, :eid, :did, :act, :act_id, :nota, :ap, 'Importado', NOW(), NOW())"
+                ),
+                {
+                    "id": uuid.uuid4(), "tid": tid, "eid": eid, "did": dictado1_id,
+                    "act": act_nombre, "act_id": act_id, "nota": nota, "ap": aprobado,
+                },
             )
-            for actividad, nota, aprobado in califs:
-                await session.execute(
-                    text("INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, actividad, nota_numerica, aprobado, origen, created_at, updated_at) VALUES (:id, :tid, :eid, :did, :act, :nota, :ap, 'Importado', NOW(), NOW())"),
-                    {"id": uuid.uuid4(), "tid": tid, "eid": entrada_id, "did": did, "act": actividad, "nota": nota, "ap": aprobado},
-                )
+
+        # dictado2: solo María García, calificaciones legacy (sin actividad_id FK)
+        version2_id = uuid.uuid4()
+        entrada2_id = uuid.uuid4()
+        await session.execute(
+            text("INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"),
+            {"id": version2_id, "tid": tid, "did": dictado2_id, "uid": coordinador_uid},
+        )
+        await session.execute(
+            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', 'alumno@demo.com', NOW(), NOW())"),
+            {"id": entrada2_id, "tid": tid, "vid": version2_id, "uid": alumno_uid},
+        )
+        for actividad, nota, aprobado in [
+            ("TP 1 — Modelo relacional",    9.0, True),
+            ("Parcial 1",                   4.5, False),
+            ("Recuperatorio Parcial 1",     7.0, True),
+            ("TP 2 — SQL avanzado",         8.0, True),
+            ("Parcial 2",                   6.0, True),
+        ]:
+            await session.execute(
+                text("INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, actividad, nota_numerica, aprobado, origen, created_at, updated_at) VALUES (:id, :tid, :eid, :did, :act, :nota, :ap, 'Importado', NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "eid": entrada2_id, "did": dictado2_id, "act": actividad, "nota": nota, "ap": aprobado},
+            )
 
         # ── 5. Umbrales y fechas académicas ──────────────────────────────────
         for asi_id, did in [(profesor_asi1_id, dictado1_id), (profesor_asi2_id, dictado2_id)]:
@@ -337,18 +463,29 @@ async def main() -> None:
             )
 
         # ── 9. Evaluaciones / coloquios ───────────────────────────────────────
+        # NOTE: created_by_id is set to the profesor's user_id so
+        # GET /profesor/coloquios/mios (filtered by created_by_id) returns results.
         eval1_id = uuid.uuid4()
         eval2_id = uuid.uuid4()
-        for eval_id, did, instancia in [
-            (eval1_id, dictado1_id, "Coloquio Final — Programación I"),
-            (eval2_id, dictado2_id, "Coloquio Final — Bases de Datos"),
+        eval3_id = uuid.uuid4()  # extra closed coloquio for PROG1
+        # Resolve the profesor's users.id (not usuario.id) for created_by_id
+        prof_user_id_row = await session.execute(
+            text("SELECT id FROM users WHERE email = 'profesor@demo.com' AND tenant_id = :tid"),
+            {"tid": tid},
+        )
+        prof_user_id = prof_user_id_row.scalar_one()
+        for eval_id, did, instancia, estado in [
+            (eval1_id, dictado1_id, "Coloquio Final — Programación I", "Activa"),
+            (eval2_id, dictado2_id, "Coloquio Final — Bases de Datos",  "Activa"),
+            (eval3_id, dictado1_id, "Recuperatorio — Programación I",   "Cerrada"),
         ]:
             await session.execute(
                 text(
-                    "INSERT INTO evaluacion (id, tenant_id, dictado_id, tipo, instancia, cupo_maximo, estado, created_at, updated_at) "
-                    "VALUES (:id, :tid, :did, 'Coloquio', :inst, 20, 'Activa', NOW(), NOW())"
+                    "INSERT INTO evaluacion (id, tenant_id, dictado_id, tipo, instancia, cupo_maximo, estado, "
+                    "created_by_id, created_at, updated_at) "
+                    "VALUES (:id, :tid, :did, 'Coloquio', :inst, 20, :estado, :cbid, NOW(), NOW())"
                 ),
-                {"id": eval_id, "tid": tid, "did": did, "inst": instancia},
+                {"id": eval_id, "tid": tid, "did": did, "inst": instancia, "estado": estado, "cbid": prof_user_id},
             )
             await session.execute(
                 text("INSERT INTO alumno_convocado (id, tenant_id, evaluacion_id, alumno_id, created_at, updated_at) VALUES (:id, :tid, :eid, :uid, NOW(), NOW())"),

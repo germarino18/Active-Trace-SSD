@@ -1,5 +1,6 @@
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { StatCard, Card } from '@/shared/components/ds';
+import { useProfesorDashboard } from '@/features/profesor/hooks/useProfesor';
 
 const ROLE_CONFIG: Record<string, { icon: string; stats: Array<{ label: string; value: string; icon: string; trend?: string }> }> = {
   ALUMNO: {
@@ -49,11 +50,37 @@ const FALLBACK_CONFIG = ROLE_CONFIG.ADMIN;
 export function DashboardPage() {
   const { session } = useAuth();
 
+  const primaryRole =
+    session.status === 'authenticated' ? (session.user.roles[0]?.toUpperCase() ?? '') : '';
+
+  const { data: profesorData } = useProfesorDashboard(primaryRole === 'PROFESOR');
+
   if (session.status !== 'authenticated') return null;
 
   const { user } = session;
-  const primaryRole = user.roles[0]?.toUpperCase() ?? '';
   const config = ROLE_CONFIG[primaryRole] ?? FALLBACK_CONFIG;
+
+  const resolvedStats =
+    primaryRole === 'PROFESOR'
+      ? [
+          {
+            label: 'Materias asignadas',
+            value: profesorData ? String(profesorData.materias_asignadas.length) : '—',
+            icon: 'class',
+          },
+          {
+            label: 'Alumnos en riesgo',
+            value: profesorData ? String(profesorData.total_atrasados) : '—',
+            icon: 'warning',
+            trend: 'Requieren atención',
+          },
+          {
+            label: 'Encuentros',
+            value: profesorData ? String(profesorData.total_encuentros) : '—',
+            icon: 'assignment_late',
+          },
+        ]
+      : config.stats;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -65,7 +92,7 @@ export function DashboardPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-        {config.stats.map((stat) => (
+        {resolvedStats.map((stat) => (
           <StatCard
             key={stat.label}
             label={stat.label}

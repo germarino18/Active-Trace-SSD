@@ -154,6 +154,33 @@ class AsignacionRepository(BaseRepository[Asignacion]):
             await self.session.flush()
         return len(rows)
 
+    async def find_equipo_by_dictado(
+        self,
+        dictado_id: uuid.UUID,
+        tenant_id: uuid.UUID,
+        roles: list[str] | None = None,
+        solo_vigentes: bool = True,
+    ) -> list[Asignacion]:
+        """Asignaciones vivas de un dictado, filtradas por rol (C-25 §9).
+
+        `tenant_id` viene de la sesión del caller (regla dura #9).
+        Por defecto solo vigentes (desde<=hoy AND (hasta IS NULL OR hoy<=hasta)).
+        """
+        if roles is None:
+            roles = ["PROFESOR", "TUTOR"]
+
+        query_stmt = select(Asignacion).where(
+            Asignacion.tenant_id == tenant_id,
+            Asignacion.dictado_id == dictado_id,
+            Asignacion.rol.in_(roles),
+            Asignacion.deleted_at.is_(None),
+        )
+        if solo_vigentes:
+            query_stmt = query_stmt.where(*_vigente_predicate())
+
+        result = await self.session.execute(query_stmt)
+        return list(result.unique().scalars().all())
+
     async def buscar_docentes(self, tenant_id: uuid.UUID, query: str) -> list[Usuario]:
         """Autocompletado de docentes (F4.4, RN-30): `ILIKE` sobre
         `nombre`/`apellidos` de `Usuario` (E4), scoped a tenant y vivos

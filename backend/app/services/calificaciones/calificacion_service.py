@@ -285,7 +285,11 @@ class CalificacionService:
     async def listar_calificaciones(
         self, dictado_id: uuid.UUID
     ) -> list[dict[str, Any]]:
-        """List all calificaciones for a dictado."""
+        """List all calificaciones for a dictado.
+
+        Includes ``actividad`` (string name) and ``actividad_id`` (UUID or None)
+        so the frontend can match grades to Actividad entities by either field.
+        """
         califs = await self.calificacion_repo.find_by_dictado(dictado_id)
         return [
             {
@@ -293,6 +297,7 @@ class CalificacionService:
                 "entrada_padron_id": c.entrada_padron_id,
                 "dictado_id": c.dictado_id,
                 "actividad": c.actividad,
+                "actividad_id": c.actividad_id,  # may be None for legacy/imported rows
                 "nota_numerica": float(c.nota_numerica) if c.nota_numerica is not None else None,
                 "nota_textual": c.nota_textual,
                 "aprobado": c.aprobado,

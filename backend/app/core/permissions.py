@@ -37,3 +37,8 @@ class Perm:
 
     # C-20 perfil y mensajeria
     INBOX_ACCEDER = "inbox:acceder"
+
+    # C-25 profesor dashboard
+    ACTIVIDADES_GESTIONAR = "actividades:gestionar"
+    CALIFICACIONES_EDITAR = "calificaciones:editar"
+    PADRON_GESTIONAR_ALUMNO = "padron:gestionar-alumno"

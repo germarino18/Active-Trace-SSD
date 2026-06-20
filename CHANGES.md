@@ -648,17 +648,34 @@ Leer antes: PRD §3 Persona 6, KB 03_actores_y_roles.md §3.3 matriz
 
 ---
 
+### [x] `frontend-profesor` _(OpenSpec change, sin C-NN asignado)_
+- **Estado**: `[x]` completo
+- **Scope**:
+  - Modelo `Actividad` + migración Alembic (tabla `actividad`, FK nullable en `calificacion`).
+  - Nuevos permisos RBAC: `actividades:gestionar`, `calificaciones:editar`, `padron:gestionar-alumno`.
+  - CRUD Actividades (`/api/v1/actividades/dictados/{id}`) y calificación editable (`PATCH /api/admin/calificaciones/{id}`).
+  - Dashboard profesor + métricas por dictado (`/api/v1/profesor/dashboard`, `metricas`).
+  - Gestión de padrón: alta/baja individual de alumno + export CSV (`/api/v1/profesor/dictados/{id}/padron/...`).
+  - Atrasados clasificados (aprobado / desaprobado / atrasado-null) + comunicado.
+  - Equipo docente del dictado, avisos míos, coloquios míos.
+  - Frontend: `features/profesor/` con páginas ProfesorDashboardListPage, DictadoDashboardPage, AlumnosDictadoPage, CalificacionesDictadoPage, AtrasadosDictadoPage, EquipoDictadoPage, AvisosMiosPage, MisColoquiosProfesorPage; rutas en App.tsx; sidebar en AppLayout.tsx; DashboardPage consume `useProfesorDashboard`.
+  - Tests frontend: 20/20 passing (Vitest).
+- **Dependencias**: `C-21`, `C-06`, `C-09`, `C-12`
+- **Governance**: MEDIO/CRÍTICO (RBAC y comunicaciones)
+
+---
+
 ## Resumen
 
 | Métrica | Valor |
 |---------|-------|
-| Total de changes | 32 (C-01…C-32) |
+| Total de changes | 33 (C-01…C-32 + frontend-profesor) |
 | Fases | 6 (FASE 0–5) + FASE 5 extendida (C-28–C-32) |
 | Camino crítico | 10 changes (`C-01 → C-02 → C-03 → C-04 → C-06 → C-07 → C-09 → C-10 → C-11 → C-12`) |
 | Gates de paralelismo | 11 (GATE 0 a GATE 10) |
 | Changes CRITICO (governance) | 6 (C-02, C-03, C-04, C-05, C-07, C-18) |
 | Primer fork | GATE 4 (tras C-04, seguridad lista) |
-| Changes completados | C-01…C-26, C-28 (27 de 32) |
+| Changes completados | C-01…C-26, C-28, C-33, frontend-profesor (29 de 33) |
 | Changes pendientes | C-27, C-29, C-32 |
 
 **Primer change recomendado**: `C-01` (foundation-setup).
