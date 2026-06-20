@@ -21,6 +21,7 @@ class EntradaPadron(BaseMixin, TenantMixin, Base):
     )
     nombre = Column(String(255), nullable=False)
     apellidos = Column(String(255), nullable=False)
+    # WARNING: raw SQL INSERT bypasses this TypeDecorator — always encrypt manually
     email = Column(EncryptedString, nullable=True)
     comision = Column(String(100), nullable=True)
     regional = Column(String(100), nullable=True)

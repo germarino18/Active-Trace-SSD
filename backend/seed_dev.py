@@ -6,6 +6,7 @@ import uuid
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.core.security import encrypt_value, get_encryption_key
 from app.services.auth.password_service import PasswordService
 
 # ── Matriz de roles/permisos ───────────────────────────────────────────────────
@@ -165,6 +166,8 @@ async def main() -> None:
             )
             await session.execute(
                 text(
+                    # WARNING: usuario.dni/cuil/cbu/alias_cbu are EncryptedString columns
+                    # DO NOT add them as raw values here — always encrypt via encrypt_value()
                     "INSERT INTO usuario (id, tenant_id, user_id, nombre, apellidos, legajo, facturador, estado, created_at, updated_at) "
                     "VALUES (:usid, :tid, :uid, :nom, :ape, :leg, :fac, 'Activo', NOW(), NOW())"
                 ),
@@ -304,9 +307,12 @@ async def main() -> None:
 
         # Entrada de María García (alumno original)
         entrada_maria_id = uuid.uuid4()
+        _seed_enc_key = get_encryption_key()
+        # WARNING: EncryptedString column — raw SQL bypasses TypeDecorator, encrypt manually
+        email_maria = encrypt_value("alumno@demo.com", _seed_enc_key)
         await session.execute(
-            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', 'alumno@demo.com', NOW(), NOW())"),
-            {"id": entrada_maria_id, "tid": tid, "vid": version1_id, "uid": alumno_uid},
+            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', :email, NOW(), NOW())"),
+            {"id": entrada_maria_id, "tid": tid, "vid": version1_id, "uid": alumno_uid, "email": email_maria},
         )
 
         # Resolver usuario_ids de Pedro Gómez y Laura Díaz
@@ -362,9 +368,11 @@ async def main() -> None:
             text("INSERT INTO version_padron (id, tenant_id, dictado_id, cargado_por, activa, created_at, updated_at) VALUES (:id, :tid, :did, :uid, true, NOW(), NOW())"),
             {"id": version2_id, "tid": tid, "did": dictado2_id, "uid": coordinador_uid},
         )
+        # WARNING: EncryptedString column — raw SQL bypasses TypeDecorator, encrypt manually
+        email_maria2 = encrypt_value("alumno@demo.com", _seed_enc_key)
         await session.execute(
-            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', 'alumno@demo.com', NOW(), NOW())"),
-            {"id": entrada2_id, "tid": tid, "vid": version2_id, "uid": alumno_uid},
+            text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', :email, NOW(), NOW())"),
+            {"id": entrada2_id, "tid": tid, "vid": version2_id, "uid": alumno_uid, "email": email_maria2},
         )
         for actividad, nota, aprobado in [
             ("TP 1 — Modelo relacional",    9.0, True),
