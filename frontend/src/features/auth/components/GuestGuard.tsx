@@ -14,7 +14,7 @@ export function GuestGuard() {
   }
 
   if (session.status === 'authenticated') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;

@@ -19,7 +19,7 @@ export function NexoAtrasadosStubPage() {
           Próximamente podrás consultar los alumnos atrasados de las carreras bajo tu supervisión.
         </p>
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
           style={{ padding: '8px 20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)', background: 'var(--surface)', color: 'var(--on-surface)', cursor: 'pointer', fontSize: 14 }}
         >
           Volver al dashboard

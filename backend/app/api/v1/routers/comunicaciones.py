@@ -16,6 +16,7 @@ from app.schemas.comunicaciones import (
     EnvioMasivoRequest,
     EnvioMasivoResponse,
     LoteResumen,
+    LotesPendientesResponse,
 )
 from app.services.comunicaciones_service import ComunicacionesService
 
@@ -64,6 +65,35 @@ async def enviar_masivo(
         current_user=current_user,
         request=request,
     )
+
+
+@router.get(
+    "/lotes",
+    response_model=LotesPendientesResponse,
+    dependencies=[Depends(require_permission(Perm.COMUNICACION_APROBAR))],
+)
+async def listar_lotes_pendientes(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List pending communication lots for approval."""
+    service = ComunicacionesService.create(db, current_user.tenant_id)
+    return await service.listar_lotes_pendientes()
+
+
+@router.get(
+    "/lotes/{lote_id}",
+    response_model=LoteResumen,
+    dependencies=[Depends(require_permission(Perm.COMUNICACION_ENVIAR))],
+)
+async def get_resumen_lote(
+    lote_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get batch summary for a communication lot."""
+    service = ComunicacionesService.create(db, current_user.tenant_id)
+    return await service.get_resumen_lote(lote_id)
 
 
 @router.get(

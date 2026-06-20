@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 
 const routeLabels: Record<string, string> = {
-  '/dashboard': 'Dashboard',
+  '/alumno/dashboard': 'Dashboard',
   '/profile': 'Mi Perfil',
 };
 

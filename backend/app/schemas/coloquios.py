@@ -122,3 +122,26 @@ class RegistroAcademicoRead(BaseModel):
     tipo: str
     nota_final: str
     fecha_reserva: datetime | None
+
+
+# ── Alumno self-service ────────────────────────────────────────────
+
+class FechaConCupoRead(BaseModel):
+    """Single available date slot with remaining capacity."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    fecha_id: UUID
+    fecha: datetime
+    cupos_restantes: int
+
+
+class ConvocatoriaColoquioRead(BaseModel):
+    """Coloquio convocatoria as seen by an ALUMNO (self-service)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    id: UUID
+    materia_nombre: str
+    fechas: list[FechaConCupoRead]
+    fecha_limite: datetime

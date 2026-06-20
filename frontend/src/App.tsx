@@ -9,7 +9,6 @@ import { TwoFactorPage } from '@/features/auth/pages/TwoFactorPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage';
 import { AppLayout } from '@/features/layout/components/AppLayout';
-import { DashboardPage } from '@/pages/DashboardPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { MateriaLayout } from '@/features/academico/components/MateriaLayout';
@@ -101,7 +100,7 @@ const queryClient = new QueryClient({
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/dashboard" replace />,
+    element: <Navigate to="/alumno/dashboard" replace />,
   },
   {
     element: <GuestGuard />,
@@ -118,7 +117,6 @@ const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: '/dashboard', element: <DashboardPage /> },
           { path: '/profile', element: <ProfilePage /> },
           // Tutor
           { path: '/tutor/alumnos', element: <TutorAlumnosPage /> },

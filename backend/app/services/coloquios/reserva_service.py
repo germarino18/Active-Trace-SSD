@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.acciones_auditoria import AccionAuditoria
 from app.core.exceptions import ForbiddenException, ValidationException
 from app.models.evaluacion import Evaluacion
+from app.models.usuario import Usuario
 from app.repositories.alumno_convocado_repository import AlumnoConvocadoRepository
 from app.repositories.audit_log_repository import AuditLogRepository
 from app.repositories.evaluacion_repository import EvaluacionRepository
@@ -81,7 +82,16 @@ class ReservaService:
             )
 
         # Verificar que el alumno esté convocado
-        alumno_id = current_user.user_id
+        usuario_row = (
+            await self._session.execute(
+                select(Usuario.id).where(Usuario.user_id == current_user.user_id)
+            )
+        ).scalar_one_or_none()
+        if usuario_row is None:
+            raise ForbiddenException(
+                action="El perfil de usuario no existe"
+            )
+        alumno_id = usuario_row
         convocado = await self._alumno_convocado_repo.exists(
             evaluacion_id=evaluacion_id,
             alumno_id=alumno_id,
@@ -172,7 +182,13 @@ class ReservaService:
             )
 
         # Only the owner or a user with gestionar permission can cancel
-        is_owner = reserva.alumno_id == current_user.user_id
+        usuario_row = (
+            await self._session.execute(
+                select(Usuario.id).where(Usuario.user_id == current_user.user_id)
+            )
+        ).scalar_one_or_none()
+        usuario_id = usuario_row
+        is_owner = reserva.alumno_id == usuario_id
         has_gestionar = any(
             perm in (current_user.roles or [])
             for perm in ["COORDINADOR", "ADMIN"]

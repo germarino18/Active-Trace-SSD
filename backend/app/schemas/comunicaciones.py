@@ -65,6 +65,27 @@ class LoteResumen(BaseModel):
     cancelados: int
 
 
+class LoteComunicacionItem(BaseModel):
+    """A pending communication lot as shown in the approval list."""
+
+    model_config = ConfigDict(extra="forbid")
+    lote_id: UUID
+    docente_id: UUID
+    docente_nombre: str
+    asunto: str
+    cuerpo: str
+    total_destinatarios: int
+    created_at: datetime
+
+
+class LotesPendientesResponse(BaseModel):
+    """Paginated response for pending approval lots."""
+
+    model_config = ConfigDict(extra="forbid")
+    items: list[LoteComunicacionItem]
+    total: int
+
+
 class ComunicacionEstadoUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     estado: str = Field(..., pattern=r"^(Enviando|Cancelado)$")

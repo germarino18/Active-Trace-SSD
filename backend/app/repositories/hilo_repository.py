@@ -72,11 +72,17 @@ class HiloRepository(BaseRepository[HiloConversacion]):
             await self.session.flush()
 
     async def obtener_otro_participante(self, hilo_id: UUID, usuario_id: UUID) -> UUID | None:
-        """Retorna el ID del otro participante del hilo (para hilos de 2 personas)."""
+        """Retorna el ID del otro participante del hilo (para hilos de 2 personas).
+
+        Para hilos con 3+ participantes retorna None, ya que no existe
+        un único "otro". El caller debe usar ultimo.remitente_id como fallback.
+        """
         query = select(HiloParticipante.usuario_id).where(
             HiloParticipante.hilo_id == hilo_id,
             HiloParticipante.usuario_id != usuario_id,
         )
         result = await self.session.execute(query)
-        row = result.scalar_one_or_none()
-        return row
+        rows = result.scalars().all()
+        if len(rows) == 1:
+            return rows[0]
+        return None

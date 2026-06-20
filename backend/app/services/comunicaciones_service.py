@@ -21,6 +21,8 @@ from app.schemas.comunicaciones import (
     ComunicacionRead,
     EnvioMasivoRequest,
     EnvioMasivoResponse,
+    LoteComunicacionItem,
+    LotesPendientesResponse,
     LoteResumen,
 )
 from app.services.audit.audit_logger import AuditLogger
@@ -317,6 +319,92 @@ class ComunicacionesService:
             errores=counts["Error"],
             cancelados=counts["Cancelado"],
         )
+
+    async def listar_lotes_pendientes(
+        self,
+    ) -> LotesPendientesResponse:
+        """List all distinct lotes that have pending communications.
+
+        Groups comunicaciones by lote_id where estado='Pendiente',
+        and returns one item per lote with metadata from the first
+        pending communication in that lot.
+        """
+        from sqlalchemy import func as sa_func
+
+        from app.models.usuario import Usuario
+
+        # Subquery: for each lote with pending comunicaciones,
+        # get lote_id, count, and min created_at
+        subq = (
+            select(
+                Comunicacion.lote_id,
+                sa_func.count(Comunicacion.id).label("total"),
+                sa_func.min(Comunicacion.created_at).label("first_created"),
+            )
+            .where(Comunicacion.estado == ComunicacionEstado.PENDIENTE.value)
+            .group_by(Comunicacion.lote_id)
+        )
+        subq = self._repo._apply_tenant_scope(subq)
+        subq_alias = subq.subquery("lotes")
+
+        # Get the first pending communication per lote
+        first_com = (
+            select(
+                Comunicacion.id,
+                Comunicacion.lote_id,
+                Comunicacion.enviado_por,
+                Comunicacion.asunto,
+                Comunicacion.cuerpo,
+                Comunicacion.created_at,
+                Comunicacion.materia_id,
+            )
+            .distinct(Comunicacion.lote_id)
+            .where(Comunicacion.estado == ComunicacionEstado.PENDIENTE.value)
+            .order_by(Comunicacion.lote_id, Comunicacion.created_at)
+        )
+        first_com = self._repo._apply_tenant_scope(first_com)
+        first_com_alias = first_com.subquery("first_com")
+
+        # Join subqueries to get lote group info + first com + user name
+        main_query = (
+            select(
+                subq_alias.c.lote_id,
+                subq_alias.c.total,
+                subq_alias.c.first_created,
+                first_com_alias.c.enviado_por,
+                first_com_alias.c.asunto,
+                first_com_alias.c.cuerpo,
+                Usuario.nombre.label("docente_nombre"),
+                Usuario.apellidos,
+                Usuario.id.label("docente_id"),
+            )
+            .select_from(subq_alias)
+            .join(
+                first_com_alias,
+                subq_alias.c.lote_id == first_com_alias.c.lote_id,
+            )
+            .join(
+                Usuario,
+                first_com_alias.c.enviado_por == Usuario.id,
+            )
+        )
+        result = await self._session.execute(main_query)
+        rows = result.all()
+
+        items = [
+            LoteComunicacionItem(
+                lote_id=row.lote_id,
+                docente_id=row.docente_id,
+                docente_nombre=f"{row.docente_nombre} {row.apellidos}".strip(),
+                asunto=row.asunto,
+                cuerpo=row.cuerpo,
+                total_destinatarios=row.total,
+                created_at=row.first_created,
+            )
+            for row in rows
+        ]
+
+        return LotesPendientesResponse(items=items, total=len(items))
 
     async def _load_tenant(self, tenant_id: uuid.UUID) -> Tenant:
         query = select(Tenant).where(Tenant.id == tenant_id)

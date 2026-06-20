@@ -7,16 +7,16 @@ import type { AvisoAlumno } from '../types/alumno.types';
 
 type FiltroLeido = 'todos' | 'no_leidos' | 'leidos';
 
-const prioridadTone: Record<number, 'danger' | 'warning' | 'neutral'> = {
-  1: 'danger',
-  2: 'warning',
-  3: 'neutral',
+const severidadTone: Record<string, 'danger' | 'warning' | 'neutral'> = {
+  ERROR: 'danger',
+  ADVERTENCIA: 'warning',
+  INFO: 'neutral',
 };
 
-const prioridadLabel: Record<number, string> = {
-  1: 'Alta',
-  2: 'Media',
-  3: 'Baja',
+const severidadLabel: Record<string, string> = {
+  ERROR: 'Alta',
+  ADVERTENCIA: 'Media',
+  INFO: 'Baja',
 };
 
 const TABS = [
@@ -61,12 +61,12 @@ export function MisAvisosPage() {
   }
 
   const filtrados = data.filter((a: AvisoAlumno) => {
-    if (filtro === 'no_leidos') return !a.leido;
-    if (filtro === 'leidos') return a.leido;
+    if (filtro === 'no_leidos') return !a.acknowledged;
+    if (filtro === 'leidos') return a.acknowledged;
     return true;
   });
 
-  const unread = data.filter((a) => !a.leido).length;
+  const unread = data.filter((a) => !a.acknowledged).length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -88,29 +88,29 @@ export function MisAvisosPage() {
               style={{
                 background: 'var(--surface-container-lowest)',
                 borderRadius: 'var(--radius-lg)',
-                border: `1px solid ${!aviso.leido ? 'color-mix(in srgb, var(--primary) 30%, transparent)' : 'var(--outline-variant)'}`,
+                border: `1px solid ${!aviso.acknowledged ? 'color-mix(in srgb, var(--primary) 30%, transparent)' : 'var(--outline-variant)'}`,
                 padding: 16,
               }}
             >
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                    {!aviso.leido && (
+                    {!aviso.acknowledged && (
                       <span style={{ width: 8, height: 8, borderRadius: 'var(--radius-full)', background: 'var(--primary)', flexShrink: 0 }} />
                     )}
                     <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>{aviso.titulo}</span>
-                    <Badge tone={prioridadTone[aviso.prioridad] ?? 'neutral'}>
-                      {prioridadLabel[aviso.prioridad] ?? aviso.prioridad}
+                    <Badge tone={severidadTone[aviso.severidad] ?? 'neutral'}>
+                      {severidadLabel[aviso.severidad] ?? aviso.severidad}
                     </Badge>
                   </div>
-                  <p style={{ margin: '0 0 8px', fontSize: 14, color: 'var(--on-surface-variant)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{aviso.contenido}</p>
+                  <p style={{ margin: '0 0 8px', fontSize: 14, color: 'var(--on-surface-variant)', lineHeight: 1.5, whiteSpace: 'pre-line' }}>{aviso.cuerpo}</p>
                   <div style={{ fontSize: 12, color: 'var(--outline)', fontFamily: 'var(--font-mono)' }}>
                     {new Date(aviso.fecha_publicacion).toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
                     {aviso.vigencia_hasta && ` · Válido hasta ${new Date(aviso.vigencia_hasta).toLocaleDateString('es-AR')}`}
                   </div>
                 </div>
 
-                {aviso.require_ack && !aviso.leido && (
+                {aviso.requiere_ack && !aviso.acknowledged && (
                   <Button
                     size="sm"
                     variant="secondary"

@@ -11,6 +11,7 @@ from app.schemas.auth import CurrentUser
 from app.schemas.coloquios import (
     AgendaReservaRead,
     AlumnoConvocadoCreate,
+    ConvocatoriaColoquioRead,
     EvaluacionCreate,
     EvaluacionRead,
     EvaluacionUpdate,
@@ -175,6 +176,21 @@ async def listar_evaluaciones(
         skip=skip,
         limit=limit,
     )
+
+
+@router.get("/convocatorias", response_model=list[ConvocatoriaColoquioRead], dependencies=_reservar_guard)
+async def listar_convocatorias_alumno(
+    current_user: CurrentUser = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """List active convocatorias for the current ALUMNO (self-service).
+
+    Returns data shaped for the alumno UI with materia_nombre,
+    available slots, and remaining capacity.
+    Requires coloquios:reservar (which ALUMNO has).
+    """
+    service = ColoquioService.create(db, current_user.tenant_id)
+    return await service.listar_convocatorias_alumno(current_user.user_id)
 
 
 @router.get("/metricas", response_model=MetricasColoquiosRead, dependencies=_ver_guard)

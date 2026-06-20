@@ -49,7 +49,7 @@ export function LoginPage() {
       if ('requires_2fa' in result && result.requires_2fa === true) {
         setChallenge(result);
       } else {
-        const redirect = searchParams.get('redirect') || '/dashboard';
+        const redirect = searchParams.get('redirect') || '/';
         navigate(redirect, { replace: true });
       }
     } catch (err: unknown) {
@@ -164,7 +164,7 @@ function TwoFactorStep({ challenge }: { challenge: TwoFactorChallenge }) {
     setIsSubmitting(true);
     try {
       await verify2fa(challenge.challenge_token, code, challenge.temp_token);
-      const redirect = searchParams.get('redirect') || '/dashboard';
+      const redirect = searchParams.get('redirect') || '/';
       navigate(redirect, { replace: true });
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { error?: { message?: string } } } };

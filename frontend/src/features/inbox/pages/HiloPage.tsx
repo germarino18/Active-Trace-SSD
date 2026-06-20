@@ -72,12 +72,12 @@ export function HiloPage() {
         </Link>
         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>chevron_right</span>
         <span style={{ color: 'var(--on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {mensajes[0]?.remitente ?? 'Hilo'}
+          {mensajes[0]?.remitente_nombre ?? 'Hilo'}
         </span>
       </div>
 
       <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
-        {mensajes[0]?.remitente}
+        {mensajes[0]?.remitente_nombre}
       </h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -96,12 +96,12 @@ export function HiloPage() {
                 color: 'var(--primary)', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0,
               }}>
-                {msg.remitente.charAt(0).toUpperCase()}
+                {msg.remitente_nombre.charAt(0).toUpperCase()}
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>{msg.remitente}</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>{msg.remitente_nombre}</div>
                 <div style={{ fontSize: 12, color: 'var(--outline)', fontFamily: 'var(--font-mono)' }}>
-                  {new Date(msg.fecha).toLocaleDateString('es-AR', {
+                  {new Date(msg.fecha_hora).toLocaleDateString('es-AR', {
                     day: 'numeric', month: 'long', year: 'numeric',
                     hour: '2-digit', minute: '2-digit',
                   })}

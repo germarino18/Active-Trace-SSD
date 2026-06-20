@@ -11,7 +11,7 @@ export function useInbox() {
   });
 
   const hilos = data ?? [];
-  const unreadCount = hilos.filter((h) => !h.leido).length;
+  const unreadCount = hilos.filter((h) => h.no_leido).length;
 
   return { hilos, unreadCount, isLoading, error, refetch };
 }

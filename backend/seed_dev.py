@@ -1,11 +1,13 @@
 """Seed desarrollo completo: tenant + usuarios + estructura académica + roles/permisos."""
 import asyncio
+import hashlib
 import os
 import uuid
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
+from app.core.security import encrypt_value, get_encryption_key
 from app.services.auth.password_service import PasswordService
 
 # ── Matriz de roles/permisos ───────────────────────────────────────────────────
@@ -21,37 +23,54 @@ _ROLES = [
 ]
 
 _PERMISOS = [
-    ("estado-academico:ver", "estado-academico"),
-    ("evaluacion:reservar", "evaluacion"),
-    ("avisos:confirmar", "avisos"),
-    ("calificaciones:importar", "calificaciones"),
-    ("atrasados:ver", "atrasados"),
-    ("entregas:sin-corregir", "entregas"),
-    ("comunicacion:enviar", "comunicacion"),
-    ("comunicacion:aprobar", "comunicacion"),
-    ("encuentros:gestionar", "encuentros"),
-    ("guardias:registrar", "guardias"),
-    ("tareas:gestionar", "tareas"),
-    ("avisos:publicar", "avisos"),
-    ("equipos:gestionar", "equipos"),
-    ("estructura:gestionar", "estructura"),
-    ("usuarios:gestionar", "usuarios"),
-    ("auditoria:ver", "auditoria"),
-    ("grilla:operar", "grilla"),
-    ("liquidaciones:cerrar", "liquidaciones"),
-    ("facturas:gestionar", "facturas"),
-    ("configurar:tenant", "configurar"),
+    ("estado-academico:ver", "Ver estado académico propio", "estado-academico"),
+    ("evaluacion:reservar", "Reservar instancia de evaluación", "evaluacion"),
+    ("avisos:confirmar", "Confirmar avisos (ack)", "avisos"),
+    ("calificaciones:importar", "Importar calificaciones", "calificaciones"),
+    ("atrasados:ver", "Ver alumnos atrasados", "atrasados"),
+    ("entregas:sin-corregir", "Detectar entregas sin corregir", "entregas"),
+    ("comunicacion:enviar", "Enviar comunicaciones a alumnos", "comunicacion"),
+    ("comunicacion:aprobar", "Aprobar comunicaciones masivas", "comunicacion"),
+    ("encuentros:gestionar", "Gestionar encuentros", "encuentros"),
+    ("guardias:registrar", "Registrar guardias", "guardias"),
+    ("tareas:gestionar", "Gestionar tareas internas", "tareas"),
+    ("avisos:publicar", "Publicar avisos", "avisos"),
+    ("equipos:gestionar", "Gestionar equipos docentes", "equipos"),
+    ("equipos:asignar", "Asignar roles y contexto a usuarios", "equipos"),
+    ("estructura:gestionar", "Gestionar estructura académica", "estructura"),
+    ("usuarios:gestionar", "Gestionar usuarios del tenant", "usuarios"),
+    ("auditoria:ver", "Ver auditoría", "auditoria"),
+    ("grilla:operar", "Operar grilla salarial", "grilla"),
+    ("liquidaciones:ver", "Ver liquidaciones del período", "liquidaciones"),
+    ("liquidaciones:calcular", "Calcular liquidaciones del período", "liquidaciones"),
+    ("liquidaciones:configurar-salarios", "Configurar grilla salarial", "liquidaciones"),
+    ("liquidaciones:cerrar", "Calcular/cerrar liquidaciones", "liquidaciones"),
+    ("facturas:gestionar", "Gestionar facturas", "facturas"),
+    ("configurar:tenant", "Configurar el tenant", "configurar"),
+    ("padron:importar", "Importar padrón de alumnos", "padron"),
+    ("padron:vaciar", "Vaciar datos de dictado", "padron"),
+    ("padron:ver", "Ver padrón de alumnos", "padron"),
+    ("coloquios:gestionar", "Gestionar convocatorias de coloquio", "coloquios"),
+    ("coloquios:reservar", "Reservar turno de coloquio", "coloquios"),
+    ("coloquios:ver", "Ver coloquios y resultados", "coloquios"),
+    ("inbox:acceder", "Acceder a la bandeja de mensajes interna", "inbox"),
 ]
 
 _MATRIX = [
+    # ALUMNO
     ("ALUMNO", "estado-academico:ver", False),
     ("ALUMNO", "evaluacion:reservar", False),
     ("ALUMNO", "avisos:confirmar", False),
+    ("ALUMNO", "inbox:acceder", False),
+    ("ALUMNO", "coloquios:reservar", False),
+    # TUTOR
     ("TUTOR", "avisos:confirmar", False),
     ("TUTOR", "atrasados:ver", False),
     ("TUTOR", "entregas:sin-corregir", False),
     ("TUTOR", "encuentros:gestionar", False),
     ("TUTOR", "guardias:registrar", True),
+    ("TUTOR", "inbox:acceder", False),
+    # PROFESOR
     ("PROFESOR", "avisos:confirmar", False),
     ("PROFESOR", "calificaciones:importar", True),
     ("PROFESOR", "atrasados:ver", True),
@@ -60,6 +79,9 @@ _MATRIX = [
     ("PROFESOR", "encuentros:gestionar", True),
     ("PROFESOR", "guardias:registrar", True),
     ("PROFESOR", "tareas:gestionar", True),
+    ("PROFESOR", "inbox:acceder", False),
+    ("PROFESOR", "coloquios:ver", True),
+    # COORDINADOR
     ("COORDINADOR", "avisos:confirmar", False),
     ("COORDINADOR", "calificaciones:importar", False),
     ("COORDINADOR", "atrasados:ver", False),
@@ -71,7 +93,14 @@ _MATRIX = [
     ("COORDINADOR", "tareas:gestionar", False),
     ("COORDINADOR", "avisos:publicar", False),
     ("COORDINADOR", "equipos:gestionar", False),
+    ("COORDINADOR", "equipos:asignar", False),
     ("COORDINADOR", "auditoria:ver", True),
+    ("COORDINADOR", "inbox:acceder", False),
+    ("COORDINADOR", "coloquios:gestionar", False),
+    ("COORDINADOR", "coloquios:ver", False),
+    # NEXO
+    ("NEXO", "inbox:acceder", False),
+    # ADMIN
     ("ADMIN", "avisos:confirmar", False),
     ("ADMIN", "calificaciones:importar", False),
     ("ADMIN", "atrasados:ver", False),
@@ -83,15 +112,27 @@ _MATRIX = [
     ("ADMIN", "tareas:gestionar", False),
     ("ADMIN", "avisos:publicar", False),
     ("ADMIN", "equipos:gestionar", False),
+    ("ADMIN", "equipos:asignar", False),
     ("ADMIN", "estructura:gestionar", False),
     ("ADMIN", "usuarios:gestionar", False),
     ("ADMIN", "auditoria:ver", False),
     ("ADMIN", "configurar:tenant", False),
+    ("ADMIN", "padron:importar", False),
+    ("ADMIN", "padron:vaciar", False),
+    ("ADMIN", "padron:ver", False),
+    ("ADMIN", "inbox:acceder", False),
+    ("ADMIN", "coloquios:gestionar", False),
+    ("ADMIN", "coloquios:ver", False),
+    # FINANZAS
     ("FINANZAS", "avisos:confirmar", False),
     ("FINANZAS", "auditoria:ver", False),
     ("FINANZAS", "grilla:operar", False),
+    ("FINANZAS", "liquidaciones:ver", False),
+    ("FINANZAS", "liquidaciones:calcular", False),
+    ("FINANZAS", "liquidaciones:configurar-salarios", False),
     ("FINANZAS", "liquidaciones:cerrar", False),
     ("FINANZAS", "facturas:gestionar", False),
+    ("FINANZAS", "inbox:acceder", False),
 ]
 
 
@@ -188,6 +229,11 @@ async def main() -> None:
         await session.execute(
             text("INSERT INTO cohorte (id, tenant_id, carrera_id, nombre, anio, estado, created_at, updated_at) VALUES (:id, :tid, :cid, :nom, :anio, 'Activa', NOW(), NOW())"),
             {"id": cohorte_id, "tid": tid, "cid": carrera_id, "nom": "2024", "anio": 2024},
+        )
+        # Vincular alumno al cohorte via su asignacion (creada en el loop de usuarios, línea 203)
+        await session.execute(
+            text("UPDATE asignacion SET cohorte_id = :coid WHERE usuario_id = :uid AND rol = 'ALUMNO'"),
+            {"coid": cohorte_id, "uid": alumno_uid},
         )
         for mid, cod, nom in [(materia1_id, "PROG1", "Programación I"), (materia2_id, "BDATOS", "Bases de Datos")]:
             await session.execute(
@@ -415,6 +461,7 @@ async def main() -> None:
             )
 
         # ── 12. Mensajería interna ────────────────────────────────────────────
+        # Hilo 1: Coordinador ↔ Profesor (existente)
         hilo_id = uuid.uuid4()
         await session.execute(
             text("INSERT INTO hilo_conversacion (id, tenant_id, asunto, created_at, updated_at) VALUES (:id, :tid, :asunto, NOW(), NOW())"),
@@ -432,6 +479,26 @@ async def main() -> None:
             await session.execute(
                 text("INSERT INTO mensaje (id, tenant_id, hilo_id, remitente_id, contenido, created_at, updated_at) VALUES (:id, :tid, :hid, :rem, :cont, NOW(), NOW())"),
                 {"id": uuid.uuid4(), "tid": tid, "hid": hilo_id, "rem": remitente_id, "cont": contenido},
+            )
+        # Hilo 2: Coordinador ↔ Tutor ↔ Alumno (consulta académica)
+        hilo2_id = uuid.uuid4()
+        await session.execute(
+            text("INSERT INTO hilo_conversacion (id, tenant_id, asunto, created_at, updated_at) VALUES (:id, :tid, :asunto, NOW(), NOW())"),
+            {"id": hilo2_id, "tid": tid, "asunto": "Consulta sobre correlativas — Programación I"},
+        )
+        for uid in [coordinador_uid, tutor_uid, alumno_uid]:
+            await session.execute(
+                text("INSERT INTO hilo_participante (hilo_id, usuario_id) VALUES (:hid, :uid)"),
+                {"hid": hilo2_id, "uid": uid},
+            )
+        for remitente_id, contenido in [
+            (alumno_uid,       "Buenos días, quería saber si con la regularidad de Programación I puedo cursar Bases de Datos este cuatrimestre o necesito tenerla aprobada."),
+            (tutor_uid,        "Hola María, con la regularidad es suficiente. La correlativa pide 'regularizada' para cursar, no aprobada."),
+            (alumno_uid,       "Perfecto, ¡muchas gracias!"),
+        ]:
+            await session.execute(
+                text("INSERT INTO mensaje (id, tenant_id, hilo_id, remitente_id, contenido, created_at, updated_at) VALUES (:id, :tid, :hid, :rem, :cont, NOW(), NOW())"),
+                {"id": uuid.uuid4(), "tid": tid, "hid": hilo2_id, "rem": remitente_id, "cont": contenido},
             )
 
         # ── 13. Grilla salarial ───────────────────────────────────────────────
@@ -510,10 +577,10 @@ async def main() -> None:
                 text("INSERT INTO rol (id, tenant_id, codigo, nombre, descripcion, created_at, updated_at) VALUES (gen_random_uuid(), :tid, :cod, :nom, :desc, NOW(), NOW()) ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"),
                 {"tid": tid, "cod": codigo, "nom": nombre, "desc": descripcion},
             )
-        for codigo, modulo in _PERMISOS:
+        for codigo, nombre_desc, modulo in _PERMISOS:
             await session.execute(
-                text("INSERT INTO permiso (id, tenant_id, codigo, nombre, descripcion, modulo, created_at, updated_at) VALUES (gen_random_uuid(), :tid, :cod, :cod, NULL, :mod, NOW(), NOW()) ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"),
-                {"tid": tid, "cod": codigo, "mod": modulo},
+                text("INSERT INTO permiso (id, tenant_id, codigo, nombre, descripcion, modulo, created_at, updated_at) VALUES (gen_random_uuid(), :tid, :cod, :nom, :desc, :mod, NOW(), NOW()) ON CONFLICT (tenant_id, codigo) WHERE deleted_at IS NULL DO NOTHING"),
+                {"tid": tid, "cod": codigo, "nom": nombre_desc, "desc": nombre_desc, "mod": modulo},
             )
         for rc, pc, es_propio in _MATRIX:
             await session.execute(
@@ -526,6 +593,39 @@ async def main() -> None:
                     "ON CONFLICT (tenant_id, rol_id, permiso_id) DO NOTHING"
                 ),
                 {"tid": tid, "rc": rc, "pc": pc, "ep": es_propio},
+            )
+
+        # ── 16. Comunicaciones (registro de mensajería externa) ──────────────
+        encryption_key = get_encryption_key()
+        alumno_email_enc = encrypt_value("alumno@demo.com", encryption_key)
+        alumno_hash = hashlib.sha256(b"alumno@demo.com").hexdigest()
+        for com_asunto, com_cuerpo in [
+            (
+                "Bienvenida al cuatrimestre 2026 — Primer cuatrimestre",
+                "Te damos la bienvenida al primer cuatrimestre de 2026. Recordá revisar el calendario académico y las fechas de parciales en tu dashboard."
+            ),
+            (
+                "Recordatorio: Inscripción a coloquios",
+                "Las inscripciones para los coloquios de Programación I y Bases de Datos cierran el 30 de junio. "
+                "Si estás en condiciones, no olvides reservar tu turno desde la sección de Coloquios."
+            ),
+        ]:
+            lote_id = uuid.uuid4()
+            await session.execute(
+                text(
+                    "INSERT INTO comunicacion (id, tenant_id, enviado_por, materia_id, asunto, cuerpo, "
+                    "lote_id, destinatario_hash, destinatario, estado, created_at, updated_at) "
+                    "VALUES (:id, :tid, :eid, :mid, :asunto, :cuerpo, :lid, :dhash, :denc, 'Enviado', NOW(), NOW())"
+                ),
+                {
+                    "id": uuid.uuid4(), "tid": tid, "lid": lote_id,
+                    "eid": coordinador_uid,
+                    "mid": materia1_id,
+                    "asunto": com_asunto,
+                    "cuerpo": com_cuerpo,
+                    "dhash": alumno_hash,
+                    "denc": alumno_email_enc,
+                },
             )
 
         await session.commit()

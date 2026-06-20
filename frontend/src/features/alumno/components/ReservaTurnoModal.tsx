@@ -32,54 +32,96 @@ export function ReservaTurnoModal({ convocatoria, reservaPropia, onClose }: Rese
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)' }}
+      onClick={onClose}
+    >
       <div
-        className="w-full max-w-md mx-4 rounded-xl bg-surface-container-lowest border border-outline-variant p-6 shadow-xl"
+        style={{ width: '100%', maxWidth: 448, margin: '0 16px', borderRadius: 'var(--radius-xl)', background: 'var(--surface-container-lowest)', border: '1px solid var(--outline-variant)', padding: 24, boxShadow: 'var(--shadow-xl)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-label-md font-medium text-on-surface">Reservar turno — {convocatoria.materia_nombre}</h3>
-          <button type="button" onClick={onClose} className="rounded-lg p-1 text-outline hover:text-on-surface transition-colors">
-            <span className="material-symbols-outlined">close</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <h3 style={{ margin: 0, fontSize: 14, fontWeight: 500, color: 'var(--on-surface)' }}>
+            Reservar turno — {convocatoria.materia_nombre}
+          </h3>
+          <button type="button" onClick={onClose} style={{ borderRadius: 'var(--radius-lg)', padding: 4, border: 'none', background: 'none', color: 'var(--outline)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
           </button>
         </div>
 
-        <p className="text-label-sm text-on-surface-variant mb-4">
+        <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--on-surface-variant)' }}>
           Fecha límite: {new Date(convocatoria.fecha_limite).toLocaleDateString('es-AR')}
         </p>
 
-        <div className="space-y-2 mb-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
           {convocatoria.fechas.map((f: FechaConCupo) => (
             <button
               key={f.fecha_id}
               type="button"
               onClick={() => setSelectedFecha(f.fecha_id)}
               disabled={f.cupos_restantes === 0}
-              className={`w-full flex items-center justify-between rounded-lg border p-3 text-left transition-colors ${
-                selectedFecha === f.fecha_id
-                  ? 'border-primary bg-primary/10'
-                  : f.cupos_restantes === 0
-                    ? 'border-outline-variant opacity-50 cursor-not-allowed'
-                    : 'border-outline-variant hover:border-primary/50'
-              }`}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderRadius: 'var(--radius-lg)',
+                border: `1px solid ${
+                  selectedFecha === f.fecha_id
+                    ? 'var(--primary)'
+                    : f.cupos_restantes === 0
+                      ? 'var(--outline-variant)'
+                      : 'var(--outline-variant)'
+                }`,
+                background: selectedFecha === f.fecha_id ? 'color-mix(in srgb, var(--primary) 10%, transparent)' : 'transparent',
+                padding: 12,
+                textAlign: 'left',
+                cursor: f.cupos_restantes === 0 ? 'not-allowed' : 'pointer',
+                opacity: f.cupos_restantes === 0 ? 0.5 : 1,
+                transition: 'border-color .15s ease, background .15s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (f.cupos_restantes > 0 && selectedFecha !== f.fecha_id) {
+                  e.currentTarget.style.borderColor = 'var(--primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedFecha !== f.fecha_id) {
+                  e.currentTarget.style.borderColor = 'var(--outline-variant)';
+                }
+              }}
             >
-              <span className="text-label-sm text-on-surface">
+              <span style={{ fontSize: 13, color: 'var(--on-surface)' }}>
                 {new Date(f.fecha).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </span>
-              <span className={`text-label-xs ${f.cupos_restantes > 0 ? 'text-tertiary' : 'text-error'}`}>
+              <span style={{ fontSize: 12, color: f.cupos_restantes > 0 ? 'var(--tertiary)' : 'var(--error)' }}>
                 {f.cupos_restantes > 0 ? `${f.cupos_restantes} cupo${f.cupos_restantes !== 1 ? 's' : ''}` : 'Sin cupo'}
               </span>
             </button>
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: 8 }}>
           {reservaPropia ? (
             <button
               type="button"
               onClick={() => cancelarMutation.mutate()}
               disabled={cancelarMutation.isPending}
-              className="flex-1 rounded-lg border border-error/50 px-4 py-2 text-label-sm font-medium text-error transition-colors hover:bg-error/10 disabled:opacity-50"
+              style={{
+                flex: 1,
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid color-mix(in srgb, var(--error) 50%, transparent)',
+                padding: '8px 16px',
+                fontSize: 13,
+                fontWeight: 500,
+                color: 'var(--error)',
+                background: 'transparent',
+                cursor: cancelarMutation.isPending ? 'not-allowed' : 'pointer',
+                opacity: cancelarMutation.isPending ? 0.5 : 1,
+                transition: 'background .15s ease',
+              }}
+              onMouseEnter={(e) => { if (!cancelarMutation.isPending) e.currentTarget.style.background = 'color-mix(in srgb, var(--error) 10%, transparent)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
             >
               {cancelarMutation.isPending ? 'Cancelando...' : 'Cancelar reserva'}
             </button>
@@ -88,7 +130,21 @@ export function ReservaTurnoModal({ convocatoria, reservaPropia, onClose }: Rese
               type="button"
               onClick={() => reservarMutation.mutate()}
               disabled={!selectedFecha || reservarMutation.isPending}
-              className="flex-1 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+              style={{
+                flex: 1,
+                borderRadius: 'var(--radius-lg)',
+                border: 'none',
+                padding: '8px 16px',
+                fontSize: 13,
+                fontWeight: 500,
+                color: 'var(--on-primary)',
+                background: 'var(--primary)',
+                cursor: (!selectedFecha || reservarMutation.isPending) ? 'not-allowed' : 'pointer',
+                opacity: (!selectedFecha || reservarMutation.isPending) ? 0.5 : 1,
+                transition: 'background .15s ease',
+              }}
+              onMouseEnter={(e) => { if (selectedFecha && !reservarMutation.isPending) e.currentTarget.style.background = 'color-mix(in srgb, var(--primary) 90%, black)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--primary)'; }}
             >
               {reservarMutation.isPending ? 'Reservando...' : 'Confirmar reserva'}
             </button>
@@ -96,17 +152,33 @@ export function ReservaTurnoModal({ convocatoria, reservaPropia, onClose }: Rese
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
+            style={{
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--outline-variant)',
+              padding: '8px 16px',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--on-surface)',
+              background: 'transparent',
+              cursor: 'pointer',
+              transition: 'background .15s ease',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-container-low)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
           >
             Cerrar
           </button>
         </div>
 
         {reservarMutation.isError && (
-          <p className="mt-3 text-label-sm text-error">Error al reservar. Intentá de nuevo.</p>
+          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--error)' }}>
+            Error al reservar. Intentá de nuevo.
+          </p>
         )}
         {cancelarMutation.isError && (
-          <p className="mt-3 text-label-sm text-error">Error al cancelar. Intentá de nuevo.</p>
+          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--error)' }}>
+            Error al cancelar. Intentá de nuevo.
+          </p>
         )}
       </div>
     </div>

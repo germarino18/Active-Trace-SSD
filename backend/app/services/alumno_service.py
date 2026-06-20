@@ -5,9 +5,11 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.asignacion import Asignacion
 from app.models.calificacion import Calificacion
 from app.models.dictado import Dictado
 from app.models.entrada_padron import EntradaPadron
+from app.models.evaluacion import Evaluacion
 from app.models.materia import Materia
 from app.models.usuario import Usuario
 from app.models.version_padron import VersionPadron
@@ -62,6 +64,12 @@ class AlumnoService:
         )
         self._version_repo = BaseRepository(
             model=VersionPadron, session=db, tenant_id=tenant_id,
+        )
+        self._asignacion_repo = BaseRepository(
+            model=Asignacion, session=db, tenant_id=tenant_id,
+        )
+        self._evaluacion_repo = BaseRepository(
+            model=Evaluacion, session=db, tenant_id=tenant_id,
         )
 
     # ── helpers ────────────────────────────────────────────────────────
@@ -123,6 +131,20 @@ class AlumnoService:
             return None
         return round(sum(notas) / len(notas), 2)
 
+    async def _get_profesor_para_dictado(self, dictado_id: uuid.UUID) -> str:
+        """Resuelve el nombre del primer profesor asignado a un dictado."""
+        asignaciones = await self._asignacion_repo.find_by(
+            dictado_id=dictado_id,
+            rol="PROFESOR",
+        )
+        if not asignaciones:
+            return ""
+        usuarios = await self._usuario_repo.find_by(id=asignaciones[0].usuario_id)
+        if not usuarios:
+            return ""
+        u = usuarios[0]
+        return f"{u.nombre} {u.apellidos}".strip() or u.nombre
+
     # ── Dashboard ─────────────────────────────────────────────────────
 
     async def get_dashboard(self) -> AlumnoDashboardResponse:
@@ -159,7 +181,7 @@ class AlumnoService:
             result.append(MateriaDashboardItem(
                 id=materia.id,
                 nombre=materia.nombre,
-                profesor="",
+                profesor=await self._get_profesor_para_dictado(d.id),
                 progreso={"aprobadas": aprobadas, "total": total},
                 estado=estado,
             ))
@@ -193,9 +215,17 @@ class AlumnoService:
         )
         result = []
         for r in reservas:
+            materia_nombre = ""
+            evaluacion = await self._evaluacion_repo.find_by_id(r.evaluacion_id)
+            if evaluacion:
+                dictado = await self._dictado_repo.find_by_id(evaluacion.dictado_id)
+                if dictado:
+                    materia = await self._materia_repo.find_by_id(dictado.materia_id)
+                    if materia:
+                        materia_nombre = materia.nombre
             result.append(ProximoColoquioItem(
                 id=r.evaluacion_id,
-                materia_nombre="",
+                materia_nombre=materia_nombre,
                 fecha=r.fecha_hora.isoformat() if r.fecha_hora else "",
                 cupos_restantes=0,
             ))
@@ -371,54 +401,74 @@ class AlumnoService:
 
     # ── Comunicaciones recibidas ─────────────────────────────────────
 
+    async def _resolve_remitente(self, usuario_id: uuid.UUID) -> str:
+        """Resolve sender display name from usuario_id."""
+        usuarios = await self._usuario_repo.find_by(id=usuario_id)
+        if not usuarios:
+            return ""
+        u = usuarios[0]
+        return f"{u.nombre} {u.apellidos}".strip() or u.nombre
+
+    async def _resolve_materia_nombre(self, materia_id: uuid.UUID) -> str:
+        """Resolve materia name from materia_id."""
+        materia = await self._materia_repo.find_by_id(materia_id)
+        return materia.nombre if materia else ""
+
     async def get_comunicaciones(self) -> list[ComunicacionRecibidaRead]:
-        """Return communications where this student was the recipient."""
+        """Return communications where this student was the recipient.
+
+        Looks up Comunicacion records by destinatario_hash (SHA-256 of
+        the student's email). This is the correct lookup for outbound
+        communications sent TO the student.
+        """
         usuario = await self._resolve_usuario()
         if usuario is None:
             return []
-        from app.repositories.mensaje_repository import MensajeRepository
-        from app.models.comunicacion import Comunicacion
-        repo_mensaje = MensajeRepository(session=self._db, tenant_id=self._tenant_id)
-        repo_com = BaseRepository(
-            model=Comunicacion, session=self._db, tenant_id=self._tenant_id,
-        )
-        mensajes = await repo_mensaje.find_by(alumno_id=usuario.id)
+
+        from app.repositories.user_repository import UserRepository
+        from app.repositories.comunicacion_repository import ComunicacionRepository
+        import hashlib
+
+        user_repo = UserRepository(session=self._db, tenant_id=self._tenant_id)
+        user = await user_repo.find_by_id(usuario.user_id)
+        if user is None:
+            return []
+
+        hashed_email = hashlib.sha256(user.email.encode("utf-8")).hexdigest()
+
+        com_repo = ComunicacionRepository(session=self._db, tenant_id=self._tenant_id)
+        comunicaciones = await com_repo.find_by(destinatario_hash=hashed_email)
+
         result = []
-        seen = set()
-        for m in mensajes:
-            if m.comunicacion_id in seen:
-                continue
-            seen.add(m.comunicacion_id)
-            com = await repo_com.find_by_id(m.comunicacion_id)
-            if com is None:
-                continue
+        for com in comunicaciones:
             result.append(ComunicacionRecibidaRead(
                 id=com.id,
-                remitente=com.remitente_nombre or "",
-                materia_nombre="",
+                remitente=await self._resolve_remitente(com.enviado_por),
+                materia_nombre=await self._resolve_materia_nombre(com.materia_id),
                 asunto=com.asunto,
                 fecha_envio=com.created_at.isoformat() if hasattr(com, 'created_at') else "",
-                estado=m.status.value if hasattr(m, 'status') else "Enviado",
+                estado=com.estado,
             ))
         return result
 
     async def get_comunicacion_detalle(
         self, comunicacion_id: uuid.UUID,
     ) -> ComunicacionDetalleRead:
-        from app.models.comunicacion import Comunicacion
-        repo = BaseRepository(
-            model=Comunicacion, session=self._db, tenant_id=self._tenant_id,
-        )
-        com = await repo.find_by_id(comunicacion_id)
+        """Return full detail of a received communication."""
+        from app.repositories.comunicacion_repository import ComunicacionRepository
+
+        com_repo = ComunicacionRepository(session=self._db, tenant_id=self._tenant_id)
+        com = await com_repo.find_by_id(comunicacion_id)
         if com is None:
             from app.core.exceptions import NotFoundException
             raise NotFoundException(resource="Comunicacion", id=comunicacion_id)
+
         return ComunicacionDetalleRead(
             id=com.id,
             asunto=com.asunto,
             cuerpo=com.cuerpo or "",
-            remitente=com.remitente_nombre or "",
-            materia_nombre="",
+            remitente=await self._resolve_remitente(com.enviado_por),
+            materia_nombre=await self._resolve_materia_nombre(com.materia_id),
             fecha_envio=com.created_at.isoformat() if hasattr(com, 'created_at') else "",
-            estado_entrega="Enviado",
+            estado_entrega=com.estado,
         )

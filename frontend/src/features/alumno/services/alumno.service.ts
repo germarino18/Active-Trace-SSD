@@ -28,7 +28,7 @@ export async function getMateriaDetalle(
 }
 
 export async function getConvocatorias(): Promise<ConvocatoriaColoquio[]> {
-  return api.get<ConvocatoriaColoquio[]>('/api/v1/coloquios');
+  return api.get<ConvocatoriaColoquio[]>('/api/v1/coloquios/convocatorias');
 }
 
 export async function reservarTurno(

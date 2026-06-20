@@ -130,6 +130,8 @@ class AvisoService:
             AvisoVisibleRead(
                 **{k: getattr(a, k) for k in AvisoVisibleRead.model_fields if hasattr(a, k)},
                 acknowledged=a.id in confirmed_ids,
+                fecha_publicacion=a.inicio_en,
+                vigencia_hasta=a.fin_en,
             )
             for a in avisos
         ]
@@ -147,6 +149,8 @@ class AvisoService:
             AvisoVisibleRead(
                 **{k: getattr(a, k) for k in AvisoVisibleRead.model_fields if hasattr(a, k)},
                 acknowledged=False,
+                fecha_publicacion=a.inicio_en,
+                vigencia_hasta=a.fin_en,
             )
             for a in avisos
         ]

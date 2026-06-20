@@ -30,7 +30,6 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
     // Items visibles para todos los usuarios autenticados
     {
       items: [
-        { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
         { label: 'Mi Perfil', path: '/profile', icon: 'person' },
       ],
     },
@@ -40,7 +39,7 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
       items: [
         { label: 'Dashboard', path: '/alumno/dashboard', icon: 'dashboard', requiredPermissions: ['estado-academico:ver'] },
         { label: 'Mis Materias', path: '/alumno/materias', icon: 'school', requiredPermissions: ['estado-academico:ver'] },
-        { label: 'Coloquios', path: '/alumno/coloquios', icon: 'quiz', requiredPermissions: ['evaluacion:reservar'] },
+        { label: 'Coloquios', path: '/alumno/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:reservar'] },
         { label: 'Avisos', path: '/alumno/avisos', icon: 'campaign', requiredPermissions: ['avisos:confirmar'] },
         { label: 'Programas', path: '/alumno/programas', icon: 'description', requiredPermissions: ['estado-academico:ver'] },
         { label: 'Calendario', path: '/alumno/fechas', icon: 'calendar_month', requiredPermissions: ['estado-academico:ver'] },
@@ -136,7 +135,7 @@ export function AppLayout() {
       <div className="flex min-h-screen bg-background">
         <Sidebar sections={sections} />
         <div className="flex flex-1 flex-col">
-          <Header breadcrumbs={[{ label: 'Inicio', path: '/dashboard' }]} />
+          <Header breadcrumbs={[{ label: 'Inicio', path: '/alumno/dashboard' }]} />
           <main className="flex-1 p-gutter custom-scrollbar">
             <div className="mb-4">
               <Breadcrumbs />

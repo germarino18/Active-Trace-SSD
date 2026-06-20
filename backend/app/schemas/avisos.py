@@ -100,6 +100,8 @@ class AvisoVisibleRead(BaseModel):
     activo: bool
     requiere_ack: bool
     acknowledged: bool = False
+    fecha_publicacion: datetime | None = None
+    vigencia_hasta: datetime | None = None
     created_at: datetime
     updated_at: datetime
 

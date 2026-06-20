@@ -5,6 +5,7 @@ Sigue el mismo patrón que encuentros (C-13): factory method `create(cls, sessio
 """
 
 import uuid
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,9 +24,11 @@ from app.repositories.resultado_evaluacion_repository import (
 from app.schemas.auth import CurrentUser
 from app.schemas.coloquios import (
     AlumnoConvocadoRead,
+    ConvocatoriaColoquioRead,
     EvaluacionCreate,
     EvaluacionRead,
     EvaluacionUpdate,
+    FechaConCupoRead,
     MetricasColoquiosRead,
     RegistroAcademicoRead,
 )
@@ -232,6 +235,108 @@ class ColoquioService:
             limit=limit,
         )
         return [EvaluacionRead.model_validate(e) for e in evaluaciones]
+
+    async def listar_convocatorias_alumno(
+        self, alumno_id: uuid.UUID
+    ) -> list[ConvocatoriaColoquioRead]:
+        """List active convocatorias for an ALUMNO, shaped for self-service UI.
+
+        Returns convocatorias where the alumno is convocado + evaluacion Activa,
+        with materia_nombre, computed fecha_limite, and a single virtual slot
+        with remaining capacity.
+        """
+        from datetime import timedelta, timezone
+
+        from sqlalchemy import func as sa_func, select
+
+        from app.models.alumno_convocado import AlumnoConvocado
+        from app.models.dictado import Dictado
+        from app.models.materia import Materia
+        from app.models.reserva_evaluacion import ReservaEvaluacion
+        from app.models.usuario import Usuario
+
+        # Resolve user_id (auth) → usuario_id (domain profile)
+        usuario_row = (
+            await self._session.execute(
+                select(Usuario.id).where(Usuario.user_id == alumno_id)
+            )
+        ).scalar_one_or_none()
+        if usuario_row is None:
+            return []
+        usuario_id = usuario_row
+
+        # Query evaluaciones (Activas) where alumno is convocado
+        query = (
+            select(
+                Evaluacion.id,
+                Evaluacion.cupo_maximo,
+                Evaluacion.created_at,
+                Evaluacion.dias_disponibles,
+                Materia.nombre.label("materia_nombre"),
+            )
+            .select_from(Evaluacion)
+            .join(AlumnoConvocado, AlumnoConvocado.evaluacion_id == Evaluacion.id)
+            .join(Dictado, Evaluacion.dictado_id == Dictado.id)
+            .join(Materia, Dictado.materia_id == Materia.id)
+            .where(Evaluacion.estado == "Activa")
+            .where(AlumnoConvocado.alumno_id == usuario_id)
+        )
+        tenant_id = self._evaluacion_repo._get_effective_tenant_id()
+        if tenant_id is not None:
+            query = query.where(Evaluacion.tenant_id == tenant_id)
+
+        result = await self._session.execute(query)
+        rows = result.all()
+
+        if not rows:
+            return []
+
+        # Count active reservations per evaluacion (one query)
+        evaluacion_ids = [r.id for r in rows]
+        reservas_query = (
+            select(
+                ReservaEvaluacion.evaluacion_id,
+                sa_func.count(ReservaEvaluacion.id).label("count"),
+            )
+            .where(
+                ReservaEvaluacion.evaluacion_id.in_(evaluacion_ids),
+                ReservaEvaluacion.estado == "Activa",
+            )
+            .group_by(ReservaEvaluacion.evaluacion_id)
+        )
+        reservas_result = await self._session.execute(reservas_query)
+        reservas_counts = {r.evaluacion_id: r.count for r in reservas_result.all()}
+
+        now = datetime.now(timezone.utc)
+        convocatorias: list[ConvocatoriaColoquioRead] = []
+        for row in rows:
+            cupos_restantes = max(
+                0, row.cupo_maximo - reservas_counts.get(row.id, 0)
+            )
+            fecha_limite = row.created_at + timedelta(days=row.dias_disponibles)
+
+            # Single virtual slot: the evaluacion itself is the "available window"
+            slot_date = min(
+                row.created_at + timedelta(days=1),
+                fecha_limite,
+            )
+
+            convocatorias.append(
+                ConvocatoriaColoquioRead(
+                    id=row.id,
+                    materia_nombre=row.materia_nombre,
+                    fechas=[
+                        FechaConCupoRead(
+                            fecha_id=row.id,
+                            fecha=slot_date,
+                            cupos_restantes=cupos_restantes,
+                        )
+                    ],
+                    fecha_limite=fecha_limite,
+                )
+            )
+
+        return convocatorias
 
     async def obtener_evaluacion(
         self, evaluacion_id: uuid.UUID

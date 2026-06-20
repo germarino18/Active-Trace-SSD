@@ -25,7 +25,7 @@ const alumnoSections: SidebarSection[] = [
     items: [
       { label: 'Dashboard', path: '/alumno/dashboard', icon: 'dashboard', requiredPermissions: ['estado-academico:ver'] },
       { label: 'Mis Materias', path: '/alumno/materias', icon: 'school', requiredPermissions: ['estado-academico:ver'] },
-      { label: 'Coloquios', path: '/alumno/coloquios', icon: 'quiz', requiredPermissions: ['evaluacion:reservar'] },
+      { label: 'Coloquios', path: '/alumno/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:reservar'] },
       { label: 'Avisos', path: '/alumno/avisos', icon: 'campaign', requiredPermissions: ['avisos:confirmar'] },
     ],
   },

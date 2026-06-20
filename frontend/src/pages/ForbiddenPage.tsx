@@ -9,7 +9,7 @@ export function ForbiddenPage() {
         code="403"
         title="Sin permisos"
         message="No tenés acceso a esta sección. Si creés que es un error, contactá a tu administrador."
-        action={<Button variant="secondary" icon="home" onClick={() => navigate('/dashboard')}>Volver al inicio</Button>}
+        action={<Button variant="secondary" icon="home" onClick={() => navigate('/')}>Volver al inicio</Button>}
       />
     </div>
   );

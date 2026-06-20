@@ -68,12 +68,16 @@ export interface ReservaColoquio {
 export interface AvisoAlumno {
   id: string;
   titulo: string;
-  contenido: string;
-  prioridad: number;
+  cuerpo: string;
+  severidad: string;
+  inicio_en: string;
+  fin_en: string;
+  requiere_ack: boolean;
+  acknowledged: boolean;
   fecha_publicacion: string;
-  require_ack: boolean;
-  leido: boolean;
   vigencia_hasta: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ProgramaMateria {
@@ -94,18 +98,20 @@ export interface FechaAcademica {
 
 export interface HiloInbox {
   id: string;
-  remitente: string;
+  remitente_id: string;
+  remitente_nombre: string;
   asunto: string;
   ultimo_mensaje: string;
-  fecha: string;
-  leido: boolean;
+  ultima_fecha: string;
+  no_leido: boolean;
 }
 
 export interface MensajeHilo {
   id: string;
-  remitente: string;
+  remitente_id: string;
+  remitente_nombre: string;
   contenido: string;
-  fecha: string;
+  fecha_hora: string;
 }
 
 export interface ComunicacionRecibida {

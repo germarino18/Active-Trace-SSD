@@ -48,7 +48,7 @@ export function InboxPage() {
             style={{
               display: 'flex', alignItems: 'flex-start', gap: 16, padding: '12px 16px',
               textDecoration: 'none',
-              background: !hilo.leido
+              background: hilo.no_leido
                 ? 'color-mix(in srgb, var(--primary) 3%, var(--surface-container-lowest))'
                 : 'var(--surface-container-lowest)',
               borderTop: i > 0 ? '1px solid var(--outline-variant)' : undefined,
@@ -56,7 +56,7 @@ export function InboxPage() {
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-container-low)'; }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = !hilo.leido
+              e.currentTarget.style.background = hilo.no_leido
                 ? 'color-mix(in srgb, var(--primary) 3%, var(--surface-container-lowest))'
                 : 'var(--surface-container-lowest)';
             }}
@@ -68,9 +68,9 @@ export function InboxPage() {
                 color: 'var(--primary)', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: 14, fontWeight: 700,
               }}>
-                {hilo.remitente.charAt(0).toUpperCase()}
+                {hilo.remitente_nombre.charAt(0).toUpperCase()}
               </div>
-              {!hilo.leido && (
+              {hilo.no_leido && (
                 <span style={{
                   position: 'absolute', top: -2, right: -2, width: 10, height: 10,
                   borderRadius: 'var(--radius-full)', border: '2px solid var(--background)',
@@ -82,21 +82,21 @@ export function InboxPage() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                 <span style={{
-                  fontSize: 14, fontWeight: !hilo.leido ? 700 : 500,
+                  fontSize: 14, fontWeight: hilo.no_leido ? 700 : 500,
                   color: 'var(--on-surface)', overflow: 'hidden',
                   textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {hilo.remitente}
+                  {hilo.remitente_nombre}
                 </span>
                 <span style={{ fontSize: 12, color: 'var(--outline)', flexShrink: 0 }}>
-                  {new Date(hilo.fecha).toLocaleDateString('es-AR')}
+                  {new Date(hilo.ultima_fecha).toLocaleDateString('es-AR')}
                 </span>
-                {!hilo.leido && <Badge tone="primary" dot>Nuevo</Badge>}
+                {hilo.no_leido && <Badge tone="primary" dot>Nuevo</Badge>}
               </div>
               <p style={{
                 margin: 0, fontSize: 13,
-                fontWeight: !hilo.leido ? 600 : 400,
-                color: !hilo.leido ? 'var(--on-surface)' : 'var(--on-surface-variant)',
+                fontWeight: hilo.no_leido ? 600 : 400,
+                color: hilo.no_leido ? 'var(--on-surface)' : 'var(--on-surface-variant)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>
                 {hilo.asunto}

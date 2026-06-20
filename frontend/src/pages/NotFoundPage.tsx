@@ -9,7 +9,7 @@ export function NotFoundPage() {
         code="404"
         title="Página no encontrada"
         message="La ruta que buscás no existe o fue movida. Verificá la dirección e intentá de nuevo."
-        action={<Button variant="secondary" icon="home" onClick={() => navigate('/dashboard')}>Volver al inicio</Button>}
+        action={<Button variant="secondary" icon="home" onClick={() => navigate('/alumno/dashboard')}>Volver al inicio</Button>}
       />
     </div>
   );

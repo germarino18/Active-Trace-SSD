@@ -38,7 +38,7 @@ export function TwoFactorPage() {
     setIsSubmitting(true);
     try {
       await verify2fa(challengeToken, code);
-      navigate('/dashboard', { replace: true });
+      navigate('/', { replace: true });
     } catch (err: unknown) {
       const apiError = err as { response?: { data?: { error?: { message?: string } } } };
       setError(apiError?.response?.data?.error?.message ?? 'Código inválido');
