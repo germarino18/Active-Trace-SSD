@@ -228,6 +228,48 @@ class TestMetricasDictado:
         )
         assert resp.status_code == 404
 
+    async def test_metricas_incluye_materia_nombre_y_cohorte_nombre(
+        self, client: AsyncClient, db_session: AsyncSession, test_tenant, auth_user
+    ):
+        """RED/GREEN: métricas devuelven materia_nombre y cohorte_nombre."""
+        d = await _create_full_dictado(db_session, test_tenant.id, auth_user.user_id)
+
+        resp = await client.get(
+            f"/api/v1/profesor/dictados/{d['dictado'].id}/metricas"
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["materia_nombre"] == "Matemática"
+        assert data["cohorte_nombre"] == "2024"
+
+    async def test_metricas_materia_nombre_segundo_dictado(
+        self, client: AsyncClient, db_session: AsyncSession, test_tenant, auth_user
+    ):
+        """TRIANGULATE: segundo dictado con distinta materia/cohorte."""
+        # Create a second dictado with different materia and cohorte
+        from app.models.carrera import Carrera
+        from app.repositories.base import BaseRepository
+        from app.repositories.dictado_repository import DictadoRepository
+
+        c_repo = BaseRepository(model=Carrera, session=db_session, tenant_id=test_tenant.id)
+        carrera = await c_repo.create({"codigo": f"CS-{uuid.uuid4().hex[:4]}", "nombre": "Ciencias"})
+        m_repo = BaseRepository(model=Materia, session=db_session, tenant_id=test_tenant.id)
+        materia = await m_repo.create({"codigo": f"FIS-{uuid.uuid4().hex[:4]}", "nombre": "Física"})
+        co_repo = BaseRepository(model=Cohorte, session=db_session, tenant_id=test_tenant.id)
+        cohorte = await co_repo.create({"carrera_id": carrera.id, "nombre": "2025", "anio": 2025})
+        d_repo = DictadoRepository(session=db_session, tenant_id=test_tenant.id)
+        dictado = await d_repo.create(
+            {"materia_id": materia.id, "carrera_id": carrera.id, "cohorte_id": cohorte.id}
+        )
+
+        resp = await client.get(
+            f"/api/v1/profesor/dictados/{dictado.id}/metricas"
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["materia_nombre"] == "Física"
+        assert data["cohorte_nombre"] == "2025"
+
 
 # ── §5 Editar calificación ────────────────────────────────────────────────────
 

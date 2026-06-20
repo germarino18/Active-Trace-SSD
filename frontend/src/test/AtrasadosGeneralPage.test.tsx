@@ -81,7 +81,7 @@ describe('AtrasadosGeneralPage', () => {
     vi.clearAllMocks();
   });
 
-  it('3.4 — renders combined table when atrasados present', async () => {
+  it('3.4 — renders combined table when atrasados present (grouped by alumno)', async () => {
     mockUseAtrasados.mockReturnValue({
       data: sampleAtrasados,
       isLoading: false,
@@ -94,14 +94,14 @@ describe('AtrasadosGeneralPage', () => {
       expect(screen.getByTestId('atrasados-table')).toBeInTheDocument();
     });
 
+    // Grouped view: one row per alumno, materia names in the Materias cell
     expect(screen.getByText('García, Ana')).toBeInTheDocument();
     // Materia names appear in both filter dropdown and table rows — use getAllByText
     expect(screen.getAllByText('Matemáticas').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Tarea 1')).toBeInTheDocument();
-    expect(screen.getByText('Parcial 2')).toBeInTheDocument();
     expect(screen.getByText('López, Carlos')).toBeInTheDocument();
     expect(screen.getAllByText('Física').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('TP Final')).toBeInTheDocument();
+    // Note: per-activity detail (Tarea 1, Parcial 2, TP Final) is no longer in the
+    // grouped view — the breakdown collapses (D7 accepted tradeoff).
   });
 
   it('3.5 — shows empty state when no atrasados across all materias', async () => {

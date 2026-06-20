@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import * as profesorService from '../services/profesor.service';
 import type {
   ProfesorDashboard,
@@ -13,6 +13,7 @@ import type {
   AtrasadoGeneral,
   ComunicadoResult,
   ComunicadoAtrasadosData,
+  ComunicadoFlexibleData,
   CsvUploadResult,
   MiembroEquipo,
   AvisoProfesor,
@@ -23,6 +24,22 @@ import type {
   TareaProfesor,
 } from '../types';
 import type { ComunicadoAtrasadoNullData } from '../services/profesor.service';
+
+// ---------- Shared invalidation helper (D6) ----------
+
+/**
+ * Invalidates all derived caches after any mutation that changes padrón,
+ * actividades or calificaciones in a dictado. Call from every mutation's
+ * onSuccess to keep stat cards + atrasados views fresh.
+ */
+export function invalidateDictadoDerived(queryClient: QueryClient, dictadoId: string) {
+  queryClient.invalidateQueries({ queryKey: ['profesor', 'metricas', dictadoId] });
+  queryClient.invalidateQueries({ queryKey: ['profesor', 'dashboard'] });
+  queryClient.invalidateQueries({ queryKey: ['profesor', 'atrasados', dictadoId] });
+  queryClient.invalidateQueries({ queryKey: ['profesor', 'atrasados-general'] });
+}
+
+// ---------- Dashboard ----------
 
 export function useProfesorDashboard(enabled = true) {
   return useQuery<ProfesorDashboard>({
@@ -40,6 +57,20 @@ export function useDictadoMetricas(dictadoId: string) {
   });
 }
 
+/**
+ * Derives the human display name "Materia — Cohorte" for a dictado.
+ * Reads from the metricas cache (already loaded by DictadoDashboardPage).
+ * Returns a neutral placeholder while loading — never the raw UUID.
+ * Cohorte rendered array-friendly per design D3 (single element today).
+ */
+export function useDictadoNombre(dictadoId: string): string {
+  const { data, isLoading } = useDictadoMetricas(dictadoId);
+  if (isLoading || !data) return 'Cargando…';
+  const cohortes = data.cohorte_nombre ? [data.cohorte_nombre] : [];
+  const cohortePart = cohortes.length > 0 ? ` — ${cohortes.join(', ')}` : '';
+  return data.materia_nombre ? `${data.materia_nombre}${cohortePart}` : 'Dictado';
+}
+
 export function usePadronDictado(dictadoId: string) {
   return useQuery<EntradaPadron[]>({
     queryKey: ['profesor', 'padron', dictadoId],
@@ -54,8 +85,8 @@ export function useMutationAgregarAlumno(dictadoId: string) {
     mutationFn: (data) => profesorService.agregarAlumno(dictadoId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'padron', dictadoId] });
-      // Also invalidate the disponibles list since the pool changes after adding
       queryClient.invalidateQueries({ queryKey: ['profesor', 'alumnos-disponibles', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -68,6 +99,7 @@ export function useMutationAgregarAlumnosBulk(dictadoId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'padron', dictadoId] });
       queryClient.invalidateQueries({ queryKey: ['profesor', 'alumnos-disponibles', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -78,8 +110,8 @@ export function useMutationQuitarAlumno(dictadoId: string) {
     mutationFn: (entradaId) => profesorService.quitarAlumno(dictadoId, entradaId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'padron', dictadoId] });
-      // Removing from padron makes the alumno available again
       queryClient.invalidateQueries({ queryKey: ['profesor', 'alumnos-disponibles', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -92,6 +124,7 @@ export function useMutationQuitarAlumnosBulk(dictadoId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'padron', dictadoId] });
       queryClient.invalidateQueries({ queryKey: ['profesor', 'alumnos-disponibles', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -112,6 +145,7 @@ export function useMutationCrearActividad(dictadoId: string) {
     mutationFn: (data) => profesorService.crearActividad(dictadoId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'actividades', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -122,6 +156,7 @@ export function useMutationEliminarActividad(dictadoId: string) {
     mutationFn: (actividadId) => profesorService.eliminarActividad(actividadId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'actividades', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -134,6 +169,7 @@ export function useMutationSubirCalificacionesCsv() {
     mutationFn: ({ actividadId, file }) => profesorService.subirCalificacionesCsv(actividadId, file),
     onSuccess: (_data, { dictadoId }) => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'calificaciones', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -144,6 +180,7 @@ export function useMutationRegistrarCalificacion(dictadoId: string) {
     mutationFn: ({ actividadId, data }) => profesorService.registrarCalificacion(actividadId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'calificaciones', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
 }
@@ -163,7 +200,12 @@ export function useMutationEditarCalificacion() {
   return useMutation<CalificacionResponse, Error, { calificacionId: string; data: EditarCalificacionData }>({
     mutationFn: ({ calificacionId, data }) => profesorService.editarCalificacion(calificacionId, data),
     onSuccess: () => {
+      // No dictadoId in this hook signature — invalidate broad prefixes (D6)
       queryClient.invalidateQueries({ queryKey: ['profesor', 'calificaciones'] });
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'metricas'] });
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'atrasados'] });
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'atrasados-general'] });
     },
   });
 }
@@ -187,6 +229,23 @@ export function useMutationComunicadoAtrasadoNull(dictadoId: string) {
 export function useMutationComunicadoAtrasados(dictadoId: string) {
   return useMutation<ComunicadoResult, Error, ComunicadoAtrasadosData>({
     mutationFn: (data) => profesorService.enviarComunicadoAtrasados(dictadoId, data),
+  });
+}
+
+/**
+ * Mutation hook for POST /api/v1/profesor/comunicado-atrasados-flexible.
+ * Used by AtrasadosGeneralPage for both individual and general sends.
+ * On success, invalidates the atrasados-general cache.
+ */
+export function useMutationComunicadoFlexible() {
+  const queryClient = useQueryClient();
+  return useMutation<ComunicadoResult, Error, ComunicadoFlexibleData>({
+    mutationFn: (data) => profesorService.enviarComunicadoFlexible(data),
+    onSuccess: () => {
+      // Comunicado does not change padrón data — no need to invalidate atrasados.
+      // Optional: refresh so the page stays fresh after a bulk send.
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'atrasados-general'] });
+    },
   });
 }
 

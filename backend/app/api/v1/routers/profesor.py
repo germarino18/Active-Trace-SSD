@@ -1,4 +1,4 @@
-"""Router del panel docente (C-25 §4, §6, §7, §8, §9).
+"""Router del panel docente (C-25 §4, §6, §7, §8, §9, §10).
 
 Endpoints:
   GET  /api/v1/profesor/dashboard                                           — §4
@@ -12,6 +12,7 @@ Endpoints:
   GET  /api/v1/profesor/atrasados                                           — §7b (cross-materia)
   GET  /api/v1/profesor/dictados/{dictado_id}/atrasados                     — §7
   POST /api/v1/profesor/dictados/{dictado_id}/comunicado-atrasado-null      — §8
+  POST /api/v1/profesor/comunicado-atrasados-flexible                       — §10 (actividad opcional)
   GET  /api/v1/profesor/dictados/{dictado_id}/equipo                        — §9
 """
 
@@ -387,6 +388,63 @@ async def comunicado_atrasados(
         subtipo=body.subtipo,
         asunto_template=body.asunto_template,
         cuerpo_template=body.cuerpo_template,
+        current_user=current_user,
+        request=request,
+    )
+    await db.commit()
+    return result
+
+
+# ── §10 Comunicado flexible (actividad opcional, destinatarios explícitos) ─────
+
+
+class ComunicadoDestinatarioItem(BaseModel):
+    """Un destinatario del comunicado flexible: selector de entrada + dictado."""
+    model_config = ConfigDict(extra="forbid")
+    entrada_padron_id: UUID
+    dictado_id: UUID
+
+
+class ComunicadoFlexibleRequest(BaseModel):
+    """Request del comunicado flexible (actividad_id opcional, destinatarios explícitos).
+
+    Governance CRÍTICO: este endpoint siempre pasa por `enqueue_masivo` — NUNCA
+    saltea el gate de aprobación del tenant.
+    """
+    model_config = ConfigDict(extra="forbid")
+    actividad_id: UUID | None = None
+    asunto_template: str = Field(..., min_length=1)
+    cuerpo_template: str = Field(..., min_length=1)
+    destinatarios: list[ComunicadoDestinatarioItem] = Field(..., min_length=1)
+
+
+@router.post(
+    "/comunicado-atrasados-flexible",
+    dependencies=[Depends(require_permission(Perm.COMUNICACION_ENVIAR))],
+)
+async def comunicado_atrasados_flexible(
+    body: ComunicadoFlexibleRequest,
+    current_user=Depends(get_current_user),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Envía comunicado a destinatarios explícitos con actividad opcional.
+
+    Modo individual: lista de un elemento.
+    Modo general: lista con todos los desaprobados/atrasados de la vista.
+
+    Siempre reutiliza `enqueue_masivo` → respeta `tenant.aprobacion_comunicaciones`.
+    Identity: JWT session (current_user). Tenant-scoped. Audited.
+    """
+    service = ProfesorService.create(db, current_user.tenant_id)
+    result = await service.prepare_comunicado_flexible(
+        actividad_id=body.actividad_id,
+        asunto_template=body.asunto_template,
+        cuerpo_template=body.cuerpo_template,
+        destinatarios=[
+            {"entrada_padron_id": d.entrada_padron_id, "dictado_id": d.dictado_id}
+            for d in body.destinatarios
+        ],
         current_user=current_user,
         request=request,
     )

@@ -36,7 +36,6 @@ from app.repositories.usuario_repository import UsuarioRepository
 from app.repositories.version_padron_repository import VersionPadronRepository
 from app.schemas.auth import CurrentUser
 from app.services.analisis.compute import (
-    compute_alumno_atrasado,
     compute_metricas_materia,
     resolve_umbral,
 )
@@ -128,28 +127,26 @@ class ProfesorService:
                 n_alumnos = len(entradas)
             total_alumnos += n_alumnos
 
-            # Count atrasados
+            # Count atrasados — delegate to compute_metricas_materia so both
+            # get_dashboard and get_metricas_dictado share one code path and
+            # the boolean-aprobado rule is applied consistently (fix-regla-aprobado).
             califs = await self._calificacion_repo.find_by_dictado(asig.dictado_id)
             if califs:
                 umbral_list = await self._umbral_repo.find_by_dictado(asig.dictado_id)
                 umbral_materia = umbral_list[0] if umbral_list else None
                 umbral = resolve_umbral(umbral_materia)
-                actividades = list({c.actividad for c in califs})
-                from collections import defaultdict
-                alumnos_califs: dict = defaultdict(list)
-                for c in califs:
-                    alumnos_califs[c.entrada_padron_id].append(
-                        {
-                            "actividad": c.actividad,
-                            "nota_numerica": float(c.nota_numerica) if c.nota_numerica else None,
-                            "nota_textual": c.nota_textual,
-                            "aprobado": c.aprobado,
-                        }
-                    )
-                for ep_id, ep_califs in alumnos_califs.items():
-                    atrasado, _, _ = compute_alumno_atrasado(ep_califs, actividades, umbral)
-                    if atrasado:
-                        total_atrasados += 1
+                califs_dicts = [
+                    {
+                        "entrada_padron_id": c.entrada_padron_id,
+                        "actividad": c.actividad,
+                        "nota_numerica": float(c.nota_numerica) if c.nota_numerica else None,
+                        "nota_textual": c.nota_textual,
+                        "aprobado": c.aprobado,
+                    }
+                    for c in califs
+                ]
+                metricas = compute_metricas_materia(califs_dicts, umbral)
+                total_atrasados += metricas["atrasados"]
 
             materias_asignadas.append(
                 {
@@ -178,10 +175,21 @@ class ProfesorService:
         }
 
     async def get_metricas_dictado(self, dictado_id: uuid.UUID) -> dict[str, Any]:
-        """Métricas de un dictado vía compute_metricas_materia."""
+        """Métricas de un dictado vía compute_metricas_materia.
+
+        Includes materia_nombre and cohorte_nombre resolved from the dictado's
+        FK columns — tenant-scoped, read-only, no schema change required.
+        """
         dictado = await self._dictado_repo.find_by_id(dictado_id)
         if dictado is None:
             raise NotFoundException(resource="Dictado", id=dictado_id)
+
+        # Resolve human names for the dictado header (D2 — piggy-back on métricas)
+        materia = await self.db_session.get(Materia, dictado.materia_id)
+        from app.models.cohorte import Cohorte
+        cohorte = await self.db_session.get(Cohorte, dictado.cohorte_id)
+        materia_nombre = materia.nombre if materia else ""
+        cohorte_nombre = cohorte.nombre if cohorte else ""
 
         umbral_list = await self._umbral_repo.find_by_dictado(dictado_id)
         umbral_materia = umbral_list[0] if umbral_list else None
@@ -198,7 +206,8 @@ class ProfesorService:
             }
             for c in califs
         ]
-        return compute_metricas_materia(califs_dicts, umbral)
+        metricas = compute_metricas_materia(califs_dicts, umbral)
+        return {**metricas, "materia_nombre": materia_nombre, "cohorte_nombre": cohorte_nombre}
 
     async def get_alumnos_clasificados(
         self, dictado_id: uuid.UUID
@@ -858,6 +867,180 @@ class ProfesorService:
         )
 
         return {"total": response.total, "lote_id": response.lote_id}
+
+    # ── §10 Comunicado flexible ───────────────────────────────────────────────
+
+    async def _resolve_entrada_email(
+        self, entrada_padron_id: uuid.UUID
+    ) -> tuple["EntradaPadron | None", str | None]:
+        """Helper: resolve EntradaPadron and return (entrada, email_or_None).
+
+        Shared by prepare_comunicado_flexible and (optionally) future refactors
+        of the existing prepare_comunicado_* methods.
+
+        Returns (None, None) if the entrada does not exist or belongs to a
+        different tenant (the EP repo is already tenant-scoped).
+        """
+        entrada = await self._ep_repo.find_by_id(entrada_padron_id)
+        if entrada is None:
+            return None, None
+        email = entrada.email if entrada.email else None
+        return entrada, email
+
+    async def _get_vigente_dictado_ids(self, usuario_id: uuid.UUID) -> set[uuid.UUID]:
+        """Return the set of dictado_ids from vigente PROFESOR asignaciones."""
+        asigs = await self._get_dictados_profesor(usuario_id)
+        return {a.dictado_id for a in asigs}
+
+    async def prepare_comunicado_flexible(
+        self,
+        actividad_id: uuid.UUID | None,
+        asunto_template: str,
+        cuerpo_template: str,
+        destinatarios: list[dict],
+        current_user,
+        request,
+    ) -> dict:
+        """Encola comunicados a destinatarios explícitos con actividad opcional.
+
+        Implementa D1–D5 del design doc:
+        - D1: acepta lista explícita de destinatarios (individual o masivo).
+        - D2: agrupa por materia y llama `enqueue_masivo` UNA vez por materia.
+        - D4: si actividad_id es None, usa solo las 4 variables template base.
+        - D5: NUNCA llama `update_estado` — delega 100% en `enqueue_masivo`.
+
+        Governance CRÍTICO: nunca saltear el gate de aprobación del tenant.
+        Identity: current_user (JWT). Tenant-scoped. Audited.
+
+        Args:
+            actividad_id: UUID de la actividad (opcional — None = omitir).
+            asunto_template: template del asunto (min 1 char).
+            cuerpo_template: template del cuerpo (min 1 char).
+            destinatarios: list of {entrada_padron_id, dictado_id} dicts.
+            current_user: CurrentUser desde la sesión JWT.
+            request: Starlette Request para la auditoría.
+
+        Returns:
+            {"total": int, "lote_id": uuid | None, "lotes": [uuid, ...]}
+        """
+        from collections import defaultdict
+
+        from app.schemas.comunicaciones import EnvioMasivoItem, EnvioMasivoRequest
+        from app.services.comunicaciones_service import ComunicacionesService
+
+        # Resolve actor usuario for PROFESOR vigente dictado validation
+        usuario = await self._get_usuario(current_user.user_id)
+        vigente_dictado_ids: set[uuid.UUID] = set()
+        if usuario is not None:
+            vigente_dictado_ids = await self._get_vigente_dictado_ids(usuario.id)
+
+        # Optionally validate actividad_id belongs to the tenant
+        actividad_nombre: str | None = None
+        if actividad_id is not None:
+            stmt = select(Actividad).where(
+                Actividad.id == actividad_id,
+                Actividad.tenant_id == self.tenant_id,
+                Actividad.deleted_at.is_(None),
+            )
+            r = await self.db_session.execute(stmt)
+            actividad_obj = r.unique().scalar_one_or_none()
+            if actividad_obj is None:
+                raise NotFoundException(resource="Actividad", id=actividad_id)
+            actividad_nombre = actividad_obj.nombre
+
+        # Group validated destinatarios by materia_id (D2)
+        # For each destinatario: validate tenant + professor scope, resolve email
+        materia_groups: dict[uuid.UUID, list[EnvioMasivoItem]] = defaultdict(list)
+
+        for dest in destinatarios:
+            ep_id: uuid.UUID = dest["entrada_padron_id"]
+            dictado_id_raw: uuid.UUID = dest["dictado_id"]
+
+            # Validate dictado belongs to tenant
+            dictado = await self._dictado_repo.find_by_id(dictado_id_raw)
+            if dictado is None:
+                continue  # silently discard — not in tenant
+
+            # Validate dictado is among the profesor's vigente dictados (D scope guard)
+            if vigente_dictado_ids and dictado_id_raw not in vigente_dictado_ids:
+                continue  # silently discard — not the professor's dictado
+
+            # If actividad provided, verify it belongs to this dictado
+            if actividad_id is not None and actividad_nombre:
+                # Check the actividad is in this dictado
+                stmt = select(Actividad).where(
+                    Actividad.id == actividad_id,
+                    Actividad.dictado_id == dictado_id_raw,
+                    Actividad.tenant_id == self.tenant_id,
+                    Actividad.deleted_at.is_(None),
+                )
+                r = await self.db_session.execute(stmt)
+                act_in_dictado = r.unique().scalar_one_or_none()
+                if act_in_dictado is None:
+                    continue  # actividad not in this dictado — skip
+
+            # Resolve entrada and email
+            entrada, email = await self._resolve_entrada_email(ep_id)
+            if entrada is None or not email:
+                continue  # silently exclude (no email or not found)
+
+            # Build EnvioMasivoItem
+            item = EnvioMasivoItem(
+                usuario_id=entrada.id,
+                destinatario_email=email,
+                destinatario_nombre=entrada.nombre,
+                destinatario_apellido=entrada.apellidos,
+            )
+            materia_groups[dictado.materia_id].append(item)
+
+        if not materia_groups:
+            return {"total": 0, "lote_id": None, "lotes": []}
+
+        # Call enqueue_masivo once per materia (D2)
+        com_service = ComunicacionesService.create(self.db_session, self.tenant_id)
+        total = 0
+        lotes: list[uuid.UUID] = []
+
+        for materia_id, items in materia_groups.items():
+            envio_data = EnvioMasivoRequest(
+                materia_id=materia_id,
+                asunto_template=asunto_template,
+                cuerpo_template=cuerpo_template,
+                destinatarios=items,
+            )
+            response = await com_service.enqueue_masivo(
+                envio_data=envio_data,
+                current_user=current_user,
+                request=request,
+            )
+            total += response.total
+            lotes.append(response.lote_id)
+
+        # Auditoría adicional del envío flexible (D5: additive, not replacing enqueue_masivo audit)
+        await self._audit_repo.create(
+            {
+                "tenant_id": self.tenant_id,
+                "actor_id": current_user.user_id,
+                "accion": AccionAuditoria.COMUNICACION_ENVIAR,
+                "detalle": {
+                    "tipo": "comunicado_flexible",
+                    "actividad_id": str(actividad_id) if actividad_id else None,
+                    "total": total,
+                    "n_lotes": len(lotes),
+                    "lotes": [str(lid) for lid in lotes],
+                },
+                "filas_afectadas": total,
+            }
+        )
+
+        # lote_id backward compat: first lote if exactly one, else None
+        lote_id: uuid.UUID | None = lotes[0] if len(lotes) == 1 else None
+
+        return {
+            "total": total,
+            "lote_id": lote_id,
+            "lotes": [str(lid) for lid in lotes],
+        }
 
     async def edit_calificacion(
         self,

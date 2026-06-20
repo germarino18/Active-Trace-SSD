@@ -21,6 +21,10 @@ export interface DictadoMetricas {
   total_actividades: number;
   promedio_general: number | null;
   sin_datos: number;
+  /** Human-readable name for the dictado — resolved from the backend metricas join */
+  materia_nombre?: string;
+  /** Human-readable cohorte name — single value today, rendered array-friendly (D3) */
+  cohorte_nombre?: string;
 }
 
 export interface EntradaPadron {
@@ -93,6 +97,24 @@ export interface AtrasadoProfesor {
 export interface ComunicadoResult {
   total: number;
   lote_id: string | null;
+  /** List of generated lote IDs — one per materia (multi-lote general mode). */
+  lotes?: string[];
+}
+
+/** Selector for a single recipient in the flexible comunicado endpoint. */
+export interface ComunicadoDestinatario {
+  entrada_padron_id: string;
+  dictado_id: string;
+}
+
+/** Payload for POST /api/v1/profesor/comunicado-atrasados-flexible */
+export interface ComunicadoFlexibleData {
+  /** Optional — null means "no specific activity" */
+  actividad_id?: string | null;
+  asunto_template: string;
+  cuerpo_template: string;
+  /** At least one recipient required */
+  destinatarios: ComunicadoDestinatario[];
 }
 
 export interface MiembroEquipo {

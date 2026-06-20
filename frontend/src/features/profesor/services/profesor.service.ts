@@ -12,6 +12,7 @@ import type {
   AtrasadoGeneral,
   ComunicadoResult,
   ComunicadoAtrasadosData,
+  ComunicadoFlexibleData,
   CsvUploadResult,
   MiembroEquipo,
   AvisoProfesor,
@@ -156,6 +157,19 @@ export async function enviarComunicadoAtrasados(
   data: ComunicadoAtrasadosData,
 ): Promise<ComunicadoResult> {
   return api.post<ComunicadoResult>(`/api/v1/profesor/dictados/${dictadoId}/comunicado-atrasados`, data);
+}
+
+/**
+ * Flexible comunicado endpoint — POST /api/v1/profesor/comunicado-atrasados-flexible
+ *
+ * Accepts explicit recipients list + optional actividad_id.
+ * Used by both individual (1 destinatario) and general (all atrasados) modes.
+ * Always routes through the approval-gated enqueue_masivo pipeline.
+ */
+export async function enviarComunicadoFlexible(
+  data: ComunicadoFlexibleData,
+): Promise<ComunicadoResult> {
+  return api.post<ComunicadoResult>('/api/v1/profesor/comunicado-atrasados-flexible', data);
 }
 
 // ---------- Equipo ----------
