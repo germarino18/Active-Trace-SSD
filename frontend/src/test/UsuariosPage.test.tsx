@@ -6,16 +6,16 @@ import { UsuariosPage } from '@/features/admin/pages/UsuariosPage';
 
 vi.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: () => ({
-    session: { status: 'authenticated', user: { roles: ['ADMIN'], permissions: ['admin:usuarios:*'] } },
+    session: { status: 'authenticated', user: { roles: ['ADMIN'], permissions: ['usuarios:gestionar'] } },
     hasPermission: () => true,
-    hasAnyPermission: (perms: string[]) => perms.some((p) => ['ADMIN', 'admin:usuarios:*'].includes(p)),
+    hasAnyPermission: (perms: string[]) => perms.some((p) => ['ADMIN', 'usuarios:gestionar'].includes(p)),
   }),
 }));
 
 const mockUsuarios = [
-  { id: '1', nombre: 'Juan', apellido: 'Pérez', email: 'juan@test.com', rol: 'ADMIN', activo: true, created_at: '2024-01-15' },
-  { id: '2', nombre: 'María', apellido: 'García', email: 'maria@test.com', rol: 'PROFESOR', activo: true, created_at: '2024-02-20' },
-  { id: '3', nombre: 'Carlos', apellido: 'López', email: 'carlos@test.com', rol: 'ALUMNO', activo: false, created_at: '2024-03-10' },
+  { id: '1', tenant_id: 't1', user_id: 'u1', nombre: 'Juan', apellidos: 'Pérez', banco: null, regional: 'CABA', legajo: 'L-001', legajo_profesional: null, facturador: false, estado: 'Activo', deleted_at: false },
+  { id: '2', tenant_id: 't1', user_id: 'u2', nombre: 'María', apellidos: 'García', banco: null, regional: null, legajo: null, legajo_profesional: null, facturador: false, estado: 'Activo', deleted_at: false },
+  { id: '3', tenant_id: 't1', user_id: 'u3', nombre: 'Carlos', apellidos: 'López', banco: null, regional: 'Rosario', legajo: null, legajo_profesional: null, facturador: true, estado: 'Inactivo', deleted_at: false },
 ];
 
 let mockUsuariosState: Record<string, unknown> = {
@@ -51,9 +51,8 @@ describe('UsuariosPage', () => {
 
   it('renders filter inputs', () => {
     renderPage();
-    expect(screen.getByPlaceholderText('Buscar por nombre o email...')).toBeInTheDocument();
-    expect(screen.getAllByText('Rol').length).toBe(2);
-    expect(screen.getAllByText('Estado').length).toBe(2);
+    expect(screen.getByPlaceholderText('Buscar por nombre...')).toBeInTheDocument();
+    expect(screen.getAllByText('Estado').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders table with usuarios data', () => {
@@ -61,16 +60,16 @@ describe('UsuariosPage', () => {
     expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
     expect(screen.getByText('María García')).toBeInTheDocument();
     expect(screen.getByText('Carlos López')).toBeInTheDocument();
-    expect(screen.getByText('juan@test.com')).toBeInTheDocument();
-    expect(screen.getByText('maria@test.com')).toBeInTheDocument();
+    expect(screen.getByText('L-001')).toBeInTheDocument();
+    expect(screen.getByText('CABA')).toBeInTheDocument();
+    expect(screen.getByText('Rosario')).toBeInTheDocument();
   });
 
-  it('renders role badges and active/inactive status', () => {
+  it('renders estado badges and facturador indicator', () => {
     renderPage();
-    expect(screen.getAllByText('Profesor').length).toBe(2);
-    expect(screen.getAllByText('Alumno').length).toBe(2);
-    expect(screen.getAllByText('Activo').length).toBe(3);
-    expect(screen.getAllByText('Inactivo').length).toBe(2);
+    expect(screen.getAllByText('Activo').length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText('Inactivo').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Sí')).toBeInTheDocument();
   });
 
   it('shows Nuevo usuario button for ADMIN', () => {

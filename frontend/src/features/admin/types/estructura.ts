@@ -12,10 +12,11 @@ export interface CarreraFilters {
 
 export interface Cohorte {
   id: string;
+  carrera_id: string;
   nombre: string;
-  anio_inicio: number;
-  vigencia_desde: string;
-  vigencia_hasta?: string;
+  anio: number | null;
+  vig_desde: string | null;
+  vig_hasta: string | null;
   estado: string;
 }
 
@@ -81,17 +82,18 @@ export interface ActualizarCarreraData {
 }
 
 export interface CrearCohorteData {
+  carrera_id: string;
   nombre: string;
-  anio_inicio: number;
-  vigencia_desde: string;
-  vigencia_hasta?: string;
+  anio: number | null;
+  vig_desde: string | null;
+  vig_hasta?: string | null;
 }
 
 export interface ActualizarCohorteData {
   nombre?: string;
-  anio_inicio?: number;
-  vigencia_desde?: string;
-  vigencia_hasta?: string;
+  anio?: number | null;
+  vig_desde?: string | null;
+  vig_hasta?: string | null;
 }
 
 export interface CrearMateriaData {

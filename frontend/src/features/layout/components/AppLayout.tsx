@@ -88,7 +88,7 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
       label: 'Coordinación',
       items: [
         { label: 'Equipos Docentes', path: '/equipos', icon: 'groups', requiredPermissions: ['equipos:ver'] },
-        { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:ver'] },
+        { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:publicar'] },
         { label: 'Tareas', path: '/tareas', icon: 'checklist', requiredPermissions: ['tareas:ver'] },
         { label: 'Programas', path: '/programas', icon: 'description', requiredPermissions: ['programas:ver'] },
         { label: 'Fechas Académicas', path: '/fechas', icon: 'calendar_month', requiredPermissions: ['programas:ver'] },

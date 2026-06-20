@@ -14,24 +14,24 @@ vi.mock('@/features/auth/hooks/useAuth', () => ({
 
 const mockRegistros = [
   {
-    id: 'r1', fecha: '2024-06-15T10:30:00Z', usuario_nombre: 'Juan Pérez',
-    materia_nombre: 'Matemática', tipo_accion: 'crear', registros_afectados: 1,
-    ip_origen: '192.168.1.1', agente_usuario: 'Mozilla/5.0',
+    id: 'r1', fecha_hora: '2024-06-15T10:30:00Z', actor_nombre: 'Juan Pérez',
+    materia_nombre: 'Matemática', accion: 'USUARIO_CREAR', filas_afectadas: 1,
+    ip: '192.168.1.1', user_agent: 'Mozilla/5.0',
     detalle: { campo: 'nombre', valor_anterior: 'MAT', valor_nuevo: 'MAT-101' },
   },
   {
-    id: 'r2', fecha: '2024-06-14T09:00:00Z', usuario_nombre: 'María García',
-    tipo_accion: 'login', ip_origen: '10.0.0.1',
+    id: 'r2', fecha_hora: '2024-06-14T09:00:00Z', actor_nombre: 'María García',
+    accion: 'IMPERSONACION_INICIAR', ip: '10.0.0.1',
   },
   {
-    id: 'r3', fecha: '2024-06-13T15:45:00Z', usuario_nombre: 'Admin',
-    materia_nombre: 'Física', tipo_accion: 'enviar_comunicacion', registros_afectados: 25,
+    id: 'r3', fecha_hora: '2024-06-13T15:45:00Z', actor_nombre: 'Admin',
+    materia_nombre: 'Física', accion: 'COMUNICACION_ENVIAR', filas_afectadas: 25,
     detalle: { tipo: 'recordatorio' },
   },
 ];
 
 let mockAuditoriaState: Record<string, unknown> = {
-  data: { items: mockRegistros, total: 3 },
+  data: { items: mockRegistros, total: 3, offset: 0, limit: 200 },
   isLoading: false,
 };
 

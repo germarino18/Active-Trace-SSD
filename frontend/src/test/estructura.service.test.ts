@@ -91,19 +91,19 @@ describe('estructura.service - Cohortes', () => {
   });
 
   it('getCohorte calls api.get with /api/v1/cohortes/{id}', async () => {
-    vi.mocked(api.get).mockResolvedValue({ id: '1', nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01', activa: true });
+    vi.mocked(api.get).mockResolvedValue({ id: '1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01', estado: 'Activa', carrera_id: 'c1' });
     await getCohorte('1');
     expect(api.get).toHaveBeenCalledWith('/api/v1/cohortes/1');
   });
 
   it('crearCohorte calls api.post with /api/v1/cohortes', async () => {
-    vi.mocked(api.post).mockResolvedValue({ id: '1', nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01', activa: true });
-    await crearCohorte({ nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01' });
-    expect(api.post).toHaveBeenCalledWith('/api/v1/cohortes', { nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01' });
+    vi.mocked(api.post).mockResolvedValue({ id: '1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01', estado: 'Activa', carrera_id: 'c1' });
+    await crearCohorte({ carrera_id: 'c1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01' });
+    expect(api.post).toHaveBeenCalledWith('/api/v1/cohortes', { carrera_id: 'c1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01' });
   });
 
   it('actualizarCohorte calls api.put with /api/v1/cohortes/{id}', async () => {
-    vi.mocked(api.put).mockResolvedValue({ id: '1', nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01', activa: true });
+    vi.mocked(api.put).mockResolvedValue({ id: '1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01', estado: 'Activa', carrera_id: 'c1' });
     await actualizarCohorte('1', { nombre: '2025' });
     expect(api.put).toHaveBeenCalledWith('/api/v1/cohortes/1', { nombre: '2025' });
   });
@@ -115,7 +115,7 @@ describe('estructura.service - Cohortes', () => {
   });
 
   it('toggleCohorteEstado calls api.patch with /api/v1/cohortes/{id}/estado', async () => {
-    vi.mocked(api.patch).mockResolvedValue({ id: '1', nombre: '2024', anio_inicio: 2024, vigencia_desde: '2024-01-01', activa: false });
+    vi.mocked(api.patch).mockResolvedValue({ id: '1', nombre: '2024', anio: 2024, vig_desde: '2024-01-01', estado: 'Inactiva', carrera_id: 'c1' });
     await toggleCohorteEstado('1');
     expect(api.patch).toHaveBeenCalledWith('/api/v1/cohortes/1/estado');
   });

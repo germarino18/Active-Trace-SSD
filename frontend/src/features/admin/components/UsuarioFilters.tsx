@@ -1,8 +1,7 @@
 import { type ChangeEvent } from 'react';
 
 export interface UsuarioFilterValues {
-  rol: string;
-  activo: string;
+  estado: string;
   q: string;
 }
 
@@ -12,18 +11,8 @@ interface UsuarioFiltersProps {
   onClear: () => void;
 }
 
-const ROLES = [
-  { value: 'ALUMNO', label: 'Alumno' },
-  { value: 'TUTOR', label: 'Tutor' },
-  { value: 'PROFESOR', label: 'Profesor' },
-  { value: 'COORDINADOR', label: 'Coordinador' },
-  { value: 'NEXO', label: 'Nexo' },
-  { value: 'ADMIN', label: 'Admin' },
-  { value: 'FINANZAS', label: 'Finanzas' },
-];
-
 export function UsuarioFilters({ values, onChange, onClear }: UsuarioFiltersProps) {
-  const hasAnyValue = values.rol !== '' || values.activo !== '' || values.q !== '';
+  const hasAnyValue = values.estado !== '' || values.q !== '';
 
   return (
     <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-md">
@@ -38,29 +27,9 @@ export function UsuarioFilters({ values, onChange, onClear }: UsuarioFiltersProp
             onChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange('q', e.target.value || undefined)
             }
-            placeholder="Buscar por nombre o email..."
+            placeholder="Buscar por nombre..."
             className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
           />
-        </div>
-
-        <div className="space-y-1">
-          <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-            Rol
-          </label>
-          <select
-            value={values.rol}
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              onChange('rol', e.target.value || undefined)
-            }
-            className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            <option value="">Todos</option>
-            {ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className="space-y-1">
@@ -68,15 +37,15 @@ export function UsuarioFilters({ values, onChange, onClear }: UsuarioFiltersProp
             Estado
           </label>
           <select
-            value={values.activo}
+            value={values.estado}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              onChange('activo', e.target.value || undefined)
+              onChange('estado', e.target.value || undefined)
             }
             className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
           >
             <option value="">Todos</option>
-            <option value="true">Activo</option>
-            <option value="false">Inactivo</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
           </select>
         </div>
       </div>

@@ -2,15 +2,42 @@ import { type ChangeEvent } from 'react';
 import type { AuditoriaFilters as AuditoriaFiltersType } from '../types/auditoria';
 
 const TIPOS_ACCION = [
-  'login',
-  'logout',
-  'crear',
-  'actualizar',
-  'eliminar',
-  'exportar',
-  'importar',
-  'enviar_comunicacion',
-  'cancelar_comunicacion',
+  'USUARIO_CREAR',
+  'USUARIO_ACTUALIZAR',
+  'USUARIO_ELIMINAR',
+  'MATERIA_CREAR',
+  'MATERIA_ACTUALIZAR',
+  'MATERIA_ELIMINAR',
+  'CARRERA_CREAR',
+  'CARRERA_ACTUALIZAR',
+  'CARRERA_ELIMINAR',
+  'COHORTE_CREAR',
+  'COHORTE_ACTUALIZAR',
+  'COHORTE_ELIMINAR',
+  'DICTADO_CREAR',
+  'DICTADO_ACTUALIZAR',
+  'DICTADO_ELIMINAR',
+  'ASIGNACION_CREAR',
+  'ASIGNACION_ACTUALIZAR',
+  'ASIGNACION_ELIMINAR',
+  'AVISO_CREAR',
+  'AVISO_ACTUALIZAR',
+  'AVISO_ELIMINAR',
+  'AVISO_CONFIRMAR',
+  'TAREA_CREAR',
+  'TAREA_ACTUALIZAR_ESTADO',
+  'TAREA_ELIMINAR',
+  'COLOQUIO_CREAR',
+  'COLOQUIO_RESERVAR',
+  'COLOQUIO_CANCELAR_RESERVA',
+  'COLOQUIO_REGISTRAR_RESULTADO',
+  'ENCUENTRO_CREAR',
+  'ENCUENTRO_EDITAR',
+  'ENCUENTRO_CANCELAR',
+  'GUARDIA_REGISTRAR',
+  'COMUNICACION_ENVIAR',
+  'COMUNICACION_APROBAR',
+  'LIQUIDACION_CERRAR',
 ];
 
 interface AuditoriaFiltersProps {
@@ -25,7 +52,7 @@ export function AuditoriaFilters({ values, onChange, onClear }: AuditoriaFilters
     values.fecha_hasta ||
     values.materia_id ||
     values.usuario_id ||
-    values.tipo_accion;
+    values.accion;
 
   return (
     <div className="rounded-xl border border-outline-variant bg-surface-container-lowest p-md">
@@ -93,9 +120,9 @@ export function AuditoriaFilters({ values, onChange, onClear }: AuditoriaFilters
             Tipo de acción
           </label>
           <select
-            value={values.tipo_accion ?? ''}
+            value={values.accion ?? ''}
             onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-              onChange('tipo_accion', e.target.value || undefined)
+              onChange('accion', e.target.value || undefined)
             }
             className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
           >

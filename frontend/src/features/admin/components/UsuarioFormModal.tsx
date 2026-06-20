@@ -3,7 +3,11 @@ import { useRoles } from '../hooks/useRoles';
 import { useRolesAsignacion, useAsignarRolUsuario, useRemoverRolUsuario } from '../hooks/useRolesAsignacion';
 import type { Usuario, CrearUsuarioData, EditarUsuarioData } from '../types';
 
-type FormValues = CrearUsuarioData;
+type FormValues = {
+  nombre: string;
+  apellidos: string;
+  estado: 'Activo' | 'Inactivo';
+};
 
 interface UsuarioFormModalProps {
   isOpen: boolean;
@@ -25,10 +29,8 @@ export function UsuarioFormModal({
 
   const [formValues, setFormValues] = useState<FormValues>({
     nombre: '',
-    apellido: '',
-    email: '',
-    rol: '',
-    activo: true,
+    apellidos: '',
+    estado: 'Activo',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,23 +40,19 @@ export function UsuarioFormModal({
     if (selectedItem) {
       setFormValues({
         nombre: selectedItem.nombre,
-        apellido: selectedItem.apellido,
-        email: selectedItem.email,
-        rol: selectedItem.rol,
-        activo: selectedItem.activo,
+        apellidos: selectedItem.apellidos,
+        estado: selectedItem.estado,
       });
     } else {
       setFormValues({
         nombre: '',
-        apellido: '',
-        email: '',
-        rol: rolesCatalogo?.[0]?.nombre ?? '',
-        activo: true,
+        apellidos: '',
+        estado: 'Activo',
       });
     }
     setError(null);
     setNuevoRolId('');
-  }, [selectedItem, isOpen, rolesCatalogo]);
+  }, [selectedItem, isOpen]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -68,8 +66,20 @@ export function UsuarioFormModal({
 
   if (!isOpen) return null;
 
+  function buildPayload(): EditarUsuarioData {
+    const payload: EditarUsuarioData = {
+      nombre: formValues.nombre || undefined,
+      apellidos: formValues.apellidos || undefined,
+      estado: formValues.estado,
+    };
+    // Strip undefined values for PATCH
+    return Object.fromEntries(
+      Object.entries(payload).filter(([_, v]) => v !== undefined),
+    ) as EditarUsuarioData;
+  }
+
   const handleSubmit = async () => {
-    if (!formValues.nombre || !formValues.apellido || !formValues.email || !formValues.rol) {
+    if (!formValues.nombre || !formValues.apellidos) {
       setError('Completá todos los campos obligatorios');
       return;
     }
@@ -78,7 +88,7 @@ export function UsuarioFormModal({
     setError(null);
 
     try {
-      await onSave(formValues);
+      await onSave(buildPayload());
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al guardar el usuario');
@@ -106,7 +116,7 @@ export function UsuarioFormModal({
     }
   };
 
-  const updateField = (field: keyof FormValues, value: string | boolean) => {
+  const updateField = (field: keyof FormValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -120,34 +130,38 @@ export function UsuarioFormModal({
       onClick={isSubmitting ? undefined : onClose}
     >
       <div
-        className="mx-4 w-full max-w-lg rounded-xl border border-outline-variant bg-surface p-6 shadow-xl"
+        style={{
+          width: 440,
+          maxWidth: '100%',
+          background: 'var(--surface-container)',
+          border: '1px solid var(--outline-variant)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 28,
+        }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="usuario-form-title"
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h3
-            id="usuario-form-title"
-            className="font-headline-lg text-headline-lg text-on-surface"
-          >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
             {selectedItem ? 'Editar usuario' : 'Nuevo usuario'}
-          </h3>
+          </h2>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-outline hover:text-on-surface"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', padding: 4, display: 'flex' }}
           >
-            <span className="material-symbols-outlined">close</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 22 }}>close</span>
           </button>
         </div>
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-                Nombre <span className="text-error">*</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--outline)' }}>
+                Nombre <span style={{ color: 'var(--error)' }}>*</span>
               </label>
               <input
                 type="text"
@@ -156,103 +170,84 @@ export function UsuarioFormModal({
                   updateField('nombre', e.target.value)
                 }
                 placeholder="Nombre"
-                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                style={{
+                  width: '100%', height: 40, padding: '0 12px', boxSizing: 'border-box',
+                  borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)',
+                  background: 'var(--surface-container-lowest)', color: 'var(--on-surface)',
+                  fontSize: 14, outline: 'none',
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--outline-variant)'}
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-                Apellido <span className="text-error">*</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--outline)' }}>
+                Apellidos <span style={{ color: 'var(--error)' }}>*</span>
               </label>
               <input
                 type="text"
-                value={formValues.apellido}
+                value={formValues.apellidos}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  updateField('apellido', e.target.value)
+                  updateField('apellidos', e.target.value)
                 }
-                placeholder="Apellido"
-                className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Apellidos"
+                style={{
+                  width: '100%', height: 40, padding: '0 12px', boxSizing: 'border-box',
+                  borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)',
+                  background: 'var(--surface-container-lowest)', color: 'var(--on-surface)',
+                  fontSize: 14, outline: 'none',
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--outline-variant)'}
               />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-              Email <span className="text-error">*</span>
-            </label>
-            <input
-              type="email"
-              value={formValues.email}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                updateField('email', e.target.value)
-              }
-              placeholder="usuario@ejemplo.com"
-              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-              Rol <span className="text-error">*</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--outline)' }}>
+              Estado
             </label>
             <select
-              value={formValues.rol}
+              value={formValues.estado}
               onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                updateField('rol', e.target.value)
+                updateField('estado', e.target.value)
               }
-              className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
-              disabled={rolesLoading}
+              style={{
+                width: '100%', height: 40, padding: '0 12px', boxSizing: 'border-box',
+                borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)',
+                background: 'var(--surface-container-lowest)', color: 'var(--on-surface)',
+                fontSize: 14, outline: 'none', cursor: 'pointer',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.target.style.borderColor = 'var(--outline-variant)'}
             >
-              {rolesLoading ? (
-                <option value="">Cargando roles...</option>
-              ) : (
-                <>
-                  <option value="">Seleccionar rol</option>
-                  {(rolesCatalogo ?? []).map((r) => (
-                    <option key={r.id} value={r.nombre}>
-                      {r.nombre}
-                    </option>
-                  ))}
-                </>
-              )}
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
             </select>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-              Estado
-            </label>
-            <div className="flex items-center gap-3">
-              <label className="flex cursor-pointer items-center gap-2 text-label-md text-on-surface">
-                <input
-                  type="checkbox"
-                  checked={formValues.activo ?? true}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    updateField('activo', e.target.checked)
-                  }
-                  className="h-4 w-4 rounded border-outline-variant bg-surface-container-low text-primary focus:ring-primary"
-                />
-                Activo
-              </label>
-            </div>
-          </div>
-
           {selectedItem && (
-            <div className="space-y-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-4">
-              <h4 className="text-label-sm font-medium text-on-surface uppercase tracking-wider">
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: 12,
+              padding: 16, borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--outline-variant)',
+              background: 'var(--surface-container-lowest)',
+            }}>
+              <h4 style={{ margin: 0, fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', color: 'var(--on-surface-variant)' }}>
                 Roles asignados
               </h4>
 
               {rolesAsignadosLoading ? (
-                <p className="text-label-sm text-outline">Cargando roles...</p>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--outline)' }}>Cargando roles...</p>
               ) : rolesAsignados && rolesAsignados.length > 0 ? (
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {rolesAsignados.map((ra) => (
-                    <div key={ra.id} className="flex items-center justify-between rounded-lg border border-outline-variant bg-surface px-3 py-2">
+                    <div key={ra.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)', background: 'var(--surface-container)' }}>
                       <div>
-                        <span className="text-label-sm text-on-surface font-medium">{ra.rol_nombre}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--on-surface)' }}>{ra.rol_nombre}</span>
                         {ra.vigencia_desde && (
-                          <span className="text-label-xs text-outline ml-2">
+                          <span style={{ fontSize: 12, color: 'var(--outline)', marginLeft: 8 }}>
                             desde {new Date(ra.vigencia_desde).toLocaleDateString('es-AR')}
                           </span>
                         )}
@@ -261,25 +256,30 @@ export function UsuarioFormModal({
                         type="button"
                         onClick={() => handleRemoverRol(ra.id)}
                         disabled={removerRol.isPending}
-                        className="rounded-lg p-1 text-outline hover:text-error transition-colors"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--outline)', padding: 4, display: 'flex' }}
                         title="Remover rol"
                       >
-                        <span className="material-symbols-outlined text-[16px]">remove_circle</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>remove_circle</span>
                       </button>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-label-sm text-outline">Sin roles asignados</p>
+                <p style={{ margin: 0, fontSize: 13, color: 'var(--outline)' }}>Sin roles asignados</p>
               )}
 
               {rolesDisponibles.length > 0 && (
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <select
                       value={nuevoRolId}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) => setNuevoRolId(e.target.value)}
-                      className="w-full rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-label-md text-on-surface transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                      style={{
+                        width: '100%', height: 36, padding: '0 12px', boxSizing: 'border-box',
+                        borderRadius: 'var(--radius-md)', border: '1px solid var(--outline-variant)',
+                        background: 'var(--surface-container-lowest)', color: 'var(--on-surface)',
+                        fontSize: 13, outline: 'none', cursor: 'pointer',
+                      }}
                     >
                       <option value="">Agregar rol...</option>
                       {rolesDisponibles.map((r) => (
@@ -291,9 +291,14 @@ export function UsuarioFormModal({
                     type="button"
                     onClick={handleAsignarRol}
                     disabled={asignarRol.isPending || !nuevoRolId}
-                    className="flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+                    style={{
+                      height: 36, padding: '0 12px', display: 'flex', alignItems: 'center', gap: 4,
+                      borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer',
+                      background: 'var(--primary)', color: 'var(--on-primary)',
+                      fontSize: 13, fontWeight: 600, opacity: asignarRol.isPending || !nuevoRolId ? 0.5 : 1,
+                    }}
                   >
-                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
                     Asignar
                   </button>
                 </div>
@@ -302,19 +307,26 @@ export function UsuarioFormModal({
           )}
 
           {error && (
-            <div className="rounded-lg border border-error/30 bg-error/5 px-3 py-2 text-label-sm text-error">
-              <span className="material-symbols-outlined mr-1 align-middle text-[16px]">error</span>
-              {error}
+            <div style={{
+              background: 'var(--error-container)', border: '1px solid color-mix(in srgb, var(--error) 30%, transparent)',
+              borderRadius: 'var(--radius-md)', padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 6,
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--on-error-container)' }}>error</span>
+              <span style={{ fontSize: 13, color: 'var(--on-error-container)' }}>{error}</span>
             </div>
           )}
         </div>
 
-        <div className="mt-6 flex justify-end gap-3">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low disabled:opacity-50"
+            style={{
+              height: 36, padding: '0 16px', borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--outline-variant)', background: 'transparent',
+              color: 'var(--on-surface)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            }}
           >
             Cancelar
           </button>
@@ -322,12 +334,14 @@ export function UsuarioFormModal({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-label-sm font-medium text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+            style={{
+              height: 36, padding: '0 16px', borderRadius: 'var(--radius-md)',
+              border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+              background: 'var(--primary)', color: 'var(--on-primary)',
+              fontSize: 13, fontWeight: 600, opacity: isSubmitting ? 0.7 : 1,
+            }}
           >
-            {isSubmitting && (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary/30 border-t-on-primary" />
-            )}
-            {isSubmitting ? 'Guardando...' : selectedItem ? 'Guardar' : 'Crear'}
+            {isSubmitting ? 'Guardando...' : selectedItem ? 'Guardar cambios' : 'Crear'}
           </button>
         </div>
       </div>

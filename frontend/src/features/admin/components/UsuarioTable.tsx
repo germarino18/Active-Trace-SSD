@@ -8,20 +8,6 @@ interface UsuarioTableProps {
   onEdit: (usuario: Usuario) => void;
 }
 
-const ROL_LABELS: Record<string, string> = {
-  ALUMNO: 'Alumno',
-  TUTOR: 'Tutor',
-  PROFESOR: 'Profesor',
-  COORDINADOR: 'Coordinador',
-  NEXO: 'Nexo',
-  ADMIN: 'Admin',
-  FINANZAS: 'Finanzas',
-};
-
-function formatearFecha(iso: string): string {
-  return new Date(iso).toLocaleDateString('es-AR');
-}
-
 export function UsuarioTable({ usuarios, isLoading, onEdit }: UsuarioTableProps) {
   if (isLoading) {
     return (
@@ -41,10 +27,10 @@ export function UsuarioTable({ usuarios, isLoading, onEdit }: UsuarioTableProps)
         <thead>
           <tr className="border-b border-outline-variant bg-surface-container-low">
             <th className="px-4 py-3 font-medium text-on-surface">Nombre</th>
-            <th className="px-4 py-3 font-medium text-on-surface">Email</th>
-            <th className="px-4 py-3 font-medium text-on-surface">Rol</th>
+            <th className="px-4 py-3 font-medium text-on-surface">Legajo</th>
+            <th className="px-4 py-3 font-medium text-on-surface">Regional</th>
+            <th className="px-4 py-3 font-medium text-on-surface">Facturador</th>
             <th className="px-4 py-3 font-medium text-on-surface">Estado</th>
-            <th className="px-4 py-3 font-medium text-on-surface">Creado</th>
             <th className="px-4 py-3 font-medium text-on-surface">Acciones</th>
           </tr>
         </thead>
@@ -55,29 +41,33 @@ export function UsuarioTable({ usuarios, isLoading, onEdit }: UsuarioTableProps)
               className="border-b border-outline-variant transition-colors hover:bg-surface-container-low"
             >
               <td className="px-4 py-3 text-on-surface font-medium">
-                {usuario.nombre} {usuario.apellido}
+                {usuario.nombre} {usuario.apellidos}
               </td>
               <td className="px-4 py-3 text-on-surface-variant">
-                {usuario.email}
+                {usuario.legajo ?? '—'}
+              </td>
+              <td className="px-4 py-3 text-on-surface-variant">
+                {usuario.regional ?? '—'}
               </td>
               <td className="px-4 py-3">
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-label-xs font-medium text-primary">
-                  {ROL_LABELS[usuario.rol] ?? usuario.rol}
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-label-xs font-medium ${
+                  usuario.facturador
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-surface-container-high text-outline'
+                }`}>
+                  {usuario.facturador ? 'Sí' : 'No'}
                 </span>
               </td>
               <td className="px-4 py-3">
                 <span
                   className={`inline-flex items-center rounded-full px-2 py-0.5 text-label-xs font-medium ${
-                    usuario.activo
+                    usuario.estado === 'Activo'
                       ? 'bg-success/10 text-success'
                       : 'bg-error/10 text-error'
                   }`}
                 >
-                  {usuario.activo ? 'Activo' : 'Inactivo'}
+                  {usuario.estado}
                 </span>
-              </td>
-              <td className="px-4 py-3 text-on-surface-variant">
-                {formatearFecha(usuario.created_at)}
               </td>
               <td className="px-4 py-3">
                 <button

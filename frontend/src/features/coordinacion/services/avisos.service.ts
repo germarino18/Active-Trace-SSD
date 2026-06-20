@@ -1,29 +1,32 @@
 import * as api from '@/shared/services/api';
-import type { Aviso, AvisosResponse } from '../types';
+import type { Aviso } from '../types';
 
 export interface AvisoParams {
-  scope?: string;
-  vigente?: boolean;
-  offset?: number;
+  alcance?: string;
+  activo?: boolean;
+  skip?: number;
   limit?: number;
 }
 
 export interface CrearAvisoData {
-  titulo: string;
-  mensaje: string;
-  scope: string;
-  scope_value?: string;
+  alcance: string;
+  materia_id?: string;
+  cohorte_id?: string;
+  rol_destino?: string;
   severidad: string;
-  vigencia_desde: string;
-  vigencia_hasta: string;
-  requiere_ack: boolean;
+  titulo: string;
+  cuerpo: string;
+  inicio_en: string;
+  fin_en: string;
   orden: number;
+  activo?: boolean;
+  requiere_ack?: boolean;
 }
 
 export type ActualizarAvisoData = Partial<CrearAvisoData>;
 
-export async function getAvisos(params?: AvisoParams): Promise<AvisosResponse> {
-  return api.get<AvisosResponse>('/api/v1/avisos', params as Record<string, unknown>);
+export async function getAvisos(params?: AvisoParams): Promise<Aviso[]> {
+  return api.get<Aviso[]>('/api/v1/avisos', params as Record<string, unknown>);
 }
 
 export async function getAviso(id: string): Promise<Aviso> {
@@ -43,5 +46,5 @@ export async function eliminarAviso(id: string): Promise<void> {
 }
 
 export async function confirmarAck(avisoId: string): Promise<void> {
-  return api.post<void>(`/api/v1/avisos/${avisoId}/ack`);
+  return api.post<void>(`/api/v1/avisos/${avisoId}/confirmar`);
 }

@@ -13,8 +13,8 @@ vi.mock('@/features/auth/hooks/useAuth', () => ({
 }));
 
 const mockCohortes = [
-  { id: '1', nombre: 'Cohorte 2024', anio_inicio: 2024, vigencia_desde: '2024-03-01', vigencia_hasta: '2024-12-31', activa: true },
-  { id: '2', nombre: 'Cohorte 2023', anio_inicio: 2023, vigencia_desde: '2023-03-01', activa: false },
+  { id: '1', nombre: 'Cohorte 2024', anio: 2024, vig_desde: '2024-03-01', vig_hasta: '2024-12-31', estado: 'Activa', carrera_id: 'c1' },
+  { id: '2', nombre: 'Cohorte 2023', anio: 2023, vig_desde: '2023-03-01', vig_hasta: null, estado: 'Inactiva', carrera_id: 'c2' },
 ];
 
 let mockCohortesState: Record<string, unknown> = {
@@ -25,8 +25,9 @@ let mockCohortesState: Record<string, unknown> = {
 
 vi.mock('@/features/admin/hooks/useEstructura', () => ({
   useCohortes: () => mockCohortesState,
-  useCrearCohorte: () => ({ mutate: vi.fn(), isPending: false }),
-  useActualizarCohorte: () => ({ mutate: vi.fn(), isPending: false }),
+  useCarreras: () => ({ data: { items: [{ id: 'c1', codigo: 'ING', nombre: 'Ingeniería' }], total: 1 }, isLoading: false }),
+  useCrearCohorte: () => ({ mutate: vi.fn(), isPending: false, mutateAsync: vi.fn() }),
+  useActualizarCohorte: () => ({ mutate: vi.fn(), isPending: false, mutateAsync: vi.fn() }),
   useEliminarCohorte: () => ({ mutate: vi.fn(), isPending: false }),
   useToggleCohorteEstado: () => ({ mutate: vi.fn(), isPending: false }),
 }));

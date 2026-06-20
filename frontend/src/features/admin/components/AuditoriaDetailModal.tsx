@@ -5,8 +5,10 @@ interface AuditoriaDetailModalProps {
   onClose: () => void;
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return '—';
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('es-AR', {
     day: '2-digit',
     month: 'long',
@@ -17,61 +19,160 @@ function formatDate(iso: string): string {
   });
 }
 
+function ActionBadge({ accion }: { accion: string }) {
+  const prefixColorMap: Record<string, string> = {
+    IMPERSONACION: 'var(--primary)',
+    CARRERA: 'var(--primary)',
+    MATERIA: 'var(--secondary)',
+    COHORTE: 'var(--warning)',
+    DICTADO: 'var(--warning)',
+    USUARIO: 'var(--success)',
+    ASIGNACION: 'var(--primary)',
+    ENCUENTRO: 'var(--info)',
+    COLOQUIO: 'var(--secondary)',
+    AVISO: 'var(--info)',
+    TAREA: 'var(--on-surface-variant)',
+    COMUNICACION: 'var(--success)',
+    LIQUIDACION: 'var(--error)',
+    PERFIL: 'var(--primary)',
+  };
+  const prefix = accion.split('_')[0] ?? '';
+  const color = prefixColorMap[prefix] ?? 'var(--on-surface-variant)';
+
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '2px 10px',
+        borderRadius: 'var(--radius-full)',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '0.01em',
+        background: `color-mix(in srgb, ${color} 12%, transparent)`,
+        color,
+      }}
+    >
+      {accion.replace(/_/g, ' ')}
+    </span>
+  );
+}
+
 export function AuditoriaDetailModal({ registro, onClose }: AuditoriaDetailModalProps) {
   const detalle = registro.detalle;
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+        overflowY: 'auto',
+        padding: '32px 16px',
+      }}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-xl border border-outline-variant bg-surface-container-lowest p-6 shadow-xl"
+        style={{
+          width: '100%',
+          maxWidth: 560,
+          background: 'var(--surface-container)',
+          border: '1px solid var(--outline-variant)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 28,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="font-headline-md text-headline-md text-on-surface">
-            Detalle del registro
-          </h3>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span
+              className="material-symbols-outlined"
+              style={{ fontSize: 24, color: 'var(--primary)' }}
+            >
+              receipt_long
+            </span>
+            <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
+              Detalle del registro
+            </h3>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-outline transition-colors hover:bg-surface-container-low hover:text-on-surface"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 32,
+              height: 32,
+              border: 'none',
+              borderRadius: 'var(--radius-full)',
+              background: 'transparent',
+              color: 'var(--outline)',
+              cursor: 'pointer',
+              transition: 'background .15s ease, color .15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--surface-container-low)';
+              e.currentTarget.style.color = 'var(--on-surface-variant)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'var(--outline)';
+            }}
           >
-            <span className="material-symbols-outlined text-[20px]">close</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>close</span>
           </button>
         </div>
 
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Fecha" value={formatDate(registro.fecha)} />
-            <Field label="Usuario" value={registro.usuario_nombre} />
-            <Field label="Materia" value={registro.materia_nombre ?? '—'} />
-            <Field label="Tipo de acción" value={registro.tipo_accion.replace(/_/g, ' ')} />
-            <Field label="Registros afectados" value={registro.registros_afectados?.toString() ?? '—'} />
-            <Field label="IP origen" value={registro.ip_origen ?? '—'} />
+        {/* Fields grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <Field label="Fecha" value={formatDate(registro.fecha_hora)} />
+          <Field label="Usuario" value={registro.actor_nombre ?? '—'} />
+          <Field label="Materia" value={registro.materia_nombre ?? '—'} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Tipo de acción
+            </span>
+            <ActionBadge accion={registro.accion ?? '—'} />
           </div>
-
-          <div className="space-y-1">
-            <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-              Agente de usuario
-            </label>
-            <p className="rounded-lg border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-sm text-on-surface break-all">
-              {registro.agente_usuario ?? '—'}
-            </p>
-          </div>
-
-          {detalle && Object.keys(detalle).length > 0 && (
-            <div className="space-y-1">
-              <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
-                Detalle adicional
-              </label>
-              <pre className="max-h-48 overflow-auto rounded-lg border border-outline-variant bg-surface-container-lowest p-3 text-body-xs text-on-surface-variant font-mono whitespace-pre-wrap">
-                {JSON.stringify(detalle, null, 2)}
-              </pre>
-            </div>
-          )}
+          <Field label="Registros afectados" value={registro.filas_afectadas?.toString() ?? '—'} />
+          <Field label="IP origen" value={registro.ip ?? '—'} />
         </div>
+
+        {/* Detail JSON */}
+        {detalle && Object.keys(detalle).length > 0 && (
+          <div style={{ marginTop: 20 }}>
+            <span style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+              Detalle adicional
+            </span>
+            <pre
+              style={{
+                maxHeight: 200,
+                overflow: 'auto',
+                padding: '12px 14px',
+                background: 'var(--surface-container-low)',
+                border: '1px solid var(--outline-variant)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: 12,
+                color: 'var(--on-surface-variant)',
+                fontFamily: 'var(--font-mono)',
+                lineHeight: 1.6,
+                whiteSpace: 'pre-wrap',
+                margin: 0,
+              }}
+            >
+              {JSON.stringify(detalle, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -79,11 +180,13 @@ export function AuditoriaDetailModal({ registro, onClose }: AuditoriaDetailModal
 
 function Field({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-0.5">
-      <label className="text-label-xs font-medium text-outline uppercase tracking-wider">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--outline)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
         {label}
-      </label>
-      <p className="text-body-sm text-on-surface font-medium">{value}</p>
+      </span>
+      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}>
+        {value}
+      </span>
     </div>
   );
 }

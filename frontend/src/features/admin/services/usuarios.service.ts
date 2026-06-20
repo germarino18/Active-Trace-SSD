@@ -16,5 +16,5 @@ export async function crearUsuario(data: CrearUsuarioData): Promise<Usuario> {
 }
 
 export async function editarUsuario(id: string, data: EditarUsuarioData): Promise<Usuario> {
-  return api.put<Usuario>(`/api/admin/usuarios/${id}`, data);
+  return api.patch<Usuario>(`/api/admin/usuarios/${id}`, data);
 }

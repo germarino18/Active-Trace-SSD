@@ -8,8 +8,7 @@ import { Button } from '@/shared/components/ds';
 import type { Usuario, CrearUsuarioData, EditarUsuarioData } from '../types';
 
 const initialFilters: UsuarioFilterValues = {
-  rol: '',
-  activo: '',
+  estado: '',
   q: '',
 };
 
@@ -22,17 +21,13 @@ export function UsuariosPage() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState<Usuario | null>(null);
 
-  const canCreate = hasPermission('admin:usuarios:crear');
-  const canEdit = hasPermission('admin:usuarios:editar');
+  const canCreate = hasPermission('usuarios:gestionar');
+  const canEdit = hasPermission('usuarios:gestionar');
 
   const appliedFilters: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(filters)) {
     if (value !== '' && value !== undefined) {
-      if (key === 'activo') {
-        appliedFilters[key] = value === 'true';
-      } else {
-        appliedFilters[key] = value;
-      }
+      appliedFilters[key] = value;
     }
   }
 
