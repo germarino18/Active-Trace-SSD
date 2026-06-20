@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useParams } from 'react-router-dom';
-import { useDictadoMetricas } from '../hooks/useProfesor';
+import { useDictadoMetricas, useDictadoNombre } from '../hooks/useProfesor';
 import { StatCard } from '@/shared/components/ds';
 
 const tabs = [
@@ -12,16 +12,14 @@ const tabs = [
 export function DictadoDashboardPage() {
   const { dictadoId } = useParams<{ dictadoId: string }>();
   const { data, isLoading } = useDictadoMetricas(dictadoId!);
+  const dictadoNombre = useDictadoNombre(dictadoId!);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <h2 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
-          Panel del Dictado
+          {dictadoNombre}
         </h2>
-        <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'var(--font-mono)' }}>
-          ID: {dictadoId}
-        </p>
       </div>
 
       {isLoading ? (

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import {
   usePadronDictado,
   useMutationAgregarAlumnosBulk,
+  useMutationQuitarAlumno,
   useMutationQuitarAlumnosBulk,
   useAlumnosDisponibles,
 } from '../hooks/useProfesor';
@@ -133,10 +134,13 @@ export function AlumnosDictadoPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedPadron, setSelectedPadron] = useState<string[]>([]);
   const [confirmBulkBaja, setConfirmBulkBaja] = useState(false);
+  /** ID of the alumno pending single-row delete confirmation; null = none */
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const { data, isLoading, isError } = usePadronDictado(dictadoId!);
   const { data: disponibles, isLoading: loadingDisponibles } = useAlumnosDisponibles(dictadoId!);
   const quitarBulkMutation = useMutationQuitarAlumnosBulk(dictadoId!);
+  const quitarSingleMutation = useMutationQuitarAlumno(dictadoId!);
 
   const togglePadronSelect = (id: string) => {
     setSelectedPadron((prev) =>
@@ -243,6 +247,7 @@ export function AlumnosDictadoPage() {
                 <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Apellidos</th>
                 <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Email</th>
                 <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Comisión</th>
+                <th className="px-4 py-3 text-label-sm font-medium text-on-surface-variant">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -267,6 +272,37 @@ export function AlumnosDictadoPage() {
                   <td className="px-4 py-3 text-body-sm text-on-surface">{alumno.apellidos}</td>
                   <td className="px-4 py-3 text-body-sm text-on-surface-variant">{alumno.email ?? '—'}</td>
                   <td className="px-4 py-3 text-body-sm text-on-surface-variant">{alumno.comision ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    {confirmDeleteId === alumno.id ? (
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={async () => {
+                            await quitarSingleMutation.mutateAsync(alumno.id);
+                            setConfirmDeleteId(null);
+                          }}
+                          disabled={quitarSingleMutation.isPending}
+                          aria-label={`Confirmar baja ${alumno.nombre} ${alumno.apellidos}`}
+                        >
+                          {quitarSingleMutation.isPending ? '…' : 'Confirmar'}
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={() => setConfirmDeleteId(null)}>
+                          Cancelar
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmDeleteId(alumno.id)}
+                        aria-label={`Dar de baja ${alumno.nombre} ${alumno.apellidos}`}
+                      >
+                        <span className="material-symbols-outlined text-[14px]">person_remove</span>
+                        Dar de baja
+                      </Button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

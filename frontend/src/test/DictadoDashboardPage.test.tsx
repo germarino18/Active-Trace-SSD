@@ -8,15 +8,19 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false 
 vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useProfesorDashboard: vi.fn(),
   useDictadoMetricas: vi.fn(),
+  useDictadoNombre: vi.fn(),
   usePadronDictado: vi.fn(),
   useMutationAgregarAlumno: vi.fn(),
+  useMutationAgregarAlumnosBulk: vi.fn(),
   useMutationQuitarAlumno: vi.fn(),
+  useMutationQuitarAlumnosBulk: vi.fn(),
   useActividadesDictado: vi.fn(),
   useCalificacionesDictado: vi.fn(),
   useMutationEditarCalificacion: vi.fn(),
   useMutationCrearActividad: vi.fn(),
   useMutationEliminarActividad: vi.fn(),
   useMutationSubirCalificacionesCsv: vi.fn(),
+  useMutationRegistrarCalificacion: vi.fn(),
   useAtrasadosProfesor: vi.fn(),
   useMutationComunicadoAtrasadoNull: vi.fn(),
   useMutationComunicadoAtrasados: vi.fn(),
@@ -25,12 +29,14 @@ vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useMutationCrearAviso: vi.fn(),
   useColoquiosMios: vi.fn(),
   useAlumnosDisponibles: vi.fn(),
+  invalidateDictadoDerived: vi.fn(),
 }));
 
-import { useDictadoMetricas } from '@/features/profesor/hooks/useProfesor';
+import { useDictadoMetricas, useDictadoNombre } from '@/features/profesor/hooks/useProfesor';
 import { DictadoDashboardPage } from '@/features/profesor/pages/DictadoDashboardPage';
 
 const mockUseDictadoMetricas = vi.mocked(useDictadoMetricas);
+const mockUseDictadoNombre = vi.mocked(useDictadoNombre);
 
 function renderPage() {
   return render(
@@ -47,6 +53,8 @@ function renderPage() {
 describe('DictadoDashboardPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: hook returns a human name (tests that need different can override)
+    mockUseDictadoNombre.mockReturnValue('Matemáticas — 2024');
   });
 
   it('shows loading spinner while fetching metrics', () => {
@@ -55,6 +63,7 @@ describe('DictadoDashboardPage', () => {
       isLoading: true,
       isError: false,
     } as ReturnType<typeof useDictadoMetricas>);
+    mockUseDictadoNombre.mockReturnValue('Cargando…');
 
     renderPage();
     expect(screen.getByRole('status', { name: 'Cargando' })).toBeInTheDocument();

@@ -48,7 +48,7 @@ export function ProfesorDashboardListPage() {
                   </td>
                   <td className="px-4 py-3">
                     <Link
-                      to={`/profesor/dictados/${dictado.dictado_id}`}
+                      to={`/dictados/${dictado.dictado_id}`}
                       className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-label-xs font-medium text-primary transition-colors hover:bg-primary/20"
                     >
                       <span className="material-symbols-outlined text-[14px]">open_in_new</span>

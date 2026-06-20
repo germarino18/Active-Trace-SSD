@@ -222,15 +222,17 @@ const router = createBrowserRouter([
           { path: '/admin/auditoria', element: <AuditoriaPage /> },
           { path: '/admin/metricas', element: <MetricasPage /> },
           // Profesor — top-level routes
-          { path: '/profesor/dashboard', element: <ProfesorDashboardListPage /> },
+          // MOVED: list is now at /dictados (was /profesor/dashboard — task 5)
+          { path: '/dictados', element: <ProfesorDashboardListPage /> },
           { path: '/profesor/avisos', element: <AvisosMiosPage /> },
           { path: '/profesor/coloquios', element: <MisColoquiosProfesorPage /> },
           // MisTareasProfesorPage: uses GET /api/v1/tareas/mias → plain array (NOT {items,total})
           // Do NOT reuse coordinación's MisTareasPage here — it reads data.items.length → crash
           { path: '/profesor/tareas', element: <MisTareasProfesorPage /> },
           // Profesor — per-dictado tabs (alumnos, actividades, atrasados, equipo)
+          // MOVED: detail subtree is now at /dictados/:dictadoId (was /profesor/dictados/:dictadoId)
           {
-            path: '/profesor/dictados/:dictadoId',
+            path: '/dictados/:dictadoId',
             element: <DictadoDashboardPage />,
             children: [
               { index: true, element: <Navigate to="alumnos" replace /> },

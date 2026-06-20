@@ -52,7 +52,7 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
     {
       label: 'PROFESOR',
       items: [
-        { label: 'Mis Dictados', path: '/profesor/dashboard', icon: 'class', requiredPermissions: ['atrasados:ver'] },
+        { label: 'Mis Dictados', path: '/dictados', icon: 'class', requiredPermissions: ['atrasados:ver'] },
         { label: 'Mis Tareas', path: '/profesor/tareas', icon: 'checklist', requiredPermissions: ['tareas:gestionar'] },
         { label: 'Mis Avisos', path: '/profesor/avisos', icon: 'campaign', requiredPermissions: ['avisos:publicar'] },
         { label: 'Mis Coloquios', path: '/profesor/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:gestionar'] },
@@ -66,7 +66,7 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
         { label: 'Mis Alumnos', path: '/tutor/alumnos', icon: 'group', requiredPermissions: ['alumnos:ver'] },
         { label: 'Entregas sin corregir', path: '/entregas-sin-corregir', icon: 'assignment_late', requiredPermissions: ['entregas:ver'] },
         { label: 'Guardias', path: '/guardias', icon: 'shield', requiredPermissions: ['guardias:gestionar'] },
-        { label: 'Atrasados', path: '/atrasados', icon: 'warning', requiredPermissions: ['atrasados:ver'] },
+        { label: 'Desaprobados/Atrasados', path: '/atrasados', icon: 'warning', requiredPermissions: ['atrasados:ver'] },
         { label: 'Comunicación', path: '/comunicacion', icon: 'send', requiredPermissions: ['comunicacion:ver'] },
         // hidden until further notice: { label: 'Encuentros', path: '/encuentros', icon: 'event', requiredPermissions: ['encuentros:gestionar'] },
         { label: 'Coloquios', path: '/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:gestionar'] },
