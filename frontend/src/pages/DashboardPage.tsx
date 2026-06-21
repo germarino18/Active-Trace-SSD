@@ -1,7 +1,12 @@
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { StatCard, Card } from '@/shared/components/ds';
-import { useProfesorDashboard } from '@/features/profesor/hooks/useProfesor';
 
+/**
+ * Generic static dashboard for all roles.
+ * Professor live metrics were moved to ProfesorMetricsDashboardPage at /profesor-dashboard
+ * (D4 decision in fix-profesor-dictados-ux-round2 design.md).
+ * This page now renders only the static ROLE_CONFIG — no useProfesorDashboard call.
+ */
 const ROLE_CONFIG: Record<string, { icon: string; stats: Array<{ label: string; value: string; icon: string; trend?: string }> }> = {
   ALUMNO: {
     icon: 'school',
@@ -50,49 +55,29 @@ const FALLBACK_CONFIG = ROLE_CONFIG.ADMIN;
 export function DashboardPage() {
   const { session } = useAuth();
 
-  const primaryRole =
-    session.status === 'authenticated' ? (session.user.roles[0]?.toUpperCase() ?? '') : '';
-
-  const { data: profesorData } = useProfesorDashboard(primaryRole === 'PROFESOR');
-
   if (session.status !== 'authenticated') return null;
 
   const { user } = session;
+  const primaryRole = user.roles[0]?.toUpperCase() ?? '';
   const config = ROLE_CONFIG[primaryRole] ?? FALLBACK_CONFIG;
-
-  const resolvedStats =
-    primaryRole === 'PROFESOR'
-      ? [
-          {
-            label: 'Materias asignadas',
-            value: profesorData ? String(profesorData.materias_asignadas.length) : '—',
-            icon: 'class',
-          },
-          {
-            label: 'Alumnos en riesgo',
-            value: profesorData ? String(profesorData.total_atrasados) : '—',
-            icon: 'warning',
-            trend: 'Requieren atención',
-          },
-          {
-            label: 'Encuentros',
-            value: profesorData ? String(profesorData.total_encuentros) : '—',
-            icon: 'assignment_late',
-          },
-        ]
-      : config.stats;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Panel Principal</h2>
+        <h2
+          role="heading"
+          aria-level={2}
+          style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}
+        >
+          Panel Principal
+        </h2>
         <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Bienvenido, {user.nombre} {user.apellido}
         </p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
-        {resolvedStats.map((stat) => (
+        {config.stats.map((stat) => (
           <StatCard
             key={stat.label}
             label={stat.label}

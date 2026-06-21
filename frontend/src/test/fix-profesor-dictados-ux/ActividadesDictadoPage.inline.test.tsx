@@ -24,6 +24,7 @@ vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useCalificacionesDictado: vi.fn(),
   useMutationEditarCalificacion: vi.fn(),
   useMutationCrearActividad: vi.fn(),
+  useMutationEditarActividad: vi.fn(),
   useMutationEliminarActividad: vi.fn(),
   useMutationSubirCalificacionesCsv: vi.fn(),
   useMutationRegistrarCalificacion: vi.fn(),
@@ -55,6 +56,8 @@ import {
   usePadronDictado,
   useMutationEditarCalificacion,
   useMutationCrearActividad,
+  useMutationEditarActividad,
+  useMutationEliminarActividad,
   useMutationSubirCalificacionesCsv,
   useMutationRegistrarCalificacion,
 } from '@/features/profesor/hooks/useProfesor';
@@ -65,6 +68,8 @@ const mockUseCalificaciones = vi.mocked(useCalificacionesDictado);
 const mockUsePadron = vi.mocked(usePadronDictado);
 const mockMutationEditar = vi.mocked(useMutationEditarCalificacion);
 const mockMutationCrear = vi.mocked(useMutationCrearActividad);
+const mockMutationEditarAct = vi.mocked(useMutationEditarActividad);
+const mockMutationEliminar = vi.mocked(useMutationEliminarActividad);
 const mockMutationCsv = vi.mocked(useMutationSubirCalificacionesCsv);
 const mockMutationRegistrar = vi.mocked(useMutationRegistrarCalificacion);
 
@@ -112,6 +117,8 @@ describe('ActividadesDictadoPage — inline registrar-nota row', () => {
     vi.clearAllMocks();
     mockMutationEditar.mockReturnValue(defaultMutation as ReturnType<typeof useMutationEditarCalificacion>);
     mockMutationCrear.mockReturnValue(defaultMutation as ReturnType<typeof useMutationCrearActividad>);
+    mockMutationEditarAct.mockReturnValue(defaultMutation as ReturnType<typeof useMutationEditarActividad>);
+    mockMutationEliminar.mockReturnValue(defaultMutation as ReturnType<typeof useMutationEliminarActividad>);
     mockMutationCsv.mockReturnValue(defaultMutation as ReturnType<typeof useMutationSubirCalificacionesCsv>);
     mockMutationRegistrar.mockReturnValue(defaultMutation as ReturnType<typeof useMutationRegistrarCalificacion>);
     mockUsePadron.mockReturnValue({ data: samplePadron, isLoading: false, isError: false } as ReturnType<typeof usePadronDictado>);
@@ -149,8 +156,10 @@ describe('ActividadesDictadoPage — inline registrar-nota row', () => {
   it('7.4 — aprobado control in the edit row is a DS toggle button (not bare checkbox)', () => {
     renderPage();
     // The edit row renders an AprobadoToggle for existing calificacion
-    // Click edit on Juan's grade
-    fireEvent.click(screen.getByRole('button', { name: /editar/i }));
+    // Click edit on Juan's grade — find "Editar" text in table cell (not the actividad edit button)
+    const editarBtns = screen.getAllByText('Editar');
+    // The calificacion "Editar" button is the one inside the table cell
+    fireEvent.click(editarBtns[0]);
 
     // The aprobado control should be a <button role="checkbox">, not <input type="checkbox">
     const toggle = screen.getByRole('checkbox', { name: /aprobado/i });
@@ -159,7 +168,8 @@ describe('ActividadesDictadoPage — inline registrar-nota row', () => {
 
   it('7.4 — TRIANGULATE: AprobadoToggle toggles its aria-checked state', () => {
     renderPage();
-    fireEvent.click(screen.getByRole('button', { name: /editar/i }));
+    const editarBtns = screen.getAllByText('Editar');
+    fireEvent.click(editarBtns[0]);
 
     const toggle = screen.getByRole('checkbox', { name: /aprobado/i });
     // Initially checked=true (from sampleCalificacion.aprobado=true)

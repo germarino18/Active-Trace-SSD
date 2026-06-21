@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { AuthGuard } from '@/features/auth/components/AuthGuard';
 import { GuestGuard } from '@/features/auth/components/GuestGuard';
+import { DashboardEntry } from '@/features/auth/components/DashboardEntry';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { TwoFactorPage } from '@/features/auth/pages/TwoFactorPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
@@ -77,6 +78,7 @@ const HiloPage = lazy(() => import('@/features/inbox/pages/HiloPage').then(m => 
 
 // Profesor pages
 const ProfesorDashboardListPage = lazy(() => import('@/features/profesor/pages/ProfesorDashboardListPage').then(m => ({ default: m.ProfesorDashboardListPage })));
+const ProfesorMetricsDashboardPage = lazy(() => import('@/features/profesor/pages/ProfesorMetricsDashboardPage').then(m => ({ default: m.ProfesorMetricsDashboardPage })));
 const DictadoDashboardPage = lazy(() => import('@/features/profesor/pages/DictadoDashboardPage').then(m => ({ default: m.DictadoDashboardPage })));
 const AlumnosDictadoPage = lazy(() => import('@/features/profesor/pages/AlumnosDictadoPage').then(m => ({ default: m.AlumnosDictadoPage })));
 const ActividadesDictadoPage = lazy(() => import('@/features/profesor/pages/ActividadesDictadoPage').then(m => ({ default: m.ActividadesDictadoPage })));
@@ -129,7 +131,7 @@ const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: '/dashboard', element: <DashboardPage /> },
+          { path: '/dashboard', element: <DashboardEntry /> },
           { path: '/profile', element: <ProfilePage /> },
           // Tutor
           { path: '/tutor/alumnos', element: <TutorAlumnosPage /> },
@@ -224,6 +226,8 @@ const router = createBrowserRouter([
           // Profesor — top-level routes
           // MOVED: list is now at /dictados (was /profesor/dashboard — task 5)
           { path: '/dictados', element: <ProfesorDashboardListPage /> },
+          // Profesor live metrics dashboard (split from /dashboard — D4 decision)
+          { path: '/profesor-dashboard', element: <ProfesorMetricsDashboardPage /> },
           { path: '/profesor/avisos', element: <AvisosMiosPage /> },
           { path: '/profesor/coloquios', element: <MisColoquiosProfesorPage /> },
           // MisTareasProfesorPage: uses GET /api/v1/tareas/mias → plain array (NOT {items,total})

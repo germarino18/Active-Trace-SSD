@@ -25,15 +25,30 @@ export function useSidebar() {
   return useContext(SidebarContext);
 }
 
-function buildSections(comunicacionesPendientes: number, inboxUnread: number): SidebarSection[] {
-  return [
-    // Items visibles para todos los usuarios autenticados
-    {
-      items: [
+/**
+ * Build sidebar sections filtered by the primary role of the authenticated user.
+ * Exported so it can be unit-tested in isolation (no DOM needed).
+ *
+ * @param primaryRole - uppercase role string, e.g. 'PROFESOR', 'ADMIN', 'ALUMNO'
+ * @param comunicacionesPendientes - badge count for the approval section
+ * @param inboxUnread - badge count for the inbox section
+ */
+export function buildSectionsForRole(
+  primaryRole: string,
+  comunicacionesPendientes: number,
+  inboxUnread: number,
+): SidebarSection[] {
+  // PROFESOR goes directly to /profesor-dashboard — hide the generic /dashboard entry
+  const genericItems: SidebarSection['items'] = primaryRole === 'PROFESOR'
+    ? [{ label: 'Mi Perfil', path: '/profile', icon: 'person' }]
+    : [
         { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
         { label: 'Mi Perfil', path: '/profile', icon: 'person' },
-      ],
-    },
+      ];
+
+  return [
+    // Items visibles para todos los usuarios autenticados (role-filtered above)
+    { items: genericItems },
     // ALUMNO
     {
       label: 'ALUMNO',
@@ -53,6 +68,7 @@ function buildSections(comunicacionesPendientes: number, inboxUnread: number): S
       label: 'PROFESOR',
       items: [
         { label: 'Mis Dictados', path: '/dictados', icon: 'class', requiredPermissions: ['atrasados:ver'] },
+        { label: 'Mis Métricas', path: '/profesor-dashboard', icon: 'dashboard', requiredPermissions: ['atrasados:ver'] },
         { label: 'Mis Tareas', path: '/profesor/tareas', icon: 'checklist', requiredPermissions: ['tareas:gestionar'] },
         { label: 'Mis Avisos', path: '/profesor/avisos', icon: 'campaign', requiredPermissions: ['avisos:publicar'] },
         { label: 'Mis Coloquios', path: '/profesor/coloquios', icon: 'quiz', requiredPermissions: ['coloquios:gestionar'] },
@@ -128,7 +144,11 @@ export function AppLayout() {
   const [isOpen, setIsOpen] = useState(false);
   const pendingCount = useLotesPendientesCount();
   const { unreadCount: inboxUnread } = useInbox();
-  const sections = useMemo(() => buildSections(pendingCount, inboxUnread), [pendingCount, inboxUnread]);
+  const primaryRole = session.status === 'authenticated' ? (session.user.roles[0]?.toUpperCase() ?? '') : '';
+  const sections = useMemo(
+    () => buildSectionsForRole(primaryRole, pendingCount, inboxUnread),
+    [primaryRole, pendingCount, inboxUnread],
+  );
 
   const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
   const close = useCallback(() => setIsOpen(false), []);

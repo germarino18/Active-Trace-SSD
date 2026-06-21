@@ -232,3 +232,16 @@ export interface TareaProfesor {
   created_at: string;
   updated_at: string;
 }
+
+/** Payload for POST /api/v1/tareas/mias */
+export interface CrearTareaData {
+  descripcion: string;
+  materia_id?: string | null;
+}
+
+/** Payload for PATCH /api/v1/tareas/mias/{id} */
+export interface EditarTareaData {
+  descripcion?: string;
+  materia_id?: string | null;
+  estado?: string;
+}

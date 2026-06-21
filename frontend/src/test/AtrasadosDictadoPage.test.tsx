@@ -20,6 +20,7 @@ vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useAtrasadosProfesor: vi.fn(),
   useMutationComunicadoAtrasadoNull: vi.fn(),
   useMutationComunicadoAtrasados: vi.fn(),
+  useMutationComunicadoFlexible: vi.fn(),
   useEquipoDictado: vi.fn(),
   useAvisosMios: vi.fn(),
   useMutationCrearAviso: vi.fn(),

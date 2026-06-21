@@ -21,6 +21,8 @@ import type {
   EditarCalificacionData,
   RegistrarCalificacionData,
   TareaProfesor,
+  CrearTareaData,
+  EditarTareaData,
 } from '../types';
 
 export async function getProfesorDashboard(): Promise<ProfesorDashboard> {
@@ -204,4 +206,14 @@ export async function getMisTareasProfesor(): Promise<TareaProfesor[]> {
 
 export async function cambiarEstadoTareaProfesor(tareaId: string, estado: string): Promise<TareaProfesor> {
   return api.patch<TareaProfesor>(`/api/v1/tareas/${tareaId}/estado`, { estado });
+}
+
+/** POST /api/v1/tareas/mias — creates a new tarea owned by the authenticated profesor */
+export async function crearTareaPropia(data: CrearTareaData): Promise<TareaProfesor> {
+  return api.post<TareaProfesor>('/api/v1/tareas/mias', data);
+}
+
+/** PATCH /api/v1/tareas/mias/{id} — edits descripcion, materia_id, or estado */
+export async function editarTareaPropia(tareaId: string, data: EditarTareaData): Promise<TareaProfesor> {
+  return api.patch<TareaProfesor>(`/api/v1/tareas/mias/${tareaId}`, data);
 }

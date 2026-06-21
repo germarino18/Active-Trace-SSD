@@ -15,6 +15,8 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false 
 vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useMisTareasProfesor: vi.fn(),
   useMutationCambiarEstadoTareaProfesor: vi.fn(),
+  useMutationCrearTareaPropia: vi.fn(),
+  useMutationEditarTareaPropia: vi.fn(),
   useProfesorDashboard: vi.fn(),
   useDictadoMetricas: vi.fn(),
   usePadronDictado: vi.fn(),
@@ -38,13 +40,21 @@ vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useColoquiosMios: vi.fn(),
   useAlumnosDisponibles: vi.fn(),
   useAtrasadosGeneralProfesor: vi.fn(),
+  useMutationComunicadoFlexible: vi.fn(),
 }));
 
-import { useMisTareasProfesor, useMutationCambiarEstadoTareaProfesor } from '@/features/profesor/hooks/useProfesor';
+import {
+  useMisTareasProfesor,
+  useMutationCambiarEstadoTareaProfesor,
+  useMutationCrearTareaPropia,
+  useMutationEditarTareaPropia,
+} from '@/features/profesor/hooks/useProfesor';
 import { MisTareasProfesorPage } from '@/features/profesor/pages/MisTareasProfesorPage';
 
 const mockUseTareas = vi.mocked(useMisTareasProfesor);
 const mockMutationEstado = vi.mocked(useMutationCambiarEstadoTareaProfesor);
+const mockMutationCrear = vi.mocked(useMutationCrearTareaPropia);
+const mockMutationEditar = vi.mocked(useMutationEditarTareaPropia);
 
 const defaultMutation = {
   mutateAsync: vi.fn(),
@@ -90,6 +100,8 @@ describe('MisTareasProfesorPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockMutationEstado.mockReturnValue(defaultMutation as ReturnType<typeof useMutationCambiarEstadoTareaProfesor>);
+    mockMutationCrear.mockReturnValue(defaultMutation as ReturnType<typeof useMutationCrearTareaPropia>);
+    mockMutationEditar.mockReturnValue(defaultMutation as ReturnType<typeof useMutationEditarTareaPropia>);
   });
 
   it('shows empty state when no tareas', () => {

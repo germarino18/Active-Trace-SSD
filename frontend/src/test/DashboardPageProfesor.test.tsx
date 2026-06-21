@@ -1,3 +1,10 @@
+/**
+ * DashboardPage — generic static tests.
+ *
+ * After the D4 split (fix-profesor-dictados-ux-round2), DashboardPage no longer calls
+ * useProfesorDashboard. Professor live metrics moved to ProfesorMetricsDashboardPage.
+ * These tests verify the reverted generic-static behavior.
+ */
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -10,7 +17,8 @@ vi.mock('@/features/auth/hooks/useAuth', () => ({
   useAuth: vi.fn(),
 }));
 
-// Mock profesor dashboard hook
+// DashboardPage no longer imports useProfesorDashboard — no need to mock it here.
+// If any import attempt sneaks in, this catch-all mock prevents a real HTTP call.
 vi.mock('@/features/profesor/hooks/useProfesor', () => ({
   useProfesorDashboard: vi.fn(),
   useDictadoMetricas: vi.fn(),
@@ -61,70 +69,37 @@ function renderPage() {
   );
 }
 
-describe('DashboardPage — PROFESOR role', () => {
+describe('DashboardPage — generic static (post-D4 split)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders real stats labels from profesor dashboard when role is PROFESOR', () => {
+  it('renders "Panel Principal" heading for PROFESOR role', () => {
     mockUseAuth.mockReturnValue(makeAuthSession('PROFESOR') as ReturnType<typeof useAuth>);
-    mockUseProfesorDashboard.mockReturnValue({
-      data: {
-        materias_asignadas: [
-          { dictado_id: 'd1', materia_id: 'm1', materia_nombre: 'Álgebra', n_alumnos: 20 },
-          { dictado_id: 'd2', materia_id: 'm2', materia_nombre: 'Análisis', n_alumnos: 18 },
-        ],
-        total_alumnos: 38,
-        total_encuentros: 3,
-        total_atrasados: 7,
-      },
-      isLoading: false,
-      isError: false,
-    } as ReturnType<typeof useProfesorDashboard>);
-
     renderPage();
-    expect(screen.getByText('Materias asignadas')).toBeInTheDocument();
-    // Value comes from materias_asignadas.length = 2
-    expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Alumnos en riesgo')).toBeInTheDocument();
-    // total_atrasados = 7
-    expect(screen.getByText('7')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /panel principal/i })).toBeInTheDocument();
   });
 
-  it('shows dash placeholder when profesor data not yet loaded', () => {
+  it('renders static ROLE_CONFIG stat labels for PROFESOR (no live values)', () => {
     mockUseAuth.mockReturnValue(makeAuthSession('PROFESOR') as ReturnType<typeof useAuth>);
-    mockUseProfesorDashboard.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      isError: false,
-    } as ReturnType<typeof useProfesorDashboard>);
-
     renderPage();
-    // StatCards should render with '—' placeholders
+    // Static labels from ROLE_CONFIG.PROFESOR
+    expect(screen.getByText('Materias asignadas')).toBeInTheDocument();
+    expect(screen.getByText('Alumnos en riesgo')).toBeInTheDocument();
+    expect(screen.getByText('Entregas pendientes')).toBeInTheDocument();
+    // All values are static '—' (no live fetch)
     expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 
-  it('calls useProfesorDashboard with enabled=true when role is PROFESOR', () => {
+  it('does NOT call useProfesorDashboard for PROFESOR role (live metrics moved to /profesor-dashboard)', () => {
     mockUseAuth.mockReturnValue(makeAuthSession('PROFESOR') as ReturnType<typeof useAuth>);
-    mockUseProfesorDashboard.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: false,
-    } as ReturnType<typeof useProfesorDashboard>);
-
     renderPage();
-    expect(mockUseProfesorDashboard).toHaveBeenCalledWith(true);
+    expect(mockUseProfesorDashboard).not.toHaveBeenCalled();
   });
 
-  it('calls useProfesorDashboard with enabled=false when role is ALUMNO', () => {
+  it('does NOT call useProfesorDashboard for ALUMNO role', () => {
     mockUseAuth.mockReturnValue(makeAuthSession('ALUMNO') as ReturnType<typeof useAuth>);
-    mockUseProfesorDashboard.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: false,
-    } as ReturnType<typeof useProfesorDashboard>);
-
     renderPage();
-    expect(mockUseProfesorDashboard).toHaveBeenCalledWith(false);
+    expect(mockUseProfesorDashboard).not.toHaveBeenCalled();
   });
 });

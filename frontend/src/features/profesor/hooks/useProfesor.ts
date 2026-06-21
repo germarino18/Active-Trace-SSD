@@ -22,6 +22,8 @@ import type {
   EditarCalificacionData,
   RegistrarCalificacionData,
   TareaProfesor,
+  CrearTareaData,
+  EditarTareaData,
 } from '../types';
 import type { ComunicadoAtrasadoNullData } from '../services/profesor.service';
 
@@ -145,6 +147,19 @@ export function useMutationCrearActividad(dictadoId: string) {
     mutationFn: (data) => profesorService.crearActividad(dictadoId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'actividades', dictadoId] });
+      invalidateDictadoDerived(queryClient, dictadoId);
+    },
+  });
+}
+
+export function useMutationEditarActividad(dictadoId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<Actividad, Error, { actividadId: string; data: Partial<ActividadCreate> }>({
+    mutationFn: ({ actividadId, data }) => profesorService.editarActividad(actividadId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'actividades', dictadoId] });
+      // invalidateDictadoDerived also invalidates ['profesor','atrasados',dictadoId]
+      // and ['profesor','atrasados-general'] — dual invalidation required by D3.
       invalidateDictadoDerived(queryClient, dictadoId);
     },
   });
@@ -321,6 +336,26 @@ export function useMutationCambiarEstadoTareaProfesor() {
   const queryClient = useQueryClient();
   return useMutation<TareaProfesor, Error, { tareaId: string; estado: string }>({
     mutationFn: ({ tareaId, estado }) => profesorService.cambiarEstadoTareaProfesor(tareaId, estado),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'tareas', 'mias'] });
+    },
+  });
+}
+
+export function useMutationCrearTareaPropia() {
+  const queryClient = useQueryClient();
+  return useMutation<TareaProfesor, Error, CrearTareaData>({
+    mutationFn: (data) => profesorService.crearTareaPropia(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profesor', 'tareas', 'mias'] });
+    },
+  });
+}
+
+export function useMutationEditarTareaPropia() {
+  const queryClient = useQueryClient();
+  return useMutation<TareaProfesor, Error, { tareaId: string; data: EditarTareaData }>({
+    mutationFn: ({ tareaId, data }) => profesorService.editarTareaPropia(tareaId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profesor', 'tareas', 'mias'] });
     },
