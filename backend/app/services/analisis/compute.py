@@ -25,25 +25,23 @@ def compute_alumno_atrasado(
     actividades_esperadas: list[str],
     umbral: dict[str, Any],
 ) -> tuple[bool, list[str], list[str]]:
+    """Classify a student as atrasado or not based on the boolean `aprobado` field.
+
+    Rules (RN — "aprobado", fix-regla-aprobado change):
+    - faltantes: activities in `actividades_esperadas` with no calificacion row.
+    - desaprobadas: calificacion rows where `aprobado is False` (strict identity;
+      None and True are NOT counted as desaprobada).
+    - is_atrasado: True if faltantes OR desaprobadas is non-empty.
+
+    Note: the `umbral` parameter is retained for call-site compatibility with
+    compute_metricas_materia, get_metricas_dictado, and get_dashboard, but it
+    does NOT affect the classification outcome. The umbral still serves for
+    other display-layer uses (e.g. showing note color), just not this rule.
+    """
     actividades_con_calif = {c["actividad"] for c in alumno_calificaciones}
     faltantes = [a for a in actividades_esperadas if a not in actividades_con_calif]
 
-    umbral_pct = umbral["umbral_pct"]
-    valores_aprob = umbral["valores_aprobatorios"]
-
-    desaprobadas = []
-    for c in alumno_calificaciones:
-        nota_num = c.get("nota_numerica")
-        nota_txt = c.get("nota_textual")
-        if nota_num is not None and nota_txt is None:
-            if float(nota_num) < umbral_pct:
-                desaprobadas.append(c["actividad"])
-        elif nota_num is None and nota_txt is not None:
-            if nota_txt not in valores_aprob:
-                desaprobadas.append(c["actividad"])
-        elif nota_num is not None and nota_txt is not None:
-            if float(nota_num) < umbral_pct and nota_txt not in valores_aprob:
-                desaprobadas.append(c["actividad"])
+    desaprobadas = [c["actividad"] for c in alumno_calificaciones if c.get("aprobado") is False]
 
     is_atrasado = bool(faltantes) or bool(desaprobadas)
     return is_atrasado, faltantes, desaprobadas

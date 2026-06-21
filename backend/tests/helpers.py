@@ -65,6 +65,10 @@ async def seed_permissions_for_tenant(
         ("coloquios:reservar", "Reservar turno de coloquio", "coloquios"),
         ("coloquios:ver", "Ver coloquios y resultados", "coloquios"),
         ("inbox:acceder", "Acceder a la bandeja de mensajes interna", "inbox"),
+        # C-25 profesor dashboard
+        ("actividades:gestionar", "Gestionar actividades del dictado", "actividades"),
+        ("calificaciones:editar", "Editar calificación individual", "calificaciones"),
+        ("padron:gestionar-alumno", "Alta/baja individual de alumno", "padron"),
     ]
 
     # ── Role-permission matrix ─────────────────────────────────────────
@@ -84,6 +88,7 @@ async def seed_permissions_for_tenant(
         ("TUTOR", "inbox:acceder", False),
         # PROFESOR
         ("PROFESOR", "avisos:confirmar", False),
+        ("PROFESOR", "avisos:publicar", True),  # C-26: propio (solo sus dictados)
         ("PROFESOR", "calificaciones:importar", True),
         ("PROFESOR", "atrasados:ver", True),
         ("PROFESOR", "entregas:sin-corregir", True),
@@ -140,6 +145,18 @@ async def seed_permissions_for_tenant(
         # ADMIN — coloquios
         ("ADMIN", "coloquios:gestionar", False),
         ("ADMIN", "coloquios:ver", False),
+        # PROFESOR — C-25 nuevos permisos (es_propio=True: sólo sus propios dictados)
+        ("PROFESOR", "actividades:gestionar", True),
+        ("PROFESOR", "calificaciones:editar", True),
+        ("PROFESOR", "padron:gestionar-alumno", True),
+        # COORDINADOR — C-25
+        ("COORDINADOR", "actividades:gestionar", False),
+        ("COORDINADOR", "calificaciones:editar", False),
+        ("COORDINADOR", "padron:gestionar-alumno", False),
+        # ADMIN — C-25
+        ("ADMIN", "actividades:gestionar", False),
+        ("ADMIN", "calificaciones:editar", False),
+        ("ADMIN", "padron:gestionar-alumno", False),
         # FINANZAS
         ("FINANZAS", "avisos:confirmar", False),
         ("FINANZAS", "auditoria:ver", False),

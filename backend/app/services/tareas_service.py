@@ -17,8 +17,10 @@ from app.schemas.tareas import (
     ComentarioCreate,
     ComentarioRead,
     TareaCreate,
+    TareaCreatePropia,
     TareaRead,
     TareaUpdateEstado,
+    TareaUpdatePropia,
 )
 from app.services.audit.audit_logger import AuditLogger
 
@@ -91,6 +93,84 @@ class TareasService:
             request=request,
         )
         return TareaRead.model_validate(tarea)
+
+    async def create_tarea_propia(
+        self,
+        data: TareaCreatePropia,
+        *,
+        current_user: CurrentUser,
+        request: Request,
+    ) -> TareaRead:
+        """Create a task assigned to and owned by current_user (no delegation)."""
+        usuarios = await self._usuario_repo.find_by(user_id=current_user.user_id)
+        if not usuarios:
+            raise NotFoundException(resource="Usuario", id=current_user.user_id)
+        usuario = usuarios[0]
+
+        tarea = await self._repo.create({
+            "asignado_a": usuario.id,
+            "asignado_por": usuario.id,
+            "materia_id": data.materia_id,
+            "descripcion": data.descripcion,
+            "estado": TareaEstado.PENDIENTE.value,
+        })
+        await self._audit.log(
+            current_user=current_user,
+            accion=AccionAuditoria.TAREA_CREAR,
+            detalle={
+                "tarea_id": str(tarea.id),
+                "asignado_a": str(usuario.id),
+                "descripcion": data.descripcion,
+            },
+            filas_afectadas=1,
+            request=request,
+        )
+        return TareaRead.model_validate(tarea)
+
+    async def update_tarea_propia(
+        self,
+        tarea_id: uuid.UUID,
+        data: TareaUpdatePropia,
+        *,
+        current_user: CurrentUser,
+        request: Request,
+    ) -> TareaRead:
+        """Update own tarea (owner-only, 404 if not owned or not found)."""
+        usuarios = await self._usuario_repo.find_by(user_id=current_user.user_id)
+        if not usuarios:
+            raise NotFoundException(resource="Tarea", id=tarea_id)
+        usuario = usuarios[0]
+
+        tarea = await self._repo.find_own_tarea(tarea_id, owner_id=usuario.id)
+        if tarea is None:
+            raise NotFoundException(resource="Tarea", id=tarea_id)
+
+        if data.estado is not None:
+            current_estado = TareaEstado(tarea.estado)
+            target_estado = data.estado
+            try:
+                _TAREA_STATE_MACHINE.validate_transition(current_estado, target_estado)
+            except TransitionError as e:
+                raise ValidationException(message=str(e)) from e
+            tarea.estado = target_estado.value
+
+        if data.descripcion is not None:
+            tarea.descripcion = data.descripcion
+
+        if data.materia_id is not None:
+            tarea.materia_id = data.materia_id
+
+        await self._session.flush()
+        await self._session.refresh(tarea)
+
+        await self._audit.log(
+            current_user=current_user,
+            accion=AccionAuditoria.TAREA_ACTUALIZAR,
+            detalle={"tarea_id": str(tarea_id)},
+            filas_afectadas=1,
+            request=request,
+        )
+        return await self.get_tarea(tarea_id, current_user)
 
     async def cambiar_estado(
         self,

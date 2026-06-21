@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/features/auth/context/AuthContext';
 import { AuthGuard } from '@/features/auth/components/AuthGuard';
 import { GuestGuard } from '@/features/auth/components/GuestGuard';
+import { DashboardEntry } from '@/features/auth/components/DashboardEntry';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { TwoFactorPage } from '@/features/auth/pages/TwoFactorPage';
 import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage';
@@ -73,6 +74,18 @@ const TutorEntregasSinCorregirPage = lazy(() => import('@/features/tutor/pages/T
 // Inbox (docentes)
 const InboxPage = lazy(() => import('@/features/inbox/pages/InboxPage').then(m => ({ default: m.InboxPage })));
 const HiloPage = lazy(() => import('@/features/inbox/pages/HiloPage').then(m => ({ default: m.HiloPage })));
+
+// Profesor pages
+const ProfesorDashboardListPage = lazy(() => import('@/features/profesor/pages/ProfesorDashboardListPage').then(m => ({ default: m.ProfesorDashboardListPage })));
+const ProfesorMetricsDashboardPage = lazy(() => import('@/features/profesor/pages/ProfesorMetricsDashboardPage').then(m => ({ default: m.ProfesorMetricsDashboardPage })));
+const DictadoDashboardPage = lazy(() => import('@/features/profesor/pages/DictadoDashboardPage').then(m => ({ default: m.DictadoDashboardPage })));
+const AlumnosDictadoPage = lazy(() => import('@/features/profesor/pages/AlumnosDictadoPage').then(m => ({ default: m.AlumnosDictadoPage })));
+const ActividadesDictadoPage = lazy(() => import('@/features/profesor/pages/ActividadesDictadoPage').then(m => ({ default: m.ActividadesDictadoPage })));
+const AtrasadosDictadoPage = lazy(() => import('@/features/profesor/pages/AtrasadosDictadoPage').then(m => ({ default: m.AtrasadosDictadoPage })));
+const EquipoDictadoPage = lazy(() => import('@/features/profesor/pages/EquipoDictadoPage').then(m => ({ default: m.EquipoDictadoPage })));
+const AvisosMiosPage = lazy(() => import('@/features/profesor/pages/AvisosMiosPage').then(m => ({ default: m.AvisosMiosPage })));
+const MisColoquiosProfesorPage = lazy(() => import('@/features/profesor/pages/MisColoquiosProfesorPage').then(m => ({ default: m.MisColoquiosProfesorPage })));
+const MisTareasProfesorPage = lazy(() => import('@/features/profesor/pages/MisTareasProfesorPage').then(m => ({ default: m.MisTareasProfesorPage })));
 
 // Alumno pages
 const AlumnoDashboardPage = lazy(() => import('@/features/alumno/pages/AlumnoDashboardPage').then(m => ({ default: m.AlumnoDashboardPage })));
@@ -208,6 +221,29 @@ const router = createBrowserRouter([
           { path: '/admin/usuarios', element: <UsuariosPage /> },
           { path: '/admin/auditoria', element: <AuditoriaPage /> },
           { path: '/admin/metricas', element: <MetricasPage /> },
+          // Profesor — top-level routes
+          // MOVED: list is now at /dictados (was /profesor/dashboard — task 5)
+          { path: '/dictados', element: <ProfesorDashboardListPage /> },
+          // Profesor live metrics dashboard (split from /dashboard — D4 decision)
+          { path: '/profesor-dashboard', element: <ProfesorMetricsDashboardPage /> },
+          { path: '/profesor/avisos', element: <AvisosMiosPage /> },
+          { path: '/profesor/coloquios', element: <MisColoquiosProfesorPage /> },
+          // MisTareasProfesorPage: uses GET /api/v1/tareas/mias → plain array (NOT {items,total})
+          // Do NOT reuse coordinación's MisTareasPage here — it reads data.items.length → crash
+          { path: '/profesor/tareas', element: <MisTareasProfesorPage /> },
+          // Profesor — per-dictado tabs (alumnos, actividades, atrasados, equipo)
+          // MOVED: detail subtree is now at /dictados/:dictadoId (was /profesor/dictados/:dictadoId)
+          {
+            path: '/dictados/:dictadoId',
+            element: <DictadoDashboardPage />,
+            children: [
+              { index: true, element: <Navigate to="alumnos" replace /> },
+              { path: 'alumnos', element: <AlumnosDictadoPage /> },
+              { path: 'actividades', element: <ActividadesDictadoPage /> },
+              { path: 'atrasados', element: <AtrasadosDictadoPage /> },
+              { path: 'equipo', element: <EquipoDictadoPage /> },
+            ],
+          },
           // Alumno
           { path: '/alumno/dashboard', element: <AlumnoDashboardPage /> },
           { path: '/alumno/materias', element: <MisMateriasPage /> },

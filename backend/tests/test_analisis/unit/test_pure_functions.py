@@ -61,7 +61,9 @@ class TestComputeAlumnoAtrasado:
         assert sorted(faltantes) == ["TP 1", "TP 2"]
         assert desaprobadas == []
 
-    def test_atrasado_by_umbral_numerico(self):
+    # Renamed from test_atrasado_by_umbral_numerico: the rule is now boolean aprobado,
+    # not nota threshold. A row with aprobado=False is desaprobada regardless of nota.
+    def test_atrasado_by_aprobado_false(self):
         califs = [
             {"actividad": "Parcial 1", "nota_numerica": 40, "nota_textual": None, "aprobado": False},
         ]
@@ -71,7 +73,8 @@ class TestComputeAlumnoAtrasado:
         assert faltantes == []
         assert desaprobadas == ["Parcial 1"]
 
-    def test_atrasado_by_textual_outside_valores(self):
+    # Renamed from test_atrasado_by_textual_outside_valores: aprobado=False drives result.
+    def test_atrasado_by_aprobado_false_textual(self):
         califs = [
             {"actividad": "TP 1", "nota_numerica": None, "nota_textual": "Insatisfactorio", "aprobado": False},
         ]
@@ -80,7 +83,8 @@ class TestComputeAlumnoAtrasado:
         assert atrasado is True
         assert desaprobadas == ["TP 1"]
 
-    def test_not_atrasado_by_textual_in_valores(self):
+    # Renamed from test_not_atrasado_by_textual_in_valores: aprobado=True drives result.
+    def test_not_atrasado_by_aprobado_true(self):
         califs = [
             {"actividad": "TP 1", "nota_numerica": None, "nota_textual": "Satisfactorio", "aprobado": True},
         ]
@@ -93,6 +97,7 @@ class TestComputeAlumnoAtrasado:
         assert atrasado is True
         assert sorted(faltantes) == ["P1", "P2"]
 
+    # aprobado field drives desaprobadas; P1 is False, P2 is True.
     def test_mixed_faltante_and_desaprobada(self):
         califs = [
             {"actividad": "P1", "nota_numerica": 30, "nota_textual": None, "aprobado": False},
@@ -103,6 +108,94 @@ class TestComputeAlumnoAtrasado:
         assert atrasado is True
         assert faltantes == ["P3"]
         assert desaprobadas == ["P1"]
+
+    # ── NEW RED tests for the boolean-aprobado rule (tasks §2) ──────────────
+
+    def test_aprobado_false_nota_alta_is_atrasado(self):
+        """aprobado=False + nota_numerica >= umbral → atrasado (new rule).
+
+        With the old umbral-based logic the nota 80 >= 60 would have produced
+        no desaprobadas, giving is_atrasado=False. With the boolean rule the
+        aprobado=False field is the only criterion.
+        """
+        califs = [
+            {"actividad": "Parcial 1", "nota_numerica": 80, "nota_textual": None, "aprobado": False},
+        ]
+        esperadas = ["Parcial 1"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado(califs, esperadas, _DEFAULT_UMBRAL)
+        assert atrasado is True
+        assert desaprobadas == ["Parcial 1"]
+        assert faltantes == []
+
+    def test_aprobado_true_nota_baja_is_not_atrasado(self):
+        """aprobado=True + nota_numerica < umbral → aprobado (new rule).
+
+        With the old umbral-based logic nota 40 < 60 would add to desaprobadas,
+        giving is_atrasado=True. With the boolean rule aprobado=True is
+        sufficient regardless of nota.
+        """
+        califs = [
+            {"actividad": "Parcial 1", "nota_numerica": 40, "nota_textual": None, "aprobado": True},
+        ]
+        esperadas = ["Parcial 1"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado(califs, esperadas, _DEFAULT_UMBRAL)
+        assert atrasado is False
+        assert desaprobadas == []
+        assert faltantes == []
+
+    def test_all_actividades_aprobado_true_not_atrasado(self):
+        """Every expected activity has aprobado=True → alumno is aprobado."""
+        califs = [
+            {"actividad": "P1", "nota_numerica": 30, "nota_textual": None, "aprobado": True},
+            {"actividad": "P2", "nota_numerica": 30, "nota_textual": None, "aprobado": True},
+            {"actividad": "P3", "nota_numerica": None, "nota_textual": "Insatisfactorio", "aprobado": True},
+        ]
+        esperadas = ["P1", "P2", "P3"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado(califs, esperadas, _DEFAULT_UMBRAL)
+        assert atrasado is False
+        assert desaprobadas == []
+        assert faltantes == []
+
+    def test_zero_filas_all_faltantes_atrasado(self):
+        """Zero calificacion rows → all expected activities are faltantes → atrasado."""
+        esperadas = ["P1", "P2", "P3"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado([], esperadas, _DEFAULT_UMBRAL)
+        assert atrasado is True
+        assert sorted(faltantes) == ["P1", "P2", "P3"]
+        assert desaprobadas == []
+
+    def test_mix_faltante_and_aprobado_false_desglose(self):
+        """Mix of faltante + aprobado=False → atrasado with correct breakdown."""
+        califs = [
+            {"actividad": "P1", "nota_numerica": 80, "nota_textual": None, "aprobado": False},
+            {"actividad": "P2", "nota_numerica": 90, "nota_textual": None, "aprobado": True},
+        ]
+        esperadas = ["P1", "P2", "P3"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado(califs, esperadas, _DEFAULT_UMBRAL)
+        assert atrasado is True
+        assert faltantes == ["P3"]
+        assert desaprobadas == ["P1"]
+
+    def test_aprobado_none_not_counted_as_desaprobada(self):
+        """A row with aprobado=None is NOT counted as desaprobada.
+
+        The rule uses `c.get("aprobado") is False` (strict identity check) so
+        None ≠ False. A row with aprobado=None is treated as pending/neutral —
+        it occupies the actividad slot (no faltante) but does not add to
+        desaprobadas. Whether the alumno is atrasado depends on other factors.
+        This is consistent with get_alumnos_clasificados which only marks
+        desaprobado when `not calif.aprobado` is evaluated on a real row with
+        explicit aprobado=False.
+        """
+        califs = [
+            {"actividad": "P1", "nota_numerica": 40, "nota_textual": None, "aprobado": None},
+        ]
+        esperadas = ["P1"]
+        atrasado, faltantes, desaprobadas = compute_alumno_atrasado(califs, esperadas, _DEFAULT_UMBRAL)
+        assert desaprobadas == []
+        assert faltantes == []
+        # atrasado=False because no faltantes and no desaprobadas
+        assert atrasado is False
 
 
 # ─── Ranking aprobadas ────────────────────────────────────────────────────
@@ -279,6 +372,25 @@ class TestComputeMetricasMateria:
         assert result["atrasados"] == 1
         assert result["total_actividades"] == 2
 
+    def test_boolean_rule_overrides_umbral(self):
+        """Task 2.7: aprobado=True nota baja → aprobado; aprobado=False nota alta → atrasado.
+
+        Dataset: two alumnos, each with one activity.
+        - alumno_a: nota=30 (< umbral=60) but aprobado=True → should be counted as aprobado
+        - alumno_b: nota=90 (>= umbral=60) but aprobado=False → should be counted as atrasado
+        Old umbral-based rule would invert both counts. New boolean rule fixes this.
+        """
+        alumno_a = uuid.uuid4()
+        alumno_b = uuid.uuid4()
+        califs = [
+            {"entrada_padron_id": alumno_a, "actividad": "P1", "aprobado": True, "nota_numerica": 30, "nota_textual": None},
+            {"entrada_padron_id": alumno_b, "actividad": "P1", "aprobado": False, "nota_numerica": 90, "nota_textual": None},
+        ]
+        result = compute_metricas_materia(califs, _DEFAULT_UMBRAL)
+        assert result["total_alumnos"] == 2
+        assert result["aprobados"] == 1  # alumno_a (aprobado=True despite nota<umbral)
+        assert result["atrasados"] == 1  # alumno_b (aprobado=False despite nota>=umbral)
+
     def test_empty_calificaciones(self):
         result = compute_metricas_materia([], _DEFAULT_UMBRAL)
         assert result["total_alumnos"] == 0
@@ -299,6 +411,55 @@ class TestComputeMetricasMateria:
         result = compute_metricas_materia(califs, _DEFAULT_UMBRAL)
         assert result["promedio_general"] is not None
         assert result["promedio_general"] == 75.0  # (80+90+70+60)/4
+
+    def test_parity_metricas_and_per_alumno_classification(self):
+        """Task 6.1/6.2: compute_metricas_materia counts must match per-alumno boolean rule.
+
+        Dataset without faltantes (all activities have rows) to isolate the aprobado rule.
+        We simulate what get_alumnos_clasificados would count via compute_alumno_atrasado
+        directly and verify it matches compute_metricas_materia aggregates.
+
+        This is the "bug original" scenario: a mix of aprobado=True/False with notes that
+        would have given opposite results under the old umbral-based rule.
+        """
+        alumno1 = uuid.uuid4()
+        alumno2 = uuid.uuid4()
+        alumno3 = uuid.uuid4()
+        # alumno1: aprobado=True, nota baja → aprobado (new rule)
+        # alumno2: aprobado=False, nota alta → atrasado (new rule)
+        # alumno3: aprobado=True, nota alta → aprobado
+        califs = [
+            {"entrada_padron_id": alumno1, "actividad": "P1", "aprobado": True, "nota_numerica": 30, "nota_textual": None},
+            {"entrada_padron_id": alumno1, "actividad": "P2", "aprobado": True, "nota_numerica": 35, "nota_textual": None},
+            {"entrada_padron_id": alumno2, "actividad": "P1", "aprobado": False, "nota_numerica": 90, "nota_textual": None},
+            {"entrada_padron_id": alumno2, "actividad": "P2", "aprobado": False, "nota_numerica": 85, "nota_textual": None},
+            {"entrada_padron_id": alumno3, "actividad": "P1", "aprobado": True, "nota_numerica": 80, "nota_textual": None},
+            {"entrada_padron_id": alumno3, "actividad": "P2", "aprobado": True, "nota_numerica": 90, "nota_textual": None},
+        ]
+        actividades = ["P1", "P2"]
+
+        # Per-alumno classification via compute_alumno_atrasado (same logic as get_alumnos_clasificados)
+        from collections import defaultdict
+        alumnos_by_ep: dict = defaultdict(list)
+        for c in califs:
+            alumnos_by_ep[c["entrada_padron_id"]].append(c)
+
+        manual_aprobados = 0
+        manual_atrasados = 0
+        for ep_id, ep_califs in alumnos_by_ep.items():
+            atrasado, _, _ = compute_alumno_atrasado(ep_califs, actividades, _DEFAULT_UMBRAL)
+            if atrasado:
+                manual_atrasados += 1
+            else:
+                manual_aprobados += 1
+
+        # Aggregate via compute_metricas_materia
+        result = compute_metricas_materia(califs, _DEFAULT_UMBRAL)
+
+        assert result["aprobados"] == manual_aprobados
+        assert result["atrasados"] == manual_atrasados
+        assert result["aprobados"] == 2   # alumno1 + alumno3
+        assert result["atrasados"] == 1   # alumno2
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────

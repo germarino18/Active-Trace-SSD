@@ -28,6 +28,8 @@ from app.api.v1.routers.facturas import router as facturas_router
 from app.api.v1.routers.usuarios import router as usuarios_router
 from app.api.v1.routers.perfil import router as perfil_router
 from app.api.v1.routers.inbox import router as inbox_router
+from app.api.v1.routers.actividades import router as actividades_router
+from app.api.v1.routers.profesor import router as profesor_router
 from app.core.config import Settings
 from app.core.database import init_engine
 from app.core.exceptions import (
@@ -154,4 +156,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auditoria_router)
     app.include_router(perfil_router)
     app.include_router(inbox_router)
+    app.include_router(actividades_router)
+    app.include_router(profesor_router)
     return app

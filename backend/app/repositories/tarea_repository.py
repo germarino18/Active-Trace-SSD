@@ -66,6 +66,18 @@ class TareaRepository(BaseRepository[Tarea]):
         result = await self.session.execute(query)
         return list(result.unique().scalars().all())
 
+    async def find_own_tarea(self, tarea_id: uuid.UUID, owner_id: uuid.UUID) -> Tarea | None:
+        """Return the tarea only if it belongs to owner_id (asignado_a) in this tenant."""
+        query = (
+            select(self.model)
+            .where(self.model.id == tarea_id)
+            .where(self.model.asignado_a == owner_id)
+        )
+        query = self._apply_tenant_scope(query)
+        query = self._apply_soft_delete_filter(query)
+        result = await self.session.execute(query)
+        return result.unique().scalar_one_or_none()
+
     async def get_with_comments(self, tarea_id: uuid.UUID) -> Tarea | None:
         query = (
             select(self.model)

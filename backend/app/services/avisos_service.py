@@ -54,6 +54,34 @@ class AvisoService:
         current_user: CurrentUser,
         request: Request,
     ) -> AvisoRead:
+        # C-26 scope enforcement: PROFESOR may only publish scoped avisos
+        # (POR_MATERIA or POR_COHORTE) targeting their own dictados.
+        if "PROFESOR" in current_user.roles and "COORDINADOR" not in current_user.roles and "ADMIN" not in current_user.roles:
+            from app.models.aviso import AlcanceAviso
+            from fastapi import HTTPException
+
+            allowed_alcances = {AlcanceAviso.POR_MATERIA.value, AlcanceAviso.POR_COHORTE.value}
+            if data.alcance not in allowed_alcances:
+                raise HTTPException(
+                    status_code=403,
+                    detail="PROFESOR solo puede publicar avisos POR_MATERIA o POR_COHORTE (propios)",
+                )
+
+            materia_ids, cohorte_ids = await self._resolve_user_context(current_user)
+
+            if data.alcance == AlcanceAviso.POR_MATERIA.value:
+                if data.materia_id is None or data.materia_id not in materia_ids:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="PROFESOR solo puede publicar avisos para materias de sus propios dictados",
+                    )
+            elif data.alcance == AlcanceAviso.POR_COHORTE.value:
+                if data.cohorte_id is None or data.cohorte_id not in cohorte_ids:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="PROFESOR solo puede publicar avisos para cohortes de sus propios dictados",
+                    )
+
         aviso = await self._repo.create(data.model_dump())
         await self._audit.log(
             current_user=current_user,
@@ -218,11 +246,19 @@ class AvisoService:
     async def _resolve_user_context(
         self, current_user: CurrentUser
     ) -> tuple[list[uuid.UUID], list[uuid.UUID]]:
+        """Resolve materia_ids and cohorte_ids accessible to the user.
+
+        Covers two cases:
+        1. Direct asignacion with materia_id / cohorte_id (Coordinador, Nexo).
+        2. Asignacion with dictado_id (Profesor, Tutor) — resolved via Dictado.
+        """
         usuarios = await self._usuario_repo.find_by(user_id=current_user.user_id)
         if not usuarios:
             return [], []
         usuario = usuarios[0]
         from app.repositories.asignacion_repository import AsignacionRepository
+        from app.models.dictado import Dictado
+
         asignacion_repo = AsignacionRepository(
             session=self._session,
             tenant_id=current_user.tenant_id,
@@ -231,9 +267,25 @@ class AvisoService:
             tenant_id=current_user.tenant_id,
             usuario_id=usuario.id,
         )
-        materia_ids = list({a.materia_id for a in asignaciones if a.materia_id is not None})
-        cohorte_ids = list({a.cohorte_id for a in asignaciones if a.cohorte_id is not None})
-        return materia_ids, cohorte_ids
+
+        materia_ids: set[uuid.UUID] = set()
+        cohorte_ids: set[uuid.UUID] = set()
+
+        for a in asignaciones:
+            if a.materia_id is not None:
+                materia_ids.add(a.materia_id)
+            if a.cohorte_id is not None:
+                cohorte_ids.add(a.cohorte_id)
+            if a.dictado_id is not None:
+                # Resolve materia and cohorte from the dictado
+                dictado = await self._session.get(Dictado, a.dictado_id)
+                if dictado is not None and dictado.tenant_id == current_user.tenant_id:
+                    if dictado.materia_id is not None:
+                        materia_ids.add(dictado.materia_id)
+                    if dictado.cohorte_id is not None:
+                        cohorte_ids.add(dictado.cohorte_id)
+
+        return list(materia_ids), list(cohorte_ids)
 
     async def _get_confirmed_aviso_ids(self, usuario_id: uuid.UUID) -> set[uuid.UUID]:
         from app.models.aviso import AcknowledgmentAviso

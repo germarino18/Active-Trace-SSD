@@ -1,6 +1,12 @@
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { StatCard, Card } from '@/shared/components/ds';
 
+/**
+ * Generic static dashboard for all roles.
+ * Professor live metrics were moved to ProfesorMetricsDashboardPage at /profesor-dashboard
+ * (D4 decision in fix-profesor-dictados-ux-round2 design.md).
+ * This page now renders only the static ROLE_CONFIG — no useProfesorDashboard call.
+ */
 const ROLE_CONFIG: Record<string, { icon: string; stats: Array<{ label: string; value: string; icon: string; trend?: string }> }> = {
   ALUMNO: {
     icon: 'school',
@@ -58,7 +64,13 @@ export function DashboardPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
-        <h2 style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>Panel Principal</h2>
+        <h2
+          role="heading"
+          aria-level={2}
+          style={{ margin: 0, fontSize: 32, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}
+        >
+          Panel Principal
+        </h2>
         <p style={{ margin: '4px 0 0', fontSize: 14, color: 'var(--on-surface-variant)' }}>
           Bienvenido, {user.nombre} {user.apellido}
         </p>

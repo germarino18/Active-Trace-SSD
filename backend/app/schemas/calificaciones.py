@@ -5,6 +5,15 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class CalificacionEditRequest(BaseModel):
+    """Schema para edición individual de calificación (C-25 §5)."""
+    model_config = ConfigDict(extra="forbid")
+
+    nota_numerica: Decimal | None = None
+    nota_textual: str | None = None
+    aprobado: bool | None = None
+
+
 class CalificacionResponse(BaseModel):
     model_config = ConfigDict(extra='forbid', from_attributes=True)
     id: UUID
