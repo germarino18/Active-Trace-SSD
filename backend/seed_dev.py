@@ -361,7 +361,28 @@ async def main() -> None:
                 },
             )
 
-        # dictado2: solo María García, calificaciones legacy (sin actividad_id FK)
+        # ── 4b. Actividades evaluables para dictado2 (Bases de Datos) ────────────
+        # Mirrors dictado1's format: actividad rows + actividad_id on calificaciones.
+        bd_actividades = [
+            ("TP 1 — Modelo relacional",   "TP"),
+            ("Parcial 1",                  "Parcial"),
+            ("Recuperatorio Parcial 1",    "Recuperatorio"),
+            ("TP 2 — SQL avanzado",        "TP"),
+            ("Parcial 2",                  "Parcial"),
+        ]
+        bd_actividad_ids: dict[str, uuid.UUID] = {}
+        for act_nombre, act_tipo in bd_actividades:
+            act_id = uuid.uuid4()
+            bd_actividad_ids[act_nombre] = act_id
+            await session.execute(
+                text(
+                    "INSERT INTO actividad (id, tenant_id, dictado_id, nombre, tipo, created_at, updated_at) "
+                    "VALUES (:id, :tid, :did, :nombre, :tipo, NOW(), NOW())"
+                ),
+                {"id": act_id, "tid": tid, "did": dictado2_id, "nombre": act_nombre, "tipo": act_tipo},
+            )
+
+        # dictado2: solo María García, calificaciones vinculadas via actividad_id (formato correcto)
         version2_id = uuid.uuid4()
         entrada2_id = uuid.uuid4()
         await session.execute(
@@ -374,7 +395,7 @@ async def main() -> None:
             text("INSERT INTO entrada_padron (id, tenant_id, version_id, usuario_id, nombre, apellidos, comision, email, created_at, updated_at) VALUES (:id, :tid, :vid, :uid, 'María', 'García', 'A', :email, NOW(), NOW())"),
             {"id": entrada2_id, "tid": tid, "vid": version2_id, "uid": alumno_uid, "email": email_maria2},
         )
-        for actividad, nota, aprobado in [
+        for act_nombre, nota, aprobado in [
             ("TP 1 — Modelo relacional",    9.0, True),
             ("Parcial 1",                   4.5, False),
             ("Recuperatorio Parcial 1",     7.0, True),
@@ -382,8 +403,17 @@ async def main() -> None:
             ("Parcial 2",                   6.0, True),
         ]:
             await session.execute(
-                text("INSERT INTO calificacion (id, tenant_id, entrada_padron_id, dictado_id, actividad, nota_numerica, aprobado, origen, created_at, updated_at) VALUES (:id, :tid, :eid, :did, :act, :nota, :ap, 'Importado', NOW(), NOW())"),
-                {"id": uuid.uuid4(), "tid": tid, "eid": entrada2_id, "did": dictado2_id, "act": actividad, "nota": nota, "ap": aprobado},
+                text(
+                    "INSERT INTO calificacion "
+                    "(id, tenant_id, entrada_padron_id, dictado_id, actividad, actividad_id, "
+                    "nota_numerica, aprobado, origen, created_at, updated_at) "
+                    "VALUES (:id, :tid, :eid, :did, :act, :act_id, :nota, :ap, 'Importado', NOW(), NOW())"
+                ),
+                {
+                    "id": uuid.uuid4(), "tid": tid, "eid": entrada2_id, "did": dictado2_id,
+                    "act": act_nombre, "act_id": bd_actividad_ids[act_nombre],
+                    "nota": nota, "ap": aprobado,
+                },
             )
 
         # ── 5. Umbrales y fechas académicas ──────────────────────────────────
