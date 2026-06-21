@@ -3,10 +3,10 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.crypto import EncryptedString
 from app.models.base import Base
-from app.models.mixins import BaseMixin, TenantMixin
+from app.models.mixins import BaseMixin, SoftDeleteMixin, TenantMixin
 
 
-class EntradaPadron(BaseMixin, TenantMixin, Base):
+class EntradaPadron(BaseMixin, SoftDeleteMixin, TenantMixin, Base):
     __tablename__ = "entrada_padron"
 
     version_id = Column(

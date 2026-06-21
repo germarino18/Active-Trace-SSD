@@ -30,6 +30,7 @@ class EntradaPadronRepository(BaseRepository[EntradaPadron]):
             self.model.version_id == version_id,
         )
         query = self._apply_tenant_scope(query)
+        query = self._apply_soft_delete_filter(query)
         result = await self.session.execute(query)
         return list(result.unique().scalars().all())
 
@@ -38,6 +39,7 @@ class EntradaPadronRepository(BaseRepository[EntradaPadron]):
             self.model.version_id == version_id,
         )
         query = self._apply_tenant_scope(query)
+        query = self._apply_soft_delete_filter(query)
         result = await self.session.execute(query)
         return result.scalar() or 0
 
