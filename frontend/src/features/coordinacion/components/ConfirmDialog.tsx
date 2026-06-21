@@ -12,21 +12,9 @@ interface ConfirmDialogProps {
 }
 
 const variantConfig = {
-  danger: {
-    icon: 'warning',
-    confirmClass:
-      'bg-error text-white hover:bg-error/90',
-  },
-  warning: {
-    icon: 'error',
-    confirmClass:
-      'bg-warning text-black hover:bg-warning/90',
-  },
-  info: {
-    icon: 'info',
-    confirmClass:
-      'bg-primary text-on-primary hover:bg-primary/90',
-  },
+  danger: { icon: 'warning' },
+  warning: { icon: 'error' },
+  info: { icon: 'info' },
 };
 
 export function ConfirmDialog({
@@ -59,35 +47,55 @@ export function ConfirmDialog({
       onClick={onClose}
     >
       <div
-        className="mx-4 w-full max-w-md rounded-xl border border-outline-variant bg-surface p-6 shadow-xl"
+        style={{
+          width: 400,
+          maxWidth: '100%',
+          background: 'var(--surface-container)',
+          border: '1px solid var(--outline-variant)',
+          borderRadius: 'var(--radius-lg)',
+          padding: 28,
+        }}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
       >
-        <div className="mb-4 flex items-start gap-3">
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
           <span
-            className={`material-symbols-outlined text-[28px] ${
-              variant === 'danger'
-                ? 'text-error'
+            className={`material-symbols-outlined`}
+            style={{
+              fontSize: 28,
+              color: variant === 'danger'
+                ? 'var(--error)'
                 : variant === 'warning'
-                  ? 'text-warning'
-                  : 'text-primary'
-            }`}
+                  ? 'var(--warning)'
+                  : 'var(--primary)',
+            }}
           >
             {config.icon}
           </span>
-          <div className="flex-1">
+          <div style={{ flex: 1 }}>
             <h3
               id="confirm-dialog-title"
-              className="font-headline-lg text-headline-lg text-on-surface"
+              style={{ margin: 0, fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}
             >
               {title}
             </h3>
-            <div className="mt-2 text-body-md text-on-surface-variant">{message}</div>
+            <div style={{ marginTop: 4, fontSize: 14, color: 'var(--on-surface-variant)', lineHeight: 1.5 }}>{message}</div>
             {cascadeWarning && (
-              <div className="mt-3 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-label-sm text-warning">
-                <span className="material-symbols-outlined mr-1 align-middle text-[16px]">
+              <div style={{
+                marginTop: 12,
+                padding: '8px 12px',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid color-mix(in srgb, var(--warning) 30%, transparent)',
+                background: 'color-mix(in srgb, var(--warning) 5%, transparent)',
+                fontSize: 12,
+                color: 'var(--warning)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16, alignSelf: 'flex-start' }}>
                   warning_amber
                 </span>
                 {cascadeWarning}
@@ -96,11 +104,24 @@ export function ConfirmDialog({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-outline-variant px-4 py-2 text-label-sm font-medium text-on-surface transition-colors hover:bg-surface-container-low"
+            style={{
+              height: 36,
+              padding: '0 16px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--outline-variant)',
+              background: 'transparent',
+              color: 'var(--on-surface)',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background .15s ease',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-container-low)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
             Cancelar
           </button>
@@ -110,7 +131,20 @@ export function ConfirmDialog({
               onConfirm();
               onClose();
             }}
-            className={`rounded-lg px-4 py-2 text-label-sm font-medium transition-colors ${config.confirmClass}`}
+            style={{
+              height: 36,
+              padding: '0 16px',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid transparent',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background .15s ease, filter .15s ease',
+              background: variant === 'danger' ? 'var(--error)' : variant === 'warning' ? 'var(--warning)' : 'var(--primary)',
+              color: variant === 'danger' ? 'white' : variant === 'warning' ? 'black' : 'var(--on-primary)',
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.filter = 'brightness(1.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
           >
             {confirmLabel}
           </button>

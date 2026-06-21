@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { LoadingState } from '@/features/academico/components/LoadingState';
 import { EmptyState } from '@/features/academico/components/EmptyState';
-import { Button } from '@/shared/components/ds';
+import { Button, Input, Select } from '@/shared/components/ds';
 import {
   useMaterias,
   useCrearMateria,
@@ -18,14 +18,26 @@ import type { Materia, CrearMateriaData, ActualizarMateriaData, CrearEvaluacionD
 const emptyForm: CrearMateriaData = { nombre: '', codigo: '', carrera_id: '', cohorte_id: '' };
 
 export function MateriasPage() {
-  const { data, isLoading, isError } = useMaterias();
-  const { data: carrerasData } = useCarreras(true);
-  const { data: cohortesData } = useCohortes(true);
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { data, isLoading, isError } = useMaterias(debouncedQuery ? { q: debouncedQuery } : undefined);
+  const { data: carrerasData } = useCarreras({ activa: true });
+  const { data: cohortesData } = useCohortes({ activa: true });
   const crear = useCrearMateria();
   const actualizar = useActualizarMateria();
   const toggleEstado = useToggleMateriaEstado();
   const subirPrograma = useSubirPrograma();
   const crearEvaluacion = useCrearEvaluacion();
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Materia | null>(null);
@@ -62,20 +74,23 @@ export function MateriasPage() {
     setModalOpen(true);
   }
 
-  function handleSubmit() {
-    const payload = {
-      ...form,
+  async function handleSubmit() {
+    const payload: CrearMateriaData = {
+      nombre: form.nombre,
       codigo: form.codigo || undefined,
       carrera_id: form.carrera_id || undefined,
       cohorte_id: form.cohorte_id || undefined,
     };
-    if (editTarget) {
-      actualizar.mutate(
-        { id: editTarget.id, data: payload as ActualizarMateriaData },
-        { onSuccess: () => { setModalOpen(false); setSelectedMateria(null); } },
-      );
-    } else {
-      crear.mutate(payload, { onSuccess: () => { setModalOpen(false); setSelectedMateria(null); } });
+    try {
+      if (editTarget) {
+        await actualizar.mutateAsync({ id: editTarget.id, data: payload as ActualizarMateriaData });
+      } else {
+        await crear.mutateAsync(payload);
+      }
+      setModalOpen(false);
+      setSelectedMateria(null);
+    } catch {
+      // Error is handled by the mutation — modal stays open for retry
     }
   }
 
@@ -103,6 +118,10 @@ export function MateriasPage() {
     });
   }
 
+  const handleToggle = useCallback((id: string) => {
+    toggleEstado.mutate(id);
+  }, [toggleEstado]);
+
   const isPending = crear.isPending || actualizar.isPending;
 
   return (
@@ -114,12 +133,23 @@ export function MateriasPage() {
         <Button type="button" variant="primary" icon="add" onClick={openCreate}>Nueva materia</Button>
       </div>
 
+      <div className="relative">
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar materias..."
+          className="w-full rounded-lg border border-outline-variant bg-surface pl-9 pr-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
+        />
+      </div>
+
       {isLoading ? (
         <LoadingState rows={4} cols={5} />
       ) : isError ? (
         <EmptyState message="Error al cargar materias" icon="error" />
       ) : materias.length === 0 ? (
-        <EmptyState message="No hay materias registradas" icon="book" />
+        <EmptyState message={query ? 'No se encontraron materias' : 'No hay materias registradas'} icon="book" />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-outline-variant">
           <table className="w-full text-left">
@@ -149,22 +179,22 @@ export function MateriasPage() {
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-label-xs font-medium ${
-                        m.activa ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
+                        m.estado === 'Activo' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
                       }`}
                     >
-                      {m.activa ? 'Activa' : 'Inactiva'}
+                      {m.estado}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); toggleEstado.mutate(m.id); }}
+                        onClick={(e) => { e.stopPropagation(); handleToggle(m.id); }}
                         className="rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-container-low hover:text-primary"
-                        title={m.activa ? 'Desactivar' : 'Activar'}
+                        title={m.estado === 'Activo' ? 'Desactivar' : 'Activar'}
                       >
                         <span className="material-symbols-outlined text-[18px]">
-                          {m.activa ? 'toggle_off' : 'toggle_on'}
+                          {m.estado === 'Activo' ? 'toggle_off' : 'toggle_on'}
                         </span>
                       </button>
                       <button
@@ -313,63 +343,59 @@ export function MateriasPage() {
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setModalOpen(false)}>
-          <div className="mx-4 w-full max-w-md rounded-xl border border-outline-variant bg-surface p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-headline-lg text-headline-lg text-on-surface mb-4">
-              {editTarget ? 'Editar materia' : 'Nueva materia'}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Nombre</label>
-                <input
-                  type="text"
+          <div style={{ width: 400, maxWidth: '100%' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
+              <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
+                {editTarget ? 'Editar materia' : 'Nueva materia'}
+              </h1>
+              <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>
+                {editTarget ? 'Modificá los datos de la materia.' : 'Ingresá los datos de la nueva materia.'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <Input
+                  label="Nombre"
+                  icon="menu_book"
+                  placeholder="Ej: Álgebra"
                   value={form.nombre}
                   onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
-                  placeholder="Ej: Álgebra"
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Código (opcional)</label>
-                <input
-                  type="text"
+                <Input
+                  label="Código"
+                  icon="tag"
+                  placeholder="Ej: ALG-101"
                   value={form.codigo}
                   onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
-                  placeholder="Ej: ALG-101"
+                  helper="Opcional"
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Carrera</label>
-                <select
+                <Select
+                  label="Carrera"
+                  placeholder="Sin carrera"
                   value={form.carrera_id}
                   onChange={(e) => setForm((f) => ({ ...f, carrera_id: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface focus:border-primary focus:outline-none"
                 >
                   <option value="">Sin carrera</option>
                   {carreras.map((c) => (
                     <option key={c.id} value={c.id}>{c.nombre}</option>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Cohorte</label>
-                <select
+                </Select>
+                <Select
+                  label="Cohorte"
+                  placeholder="Sin cohorte"
                   value={form.cohorte_id}
                   onChange={(e) => setForm((f) => ({ ...f, cohorte_id: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface focus:border-primary focus:outline-none"
                 >
                   <option value="">Sin cohorte</option>
                   {cohortes.map((c) => (
                     <option key={c.id} value={c.id}>{c.nombre}</option>
                   ))}
-                </select>
+                </Select>
               </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.nombre}>
-                {editTarget ? 'Guardar cambios' : 'Crear materia'}
-              </Button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 28 }}>
+                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+                <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.nombre}>
+                  {editTarget ? 'Guardar cambios' : 'Crear materia'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

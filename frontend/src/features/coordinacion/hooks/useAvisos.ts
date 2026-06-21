@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as avisosService from '../services/avisos.service';
-import type { Aviso, AvisosResponse } from '../types';
+import type { Aviso } from '../types';
 import type { AvisoParams, CrearAvisoData, ActualizarAvisoData } from '../services/avisos.service';
 
 export function useAvisos(params?: AvisoParams) {
-  return useQuery<AvisosResponse>({
+  return useQuery<Aviso[]>({
     queryKey: ['avisos', params],
     queryFn: () => avisosService.getAvisos(params),
   });

@@ -84,33 +84,28 @@ export interface ColoquiosResponse {
   total: number;
 }
 
-export type AvisoScope = 'Global' | 'Materia' | 'Cohorte' | 'Rol';
+export type AvisoScope = 'GLOBAL' | 'POR_MATERIA' | 'POR_COHORTE' | 'POR_ROL';
 
-export type AvisoSeverity = 'info' | 'warning' | 'critical';
+export type AvisoSeverity = 'INFO' | 'ADVERTENCIA' | 'CRITICO';
 
 export interface Aviso {
   id: string;
   tenant_id: string;
-  titulo: string;
-  mensaje: string;
-  scope: AvisoScope;
-  scope_value?: string;
+  alcance: AvisoScope;
+  materia_id?: string;
+  cohorte_id?: string;
+  rol_destino?: string;
   severidad: AvisoSeverity;
-  vigencia_desde: string;
-  vigencia_hasta: string;
-  requiere_ack: boolean;
+  titulo: string;
+  cuerpo: string;
+  inicio_en: string;
+  fin_en: string;
   orden: number;
-  created_by: string;
+  activo: boolean;
+  requiere_ack: boolean;
   created_at: string;
   updated_at: string;
-  total_acks: number;
-  ack_count: number;
-  user_acked: boolean;
-}
-
-export interface AvisosResponse {
-  items: Aviso[];
-  total: number;
+  deleted_at?: string;
 }
 
 export type TareaEstado = 'Pendiente' | 'En progreso' | 'Resuelta' | 'Cancelada';

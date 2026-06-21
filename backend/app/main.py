@@ -30,6 +30,8 @@ from app.api.v1.routers.perfil import router as perfil_router
 from app.api.v1.routers.inbox import router as inbox_router
 from app.api.v1.routers.actividades import router as actividades_router
 from app.api.v1.routers.profesor import router as profesor_router
+from app.api.v1.routers.metricas import router as metricas_router
+from app.api.v1.routers.evaluaciones import router as evaluaciones_router
 from app.core.config import Settings
 from app.core.database import init_engine
 from app.core.exceptions import (
@@ -77,7 +79,9 @@ async def _app_exception_handler(request: Request, exc: AppException) -> JSONRes
     )
 
 
-async def _moodle_exception_handler(request: Request, exc: MoodleException) -> JSONResponse:
+async def _moodle_exception_handler(
+    request: Request, exc: MoodleException
+) -> JSONResponse:
     logger.warning("Moodle WS error: %s", exc.message)
     return JSONResponse(
         status_code=exc.status_code,
@@ -119,6 +123,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         setup_observability(settings, app)
         yield
         from app.core.database import close_engine
+
         await close_engine()
         logger.info("activia-trace application stopped")
 
@@ -158,4 +163,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(inbox_router)
     app.include_router(actividades_router)
     app.include_router(profesor_router)
+    app.include_router(metricas_router)
+    app.include_router(evaluaciones_router)
     return app

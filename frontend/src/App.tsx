@@ -56,10 +56,12 @@ const GrillaSalarialPage = lazy(() => import('@/features/finanzas/pages/GrillaSa
 const FacturasPage = lazy(() => import('@/features/finanzas/pages/FacturasPage').then(m => ({ default: m.FacturasPage })));
 
 // Admin pages
+import { ErrorBoundary } from '@/features/admin/components/ErrorBoundary';
 const EstructuraAcademicaPage = lazy(() => import('@/features/admin/pages/EstructuraAcademicaPage').then(m => ({ default: m.EstructuraAcademicaPage })));
 const UsuariosPage = lazy(() => import('@/features/admin/pages/UsuariosPage').then(m => ({ default: m.UsuariosPage })));
 const AuditoriaPage = lazy(() => import('@/features/admin/pages/AuditoriaPage').then(m => ({ default: m.AuditoriaPage })));
 const MetricasPage = lazy(() => import('@/features/admin/pages/MetricasPage').then(m => ({ default: m.MetricasPage })));
+const DictadosPage = lazy(() => import('@/features/admin/pages/DictadosPage').then(m => ({ default: m.DictadosPage })));
 
 // Nexo pages
 const NexoAtrasadosStubPage = lazy(() => import('@/features/nexo/pages/NexoAtrasadosStubPage').then(m => ({ default: m.NexoAtrasadosStubPage })));
@@ -217,10 +219,11 @@ const router = createBrowserRouter([
           { path: '/finanzas/grilla', element: <GrillaSalarialPage /> },
           { path: '/finanzas/facturas', element: <FacturasPage /> },
           // Admin
-          { path: '/admin/estructura', element: <EstructuraAcademicaPage /> },
-          { path: '/admin/usuarios', element: <UsuariosPage /> },
-          { path: '/admin/auditoria', element: <AuditoriaPage /> },
-          { path: '/admin/metricas', element: <MetricasPage /> },
+          { path: '/admin/estructura', element: <ErrorBoundary><EstructuraAcademicaPage /></ErrorBoundary> },
+          { path: '/admin/usuarios', element: <ErrorBoundary><UsuariosPage /></ErrorBoundary> },
+          { path: '/admin/auditoria', element: <ErrorBoundary><AuditoriaPage /></ErrorBoundary> },
+          { path: '/admin/metricas', element: <ErrorBoundary><MetricasPage /></ErrorBoundary> },
+          { path: '/admin/dictados', element: <ErrorBoundary><DictadosPage /></ErrorBoundary> },
           // Profesor — top-level routes
           // MOVED: list is now at /dictados (was /profesor/dashboard — task 5)
           { path: '/dictados', element: <ProfesorDashboardListPage /> },

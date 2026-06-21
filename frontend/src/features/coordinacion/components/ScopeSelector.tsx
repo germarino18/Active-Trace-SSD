@@ -8,10 +8,10 @@ interface ScopeSelectorProps {
 }
 
 const SCOPE_OPTIONS: { value: AvisoScope; label: string }[] = [
-  { value: 'Global', label: 'Global' },
-  { value: 'Materia', label: 'Por Materia' },
-  { value: 'Cohorte', label: 'Por Cohorte' },
-  { value: 'Rol', label: 'Por Rol' },
+  { value: 'GLOBAL', label: 'Global' },
+  { value: 'POR_MATERIA', label: 'Por Materia' },
+  { value: 'POR_COHORTE', label: 'Por Cohorte' },
+  { value: 'POR_ROL', label: 'Por Rol' },
 ];
 
 const ROLE_OPTIONS = [
@@ -46,7 +46,7 @@ export function ScopeSelector({
         </select>
       </div>
 
-      {scopeType === 'Materia' && (
+      {scopeType === 'POR_MATERIA' && (
         <div>
           <label className="mb-1 block text-label-sm text-on-surface-variant">Materia</label>
           <input
@@ -59,7 +59,7 @@ export function ScopeSelector({
         </div>
       )}
 
-      {scopeType === 'Cohorte' && (
+      {scopeType === 'POR_COHORTE' && (
         <div>
           <label className="mb-1 block text-label-sm text-on-surface-variant">Cohorte</label>
           <input
@@ -72,7 +72,7 @@ export function ScopeSelector({
         </div>
       )}
 
-      {scopeType === 'Rol' && (
+      {scopeType === 'POR_ROL' && (
         <div>
           <label className="mb-1 block text-label-sm text-on-surface-variant">Rol</label>
           <select

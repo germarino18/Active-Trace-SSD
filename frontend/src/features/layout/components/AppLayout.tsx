@@ -49,6 +49,17 @@ export function buildSectionsForRole(
   return [
     // Items visibles para todos los usuarios autenticados (role-filtered above)
     { items: genericItems },
+    // Admin (siempre arriba por ser principales)
+    {
+      label: 'Admin',
+      items: [
+        { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:gestionar'] },
+        { label: 'Dictados', path: '/admin/dictados', icon: 'book', requiredPermissions: ['estructura:gestionar'] },
+        { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:gestionar'] },
+        { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
+        { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
+      ],
+    },
     // ALUMNO
     {
       label: 'ALUMNO',
@@ -103,7 +114,7 @@ export function buildSectionsForRole(
       label: 'Coordinación',
       items: [
         { label: 'Equipos Docentes', path: '/equipos', icon: 'groups', requiredPermissions: ['equipos:ver'] },
-        { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:ver'] },
+        { label: 'Avisos', path: '/avisos', icon: 'campaign', requiredPermissions: ['avisos:publicar'] },
         { label: 'Tareas', path: '/tareas', icon: 'checklist', requiredPermissions: ['tareas:ver'] },
         { label: 'Programas', path: '/programas', icon: 'description', requiredPermissions: ['programas:ver'] },
         { label: 'Fechas Académicas', path: '/fechas', icon: 'calendar_month', requiredPermissions: ['programas:ver'] },
@@ -124,16 +135,6 @@ export function buildSectionsForRole(
         { label: 'Liquidaciones', path: '/finanzas/liquidaciones', icon: 'payments', requiredPermissions: ['liquidaciones:ver'] },
         { label: 'Grilla Salarial', path: '/finanzas/grilla', icon: 'badge', requiredPermissions: ['liquidaciones:configurar-salarios'] },
         { label: 'Facturas', path: '/finanzas/facturas', icon: 'receipt_long', requiredPermissions: ['facturas:ver'] },
-      ],
-    },
-    // Admin
-    {
-      label: 'Admin',
-      items: [
-        { label: 'Estructura Académica', path: '/admin/estructura', icon: 'account_tree', requiredPermissions: ['estructura:ver'] },
-        { label: 'Usuarios', path: '/admin/usuarios', icon: 'manage_accounts', requiredPermissions: ['usuarios:ver'] },
-        { label: 'Auditoría', path: '/admin/auditoria', icon: 'summarize', requiredPermissions: ['auditoria:ver'] },
-        { label: 'Métricas', path: '/admin/metricas', icon: 'monitoring', requiredPermissions: ['auditoria:ver'] },
       ],
     },
   ];

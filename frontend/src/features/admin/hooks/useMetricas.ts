@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import * as metricasService from '../services/metricas.service';
 import type { AccionesPorDiaFilters, EstadosComunicacionFilters, InteraccionesFilters } from '../services/metricas.service';
-import type { AccionesPorDia, EstadoComunicacion, InteraccionDocente, MetricasDashboard } from '../types/metricas';
+import type { AccionesPorDia, EstadoComunicacion, InteraccionDocente, MetricasResponse } from '../types/metricas';
 
 export function useMetricasDashboard() {
-  return useQuery<MetricasDashboard>({
+  return useQuery<MetricasResponse>({
     queryKey: ['metricas-dashboard'],
     queryFn: () => metricasService.getMetricasDashboard(),
   });

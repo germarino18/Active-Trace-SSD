@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { LoadingState } from '@/features/academico/components/LoadingState';
 import { EmptyState } from '@/features/academico/components/EmptyState';
-import { Button } from '@/shared/components/ds';
+import { Button, Input } from '@/shared/components/ds';
 import { ConfirmDialog } from '@/features/coordinacion/components/ConfirmDialog';
+import { AxiosError } from 'axios';
 import {
   useCarreras,
   useCrearCarrera,
@@ -13,7 +14,11 @@ import {
 import type { Carrera, CrearCarreraData, ActualizarCarreraData } from '../types';
 
 export function CarrerasPage() {
-  const { data, isLoading, isError } = useCarreras();
+  const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { data, isLoading, isError } = useCarreras(debouncedQuery ? { q: debouncedQuery } : undefined);
   const crear = useCrearCarrera();
   const actualizar = useActualizarCarrera();
   const eliminar = useEliminarCarrera();
@@ -23,6 +28,15 @@ export function CarrerasPage() {
   const [editTarget, setEditTarget] = useState<Carrera | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Carrera | null>(null);
   const [form, setForm] = useState<CrearCarreraData>({ codigo: '', nombre: '' });
+  const [toggleError, setToggleError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [query]);
 
   const carreras = data?.items ?? [];
 
@@ -38,16 +52,32 @@ export function CarrerasPage() {
     setModalOpen(true);
   }
 
-  function handleSubmit() {
-    if (editTarget) {
-      actualizar.mutate(
-        { id: editTarget.id, data: form as ActualizarCarreraData },
-        { onSuccess: () => setModalOpen(false) },
-      );
-    } else {
-      crear.mutate(form, { onSuccess: () => setModalOpen(false) });
+  async function handleSubmit() {
+    try {
+      if (editTarget) {
+        await actualizar.mutateAsync({ id: editTarget.id, data: form as ActualizarCarreraData });
+      } else {
+        await crear.mutateAsync(form);
+      }
+      setModalOpen(false);
+    } catch {
+      // Error handled by mutation — modal stays open for retry
     }
   }
+
+  const handleToggle = useCallback((id: string) => {
+    setToggleError(null);
+    toggleEstado.mutate(id, {
+      onError: (err) => {
+        if (err instanceof AxiosError && err.response?.status === 422) {
+          const detail = err.response.data?.detail;
+          setToggleError(typeof detail === 'string' ? detail : 'No se puede desactivar: la carrera tiene cohortes abiertas');
+        } else {
+          setToggleError(err.message || 'Error al cambiar estado');
+        }
+      },
+    });
+  }, [toggleEstado]);
 
   const isPending = crear.isPending || actualizar.isPending;
 
@@ -62,12 +92,33 @@ export function CarrerasPage() {
         </Button>
       </div>
 
+      <div className="relative">
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar carreras..."
+          className="w-full rounded-lg border border-outline-variant bg-surface pl-9 pr-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
+        />
+      </div>
+
+      {toggleError && (
+        <div className="rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-label-sm text-warning flex items-center gap-1">
+          <span className="material-symbols-outlined text-[16px]">warning</span>
+          {toggleError}
+          <button type="button" onClick={() => setToggleError(null)} className="ml-auto text-outline hover:text-on-surface">
+            <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <LoadingState rows={4} cols={4} />
       ) : isError ? (
         <EmptyState message="Error al cargar carreras" icon="error" />
       ) : carreras.length === 0 ? (
-        <EmptyState message="No hay carreras registradas" icon="school" />
+        <EmptyState message={query ? 'No se encontraron carreras' : 'No hay carreras registradas'} icon="school" />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-outline-variant">
           <table className="w-full text-left">
@@ -87,22 +138,22 @@ export function CarrerasPage() {
                   <td className="px-4 py-3">
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-label-xs font-medium ${
-                        c.activa ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
+                        c.estado === 'Activo' ? 'bg-success/10 text-success' : 'bg-error/10 text-error'
                       }`}
                     >
-                      {c.activa ? 'Activa' : 'Inactiva'}
+                      {c.estado}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
-                        onClick={() => toggleEstado.mutate(c.id)}
+                        onClick={() => handleToggle(c.id)}
                         className="rounded-lg p-1.5 text-outline transition-colors hover:bg-surface-container-low hover:text-primary"
-                        title={c.activa ? 'Desactivar' : 'Activar'}
+                        title={c.estado === 'Activo' ? 'Desactivar' : 'Activar'}
                       >
                         <span className="material-symbols-outlined text-[18px]">
-                          {c.activa ? 'toggle_off' : 'toggle_on'}
+                          {c.estado === 'Activo' ? 'toggle_off' : 'toggle_on'}
                         </span>
                       </button>
                       <button
@@ -132,37 +183,36 @@ export function CarrerasPage() {
 
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setModalOpen(false)}>
-          <div className="mx-4 w-full max-w-md rounded-xl border border-outline-variant bg-surface p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-headline-lg text-headline-lg text-on-surface mb-4">
-              {editTarget ? 'Editar carrera' : 'Nueva carrera'}
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Código</label>
-                <input
-                  type="text"
+          <div style={{ width: 400, maxWidth: '100%' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ background: 'var(--surface-container)', border: '1px solid var(--outline-variant)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
+              <h1 style={{ margin: '0 0 4px', fontSize: 22, fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--on-surface)' }}>
+                {editTarget ? 'Editar carrera' : 'Nueva carrera'}
+              </h1>
+              <p style={{ margin: '0 0 24px', fontSize: 14, color: 'var(--on-surface-variant)' }}>
+                {editTarget ? 'Modificá los datos de la carrera.' : 'Ingresá los datos de la nueva carrera.'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <Input
+                  label="Código"
+                  icon="tag"
+                  placeholder="Ej: ING-SIS"
                   value={form.codigo}
                   onChange={(e) => setForm((f) => ({ ...f, codigo: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
-                  placeholder="Ej: MAT-101"
                 />
-              </div>
-              <div>
-                <label className="mb-1 block text-label-sm text-on-surface-variant">Nombre</label>
-                <input
-                  type="text"
+                <Input
+                  label="Nombre"
+                  icon="school"
+                  placeholder="Ej: Ingeniería en Sistemas"
                   value={form.nombre}
                   onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant bg-surface px-3 py-2 text-body-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none"
-                  placeholder="Ej: Matemática I"
                 />
               </div>
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
-              <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.codigo || !form.nombre}>
-                {editTarget ? 'Guardar cambios' : 'Crear carrera'}
-              </Button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 28 }}>
+                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+                <Button type="button" variant="primary" onClick={handleSubmit} disabled={isPending || !form.codigo || !form.nombre}>
+                  {editTarget ? 'Guardar cambios' : 'Crear carrera'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -11,12 +11,12 @@ import { Button } from '@/shared/components/ds';
 
 const avisoSchema = z.object({
   titulo: z.string().min(1, 'El título es requerido'),
-  mensaje: z.string().min(1, 'El mensaje es requerido'),
-  severidad: z.enum(['info', 'warning', 'critical']),
-  vigencia_desde: z.string().min(1, 'La fecha de inicio es requerida'),
-  vigencia_hasta: z.string().min(1, 'La fecha de fin es requerida'),
+  cuerpo: z.string().min(1, 'El mensaje es requerido'),
+  severidad: z.enum(['INFO', 'ADVERTENCIA', 'CRITICO']),
+  inicio_en: z.string().min(1, 'La fecha de inicio es requerida'),
+  fin_en: z.string().min(1, 'La fecha de fin es requerida'),
   requiere_ack: z.boolean(),
-  orden: z.coerce.number().min(0, 'Debe ser un número positivo'),
+  orden: z.number().min(0, 'Debe ser un número positivo'),
 });
 
 type AvisoForm = z.infer<typeof avisoSchema>;
@@ -26,7 +26,7 @@ export function AvisoEditarPage() {
   const navigate = useNavigate();
   const { data: aviso, isLoading } = useAviso(id);
   const actualizarAviso = useActualizarAviso();
-  const [scopeType, setScopeType] = useState<AvisoScope>('Global');
+  const [scopeType, setScopeType] = useState<AvisoScope>('GLOBAL');
   const [scopeValue, setScopeValue] = useState('');
 
   const {
@@ -42,27 +42,33 @@ export function AvisoEditarPage() {
     if (aviso) {
       reset({
         titulo: aviso.titulo,
-        mensaje: aviso.mensaje,
+        cuerpo: aviso.cuerpo,
         severidad: aviso.severidad,
-        vigencia_desde: aviso.vigencia_desde,
-        vigencia_hasta: aviso.vigencia_hasta,
+        inicio_en: aviso.inicio_en,
+        fin_en: aviso.fin_en,
         requiere_ack: aviso.requiere_ack,
         orden: aviso.orden,
       });
-      setScopeType(aviso.scope);
-      setScopeValue(aviso.scope_value ?? '');
+      setScopeType(aviso.alcance);
+      const scopeVal = aviso.materia_id ?? aviso.cohorte_id ?? aviso.rol_destino ?? '';
+      setScopeValue(scopeVal);
     }
   }, [aviso, reset]);
 
   const onSubmit = async (data: AvisoForm) => {
     if (!id) return;
     try {
+      const scopeFields: Record<string, string | undefined> = {};
+      if (scopeType === 'POR_MATERIA') scopeFields.materia_id = scopeValue || undefined;
+      else if (scopeType === 'POR_COHORTE') scopeFields.cohorte_id = scopeValue || undefined;
+      else if (scopeType === 'POR_ROL') scopeFields.rol_destino = scopeValue || undefined;
+
       await actualizarAviso.mutateAsync({
         id,
         data: {
           ...data,
-          scope: scopeType,
-          scope_value: scopeValue || undefined,
+          ...scopeFields,
+          alcance: scopeType,
         },
       });
       navigate('/avisos');
@@ -109,11 +115,11 @@ export function AvisoEditarPage() {
         <div>
           <label className="mb-1 block text-label-sm text-on-surface-variant">Mensaje</label>
           <textarea
-            {...register('mensaje')}
+            {...register('cuerpo')}
             rows={4}
             className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none placeholder:text-outline focus:border-primary"
           />
-          {errors.mensaje && <p className="mt-1 text-label-xs text-error">{errors.mensaje.message}</p>}
+          {errors.cuerpo && <p className="mt-1 text-label-xs text-error">{errors.cuerpo.message}</p>}
         </div>
 
         <ScopeSelector
@@ -129,9 +135,9 @@ export function AvisoEditarPage() {
             {...register('severidad')}
             className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none focus:border-primary"
           >
-            <option value="info">Info</option>
-            <option value="warning">Advertencia</option>
-            <option value="critical">Crítico</option>
+            <option value="INFO">Info</option>
+            <option value="ADVERTENCIA">Advertencia</option>
+            <option value="CRITICO">Crítico</option>
           </select>
         </div>
 
@@ -140,19 +146,19 @@ export function AvisoEditarPage() {
             <label className="mb-1 block text-label-sm text-on-surface-variant">Vigencia desde</label>
             <input
               type="date"
-              {...register('vigencia_desde')}
+              {...register('inicio_en')}
               className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none focus:border-primary"
             />
-            {errors.vigencia_desde && <p className="mt-1 text-label-xs text-error">{errors.vigencia_desde.message}</p>}
+            {errors.inicio_en && <p className="mt-1 text-label-xs text-error">{errors.inicio_en.message}</p>}
           </div>
           <div>
             <label className="mb-1 block text-label-sm text-on-surface-variant">Vigencia hasta</label>
             <input
               type="date"
-              {...register('vigencia_hasta')}
+              {...register('fin_en')}
               className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none focus:border-primary"
             />
-            {errors.vigencia_hasta && <p className="mt-1 text-label-xs text-error">{errors.vigencia_hasta.message}</p>}
+            {errors.fin_en && <p className="mt-1 text-label-xs text-error">{errors.fin_en.message}</p>}
           </div>
         </div>
 
@@ -172,7 +178,7 @@ export function AvisoEditarPage() {
           <label className="mb-1 block text-label-sm text-on-surface-variant">Orden</label>
           <input
             type="number"
-            {...register('orden')}
+            {...register('orden', { valueAsNumber: true })}
             min={0}
             className="w-full rounded-lg border border-outline-variant bg-surface-container px-3 py-2 text-body-sm text-on-surface outline-none focus:border-primary"
           />

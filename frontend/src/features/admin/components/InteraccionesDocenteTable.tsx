@@ -74,7 +74,7 @@ export function InteraccionesDocenteTable({ data, isLoading }: InteraccionesDoce
                 </td>
                 <td className="px-3 py-2.5 text-body-sm text-on-surface-variant">
                   <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-0.5 text-label-xs font-medium text-primary">
-                    {item.tipo_accion.replace(/_/g, ' ')}
+                    {(item.tipo_accion ?? '').replace(/_/g, ' ')}
                   </span>
                 </td>
                 <td className="px-3 py-2.5 text-body-sm text-on-surface text-right font-semibold">

@@ -1,5 +1,5 @@
 import * as api from '@/shared/services/api';
-import type { AccionesPorDia, EstadoComunicacion, InteraccionDocente, MetricasDashboard } from '../types/metricas';
+import type { MetricasResponse, AccionesPorDia, EstadoComunicacion, InteraccionDocente } from '../types/metricas';
 
 export interface AccionesPorDiaFilters {
   fecha_desde?: string;
@@ -15,8 +15,8 @@ export interface InteraccionesFilters {
   usuario_id?: string;
 }
 
-export async function getMetricasDashboard(): Promise<MetricasDashboard> {
-  return api.get<MetricasDashboard>('/api/v1/auditoria/metricas/dashboard');
+export async function getMetricasDashboard(): Promise<MetricasResponse> {
+  return api.get<MetricasResponse>('/api/admin/metricas');
 }
 
 export async function getAccionesPorDia(filters: AccionesPorDiaFilters): Promise<AccionesPorDia[]> {

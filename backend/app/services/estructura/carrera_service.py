@@ -3,10 +3,11 @@ import uuid
 from starlette.requests import Request
 
 from app.core.acciones_auditoria import AccionAuditoria
-from app.core.exceptions import ValidationException
+from app.core.exceptions import NotFoundException, ValidationException
 from app.models.carrera import Carrera
 from app.repositories.audit_log_repository import AuditLogRepository
 from app.repositories.carrera_repository import CarreraRepository
+from app.repositories.cohorte_repository import CohorteRepository
 from app.schemas.auth import CurrentUser
 from app.schemas.estructura import CarreraCreate, CarreraUpdate
 from app.services.audit.audit_logger import AuditLogger
@@ -20,8 +21,14 @@ class CarreraService:
     seguridad. Mutaciones se auditan vía `AuditLogger`.
     """
 
-    def __init__(self, carrera_repo: CarreraRepository, audit_repo: AuditLogRepository):
+    def __init__(
+        self,
+        carrera_repo: CarreraRepository,
+        cohorte_repo: CohorteRepository,
+        audit_repo: AuditLogRepository,
+    ):
         self._repo = carrera_repo
+        self._cohorte_repo = cohorte_repo
         self._audit = AuditLogger(repository=audit_repo)
 
     async def create(
@@ -99,6 +106,45 @@ class CarreraService:
             current_user=current_user,
             accion=AccionAuditoria.CARRERA_ELIMINAR,
             detalle={"id": str(carrera.id)},
+            filas_afectadas=1,
+            request=request,
+        )
+        return carrera
+
+    async def toggle_estado(
+        self,
+        carrera_id: uuid.UUID,
+        *,
+        current_user: CurrentUser,
+        request: Request,
+    ) -> Carrera:
+        carrera = await self._repo.find_by_id(carrera_id)
+        if carrera is None:
+            raise NotFoundException(resource="Carrera", id=carrera_id)
+
+        nuevo_estado = "Inactiva" if carrera.estado == "Activa" else "Activa"
+
+        if nuevo_estado == "Inactiva":
+            abiertas = await self._cohorte_repo.find_open_by_carrera(carrera_id)
+            if abiertas:
+                raise ValidationException(
+                    message="No se puede desactivar una carrera con cohortes abiertas",
+                    details={
+                        "carrera_id": str(carrera_id),
+                        "cohortes_abiertas": len(abiertas),
+                    },
+                )
+
+        carrera = await self._repo.update(carrera_id, {"estado": nuevo_estado})
+
+        await self._audit.log(
+            current_user=current_user,
+            accion=AccionAuditoria.CARRERA_CAMBIAR_ESTADO,
+            detalle={
+                "id": str(carrera.id),
+                "estado_anterior": carrera.estado,
+                "estado_nuevo": nuevo_estado,
+            },
             filas_afectadas=1,
             request=request,
         )

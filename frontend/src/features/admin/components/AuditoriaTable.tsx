@@ -10,8 +10,10 @@ interface AuditoriaTableProps {
   isLoading: boolean;
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return '—';
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('es-AR', {
     day: '2-digit',
     month: '2-digit',
@@ -22,23 +24,29 @@ function formatDate(iso: string): string {
 }
 
 function TipoAccionBadge({ tipo }: { tipo: string }) {
-  const colorMap: Record<string, string> = {
-    login: 'bg-info/10 text-info',
-    logout: 'bg-outline/10 text-on-surface-variant',
-    crear: 'bg-success/10 text-success',
-    actualizar: 'bg-warning/10 text-warning',
-    eliminar: 'bg-error/10 text-error',
-    exportar: 'bg-primary/10 text-primary',
-    importar: 'bg-secondary/10 text-secondary',
-    enviar_comunicacion: 'bg-success/10 text-success',
-    cancelar_comunicacion: 'bg-error/10 text-error',
+  const prefixColorMap: Record<string, string> = {
+    IMPERSONACION: 'bg-info/10 text-info',
+    CARRERA: 'bg-primary/10 text-primary',
+    MATERIA: 'bg-secondary/10 text-secondary',
+    COHORTE: 'bg-warning/10 text-warning',
+    DICTADO: 'bg-warning/10 text-warning',
+    USUARIO: 'bg-success/10 text-success',
+    ASIGNACION: 'bg-primary/10 text-primary',
+    ENCUENTRO: 'bg-info/10 text-info',
+    COLOQUIO: 'bg-secondary/10 text-secondary',
+    AVISO: 'bg-info/10 text-info',
+    TAREA: 'bg-outline/10 text-on-surface-variant',
+    COMUNICACION: 'bg-success/10 text-success',
+    LIQUIDACION: 'bg-error/10 text-error',
+    PERFIL: 'bg-primary/10 text-primary',
   };
 
-  const colorClass = colorMap[tipo] ?? 'bg-outline/10 text-on-surface-variant';
+  const prefix = tipo.split('_')[0] ?? '';
+  const colorClass = prefixColorMap[prefix] ?? 'bg-outline/10 text-on-surface-variant';
 
   return (
     <span className={`inline-flex rounded-full px-2.5 py-0.5 text-label-xs font-medium ${colorClass}`}>
-      {tipo.replace(/_/g, ' ')}
+      {(tipo ?? '').replace(/_/g, ' ')}
     </span>
   );
 }
@@ -81,22 +89,22 @@ export function AuditoriaTable({ items, total, isLoading }: AuditoriaTableProps)
                 onClick={() => setSelected(registro)}
               >
                 <td className="px-4 py-3 text-body-sm text-on-surface whitespace-nowrap">
-                  {formatDate(registro.fecha)}
+                  {formatDate(registro.fecha_hora)}
                 </td>
                 <td className="px-4 py-3 text-body-sm text-on-surface font-medium">
-                  {registro.usuario_nombre}
+                  {registro.actor_nombre ?? '—'}
                 </td>
                 <td className="px-4 py-3 text-body-sm text-on-surface-variant">
                   {registro.materia_nombre ?? '—'}
                 </td>
                 <td className="px-4 py-3">
-                  <TipoAccionBadge tipo={registro.tipo_accion} />
+                  <TipoAccionBadge tipo={registro.accion} />
                 </td>
                 <td className="px-4 py-3 text-body-sm text-on-surface-variant font-mono">
-                  {registro.ip_origen ?? '—'}
+                  {registro.ip ?? '—'}
                 </td>
                 <td className="px-4 py-3 text-body-sm text-on-surface-variant max-w-[200px] truncate">
-                  {registro.agente_usuario ?? '—'}
+                  {registro.user_agent ?? '—'}
                 </td>
                 <td className="px-4 py-3">
                   <span className="material-symbols-outlined text-[18px] text-outline">

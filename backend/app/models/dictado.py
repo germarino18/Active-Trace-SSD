@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Index, String, text
+from sqlalchemy import Column, Date, ForeignKey, Index, String, text
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.models.base import Base
@@ -34,6 +34,8 @@ class Dictado(BaseMixin, TenantMixin, SoftDeleteMixin, AuditMixin, Base):
         ForeignKey("cohorte.id", ondelete="CASCADE"),
         nullable=False,
     )
+    vig_desde = Column(Date, nullable=True)
+    vig_hasta = Column(Date, nullable=True)
     estado = Column(String(20), nullable=False, default="Activo", server_default="Activo")
 
     __table_args__ = (
