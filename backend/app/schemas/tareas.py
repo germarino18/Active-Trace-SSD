@@ -27,6 +27,16 @@ class TareaCreatePropia(BaseModel):
     descripcion: str = Field(..., min_length=1)
 
 
+class TareaUpdatePropia(BaseModel):
+    """Editar los campos propios de una tarea auto-asignada (todos opcionales)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    descripcion: str | None = Field(default=None, min_length=1)
+    materia_id: UUID | None = None
+    estado: TareaEstado | None = None
+
+
 class TareaUpdateEstado(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

@@ -15,9 +15,11 @@ from app.schemas.tareas import (
     ComentarioCreate,
     ComentarioRead,
     TareaCreate,
+    TareaCreatePropia,
     TareaFilterParams,
     TareaRead,
     TareaUpdateEstado,
+    TareaUpdatePropia,
 )
 from app.services.tareas_service import TareasService
 
@@ -44,6 +46,33 @@ async def mis_tareas(
     return await service.get_mis_tareas(
         current_user, estado=estado, materia_id=materia_id,
         texto=texto, skip=skip, limit=limit,
+    )
+
+
+@router.post("/mias", response_model=TareaRead, status_code=201, dependencies=[Depends(require_permission(Perm.TAREAS_GESTIONAR))])
+async def create_tarea_propia(
+    req: TareaCreatePropia,
+    current_user: CurrentUser = Depends(get_current_user),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Create a task self-assigned to the current user (PROFESOR)."""
+    service = TareasService.create(db, current_user.tenant_id)
+    return await service.create_tarea_propia(data=req, current_user=current_user, request=request)
+
+
+@router.patch("/mias/{tarea_id}", response_model=TareaRead, dependencies=[Depends(require_permission(Perm.TAREAS_GESTIONAR))])
+async def update_tarea_propia(
+    tarea_id: UUID,
+    req: TareaUpdatePropia,
+    current_user: CurrentUser = Depends(get_current_user),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """Update own tarea (owner-only; returns 404 if not owned or not found)."""
+    service = TareasService.create(db, current_user.tenant_id)
+    return await service.update_tarea_propia(
+        tarea_id, data=req, current_user=current_user, request=request,
     )
 
 
